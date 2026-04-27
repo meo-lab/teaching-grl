@@ -3,8 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "slidev slides/0-course-information/slides.md",
-    "build": "slidev build slides/0-course-information/slides.md --base /grl/",
+    "dev": "slidev slides.md",
+    "dev:course-info": "slidev slides/0-course-information/slides.md",
+    "build": "node scripts/build-site.mjs",
     "export": "slidev export slides/0-course-information/slides.md"
   },
   "dependencies": {
