@@ -13,6 +13,7 @@ const decks = [
     base: `${siteBase}0-course-information/`,
     out: resolve(tempDir, '0-course-information'),
     dest: resolve(distDir, '0-course-information'),
+    pdf: resolve(distDir, '0-course-information', 'slides.pdf'),
   },
 ]
 
@@ -36,6 +37,7 @@ for (const deck of decks) {
   run('npx', ['slidev', 'build', deck.entry, '--base', deck.base, '--out', deck.out])
   mkdirSync(dirname(deck.dest), { recursive: true })
   cpSync(deck.out, deck.dest, { recursive: true })
+  run('npx', ['slidev', 'export', deck.entry, '--output', deck.pdf])
 }
 
 rmSync(tempDir, { recursive: true, force: true })

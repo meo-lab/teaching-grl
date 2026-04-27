@@ -21,6 +21,7 @@ MSc Mobile Robotics & MSc Geodesy and Geoinformation
 <div class="i-carbon:presentation-file mx-auto text-5xl mb-3 opacity-70"></div>
 <h3 class="text-center">0 · Course Information</h3>
 <p class="text-center">Course structure, timeline, paper analysis, and project format.</p>
+<p class="text-center"><span class="i-carbon:document-pdf inline-block align-middle"></span> <span class="align-middle">PDF included</span></p>
 </a>
 
 <div class="p-5 rounded-lg border opacity-55">

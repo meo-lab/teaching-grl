@@ -38,6 +38,7 @@ jobs:
         run: |
           test -f dist/index.html
           test -f dist/0-course-information/index.html
+          test -f dist/0-course-information/slides.pdf
           ls -la dist
 
       - name: Upload Pages artifact
