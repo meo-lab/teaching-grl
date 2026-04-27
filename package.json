@@ -1,0 +1,15 @@
+{
+  "name": "grl-slidev-presentation",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "slidev slides/0-course-information/slides.md",
+    "build": "slidev build slides/0-course-information/slides.md --base /grl/",
+    "export": "slidev export slides/0-course-information/slides.md"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.14.2",
+    "@slidev/theme-default": "latest"
+  },
+  "devDependencies": {}
+}
