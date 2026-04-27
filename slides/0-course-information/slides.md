@@ -12,7 +12,7 @@ subhead: Course Information
 ## Course Structure and Format
 
 Winter Semester 2026/27  
-MSc Mobile Robotics & MSc Geodesy and Geoinformation
+Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 
 ---
 
