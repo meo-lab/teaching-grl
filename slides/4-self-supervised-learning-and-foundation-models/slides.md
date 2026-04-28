@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 4
+home: ../
 ---
 
 # Self-Supervised Learning and Foundation Models
@@ -44,6 +45,7 @@ subhead: Lecture 4
 ---
 layout: bonn-cover
 subhead: Practical 4
+home: ../
 ---
 
 # Using Pretrained Geospatial Models

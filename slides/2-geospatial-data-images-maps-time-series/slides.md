@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 2
+home: ../
 ---
 
 # Geospatial Data: Images, Maps, Time Series
@@ -44,6 +45,7 @@ subhead: Lecture 2
 ---
 layout: bonn-cover
 subhead: Practical 2
+home: ../
 ---
 
 # Working with Geospatial Data Sources

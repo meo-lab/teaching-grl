@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 7
+home: ../
 ---
 
 # Geospatial Retrieval, Reasoning, and Agents
@@ -44,6 +45,7 @@ subhead: Lecture 7
 ---
 layout: bonn-cover
 subhead: Practical 7
+home: ../
 ---
 
 # Prototype Geospatial AI Agent

@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 5
+home: ../
 ---
 
 # Earth Embeddings and Location Encoders
@@ -44,6 +45,7 @@ subhead: Lecture 5
 ---
 layout: bonn-cover
 subhead: Practical 5
+home: ../
 ---
 
 # Location Encoders and Embedding Databases

@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 1
+home: ../
 ---
 
 # Why Geospatial Representation Learning?
@@ -47,6 +48,7 @@ subhead: Lecture 1
 ---
 layout: bonn-cover
 subhead: Practical 1
+home: ../
 ---
 
 # Exploring Geospatial Representations

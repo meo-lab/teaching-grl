@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 3
+home: ../
 ---
 
 # Deep Learning for Geospatial Prediction
@@ -44,6 +45,7 @@ subhead: Lecture 3
 ---
 layout: bonn-cover
 subhead: Practical 3
+home: ../
 ---
 
 # Training a Geospatial Prediction Model

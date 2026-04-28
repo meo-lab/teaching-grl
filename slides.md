@@ -1,4 +1,7 @@
 ---
+title: Geospatial Representation Learning
+author: Marc Rußwurm
+license: CC BY-NC 4.0
 defaults:
   layout: bonn-content
 layout: bonn-cover
@@ -11,20 +14,6 @@ subhead: Course Overview
 
 Winter Semester 2026/27  
 Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
-
----
-
-# Welcome
-
-## Getting to know the group
-
-Short introductions:
-
-- Name and study program
-- Previous experience with geospatial data, machine learning, or remote sensing
-- One topic or skill you hope to learn in this course
-
-Alternative: start with a short **Wooclap poll** to collect backgrounds, expectations, and questions anonymously.
 
 ---
 
@@ -52,7 +41,7 @@ After completing the course, you will be able to:
 
 <div class="grid grid-cols-3 gap-4 mt-8">
 
-<div class="p-4 rounded-xl border course-phase-card">
+<div class="p-4 rounded-xl border course-phase-card course-phase-1">
 <h3>Phase 1: Lectures &amp; Labs <span class="course-phase-icon i-carbon:education"></span></h3>
 
 <p>Build conceptual and technical foundations through lectures and hands-on exercises.</p>
@@ -60,7 +49,7 @@ After completing the course, you will be able to:
 <p><strong>Examination:</strong> final written exam on the course content.</p>
 </div>
 
-<div class="p-4 rounded-xl border course-phase-card">
+<div class="p-4 rounded-xl border course-phase-card course-phase-2">
 <h3>Phase 2: Paper Analysis <span class="course-phase-icon i-carbon:search-locate"></span></h3>
 
 <p>Analyze and review recent research papers in student groups.</p>
@@ -68,7 +57,7 @@ After completing the course, you will be able to:
 <p><strong>Examination:</strong> pass/fail paper presentation with questions.</p>
 </div>
 
-<div class="p-4 rounded-xl border course-phase-card">
+<div class="p-4 rounded-xl border course-phase-card course-phase-3">
 <h3>Phase 3: Group Projects <span class="course-phase-icon i-carbon:code"></span></h3>
 
 <p>Develop code and conduct a research-oriented geospatial analysis project in groups.</p>
@@ -82,12 +71,12 @@ After completing the course, you will be able to:
 <div class="mb-2 font-semibold">Bloom's cognitive levels across the course</div>
 
 <div class="grid grid-cols-6 gap-1">
-<div class="rounded border px-2 py-1 text-center">Remember</div>
-<div class="rounded border px-2 py-1 text-center">Understand</div>
-<div class="rounded border px-2 py-1 text-center">Apply</div>
-<div class="rounded border px-2 py-1 text-center">Analyze</div>
-<div class="rounded border px-2 py-1 text-center">Evaluate</div>
-<div class="rounded border px-2 py-1 text-center">Create</div>
+<div class="rounded border px-2 py-1 text-center course-bloom-level course-phase-1">Remember</div>
+<div class="rounded border px-2 py-1 text-center course-bloom-level course-phase-1">Understand</div>
+<div class="rounded border px-2 py-1 text-center course-bloom-level course-phase-1">Apply</div>
+<div class="rounded border px-2 py-1 text-center course-bloom-level course-phase-2">Analyze</div>
+<div class="rounded border px-2 py-1 text-center course-bloom-level course-phase-2">Evaluate</div>
+<div class="rounded border px-2 py-1 text-center course-bloom-level course-phase-3">Create</div>
 </div>
 
 </div>
@@ -240,6 +229,54 @@ Phase 1 content
 
 ---
 
+# Phase 1: Lab Overview
+
+<div class="phase-content-grid">
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 1</h3>
+Practical: Why Geospatial Representation Learning?
+</a>
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 2</h3>
+Practical: Geospatial Data - Images, Maps, Time Series
+</a>
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 3</h3>
+Practical: Deep Learning for Geospatial Prediction
+</a>
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 4</h3>
+Practical: Self-Supervised Learning and Foundation Models
+</a>
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 5</h3>
+Practical: Earth Embeddings and Location Encoders
+</a>
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 6</h3>
+Practical: Spatiotemporal Representations and Neural Fields
+</a>
+
+<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 7</h3>
+Practical: Geospatial Retrieval, Reasoning, and Agents
+</a>
+
+<div class="phase-content-tile phase-content-exam">
+<h3>Lab Submission</h3>
+Please upload your labs here.
+</div>
+
+</div>
+
+---
+
 # Phase 2: Paper Analysis
 
 <div class="grid grid-cols-[1.25fr_0.75fr] gap-7 mt-5 items-start">
@@ -296,7 +333,7 @@ Each group presents the paper as if they were the author team: two students own 
 
 <div>
 
-<img src="./slides/0-course-overview/paper.jpg" class="w-full max-h-[450px] object-contain rounded-lg border shadow-sm" />
+<img src="./assets/paper.jpg" class="w-full max-h-[450px] object-contain rounded-lg border shadow-sm" />
 
 
 </div>

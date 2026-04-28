@@ -5,6 +5,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Lecture 6
+home: ../
 ---
 
 # Spatiotemporal Representations and Neural Fields
@@ -44,6 +45,7 @@ subhead: Lecture 6
 ---
 layout: bonn-cover
 subhead: Practical 6
+home: ../
 ---
 
 # Learning a Spatiotemporal Representation
