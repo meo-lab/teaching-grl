@@ -1,8 +1,8 @@
-import { copyFileSync, cpSync, mkdirSync, rmSync } from 'node:fs'
+import { copyFileSync, cpSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 
-const siteBase = '/grl/'
+const siteBase = process.env.SITE_BASE ?? '/teaching/grl/'
 const rootDir = process.cwd()
 const distDir = resolve(rootDir, 'dist')
 const tempDir = resolve(rootDir, 'tmp-slidev-build')
@@ -64,6 +64,7 @@ rmSync(tempDir, { recursive: true, force: true })
 mkdirSync(tempDir, { recursive: true })
 
 run('npx', ['slidev', 'build', 'slides.md', '--base', siteBase, '--out', distDir])
+writeFileSync(resolve(distDir, '.nojekyll'), '')
 
 for (const deck of decks) {
   run('npx', ['slidev', 'build', deck.entry, '--base', deck.base, '--out', deck.out])
