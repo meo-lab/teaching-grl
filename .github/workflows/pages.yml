@@ -47,7 +47,6 @@ jobs:
         run: |
           test -f dist/index.html
           for deck in \
-            0-course-information \
             1-why-geospatial-representation-learning \
             2-geospatial-data-images-maps-time-series \
             3-deep-learning-for-geospatial-prediction \

@@ -9,10 +9,6 @@ const tempDir = resolve(rootDir, 'tmp-slidev-build')
 
 const decks = [
   {
-    entry: 'slides/0-course-information/slides.md',
-    slug: '0-course-information',
-  },
-  {
     entry: 'slides/1-why-geospatial-representation-learning/slides.md',
     slug: '1-why-geospatial-representation-learning',
   },

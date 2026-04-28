@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "slidev slides.md",
-    "dev:course-info": "slidev slides/0-course-information/slides.md",
+    "dev:course-overview": "slidev slides.md",
     "build": "node scripts/build-site.mjs",
-    "export": "slidev export slides/0-course-information/slides.md"
+    "export": "slidev export slides.md"
   },
   "dependencies": {
     "@slidev/cli": "^52.14.2",
