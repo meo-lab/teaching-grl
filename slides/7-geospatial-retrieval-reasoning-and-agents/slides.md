@@ -8,7 +8,7 @@ subhead: Lecture 7
 home: ../
 ---
 
-# Geospatial Retrieval, Reasoning, and Agents
+# Geospatial AI Agents and Dynamic Prompting
 
 ## Geospatial Representation Learning
 
@@ -22,10 +22,13 @@ home: ../
 
 ## Lecture
 
-- Explain how geospatial embeddings can support retrieval, question answering, and reasoning over spatial data.
-- Describe geospatial AI agent components, including tools, data access, memory, reasoning, and evaluation.
+- Explain the basic components of geospatial AI agents, including prompts, tools, memory, planning, execution, and evaluation.
+- Describe dynamic prompting as a strategy for adapting agent behavior to geospatial tasks, data sources, and user goals.
 - Compare manual geospatial analysis workflows with agent-assisted workflows.
-- Critically assess the reliability, reproducibility, and limitations of AI agents for geospatial data analysis.
+- Identify geospatial use cases for AI agents, including data discovery, data preprocessing, exploratory analysis, mapping, retrieval, literature analysis, and decision support.
+- Explain how tools such as OpenClaw and Codex can support geospatial workflow automation and software development.
+- Evaluate agent outputs with respect to correctness, reproducibility, transparency, uncertainty, robustness, and cost.
+- Recognize common failure modes of geospatial AI agents, including hallucinated data access, incorrect spatial reasoning, hidden assumptions, and non-reproducible workflows.
 
 </div>
 

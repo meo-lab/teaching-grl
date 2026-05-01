@@ -8,7 +8,7 @@ subhead: Lecture 5
 home: ../
 ---
 
-# Earth Embeddings and Location Encoders
+# Neural Networks as Knowledge Bases: Interpolation, Grokking, and Location Encoders
 
 ## Geospatial Representation Learning
 
@@ -22,10 +22,13 @@ home: ../
 
 ## Lecture
 
-- Explain the concept of Earth embeddings as AI-centric representations of geographic locations.
-- Distinguish between embedding databases and neural location encoders.
-- Describe how location, scale, time, and context can be encoded in geospatial representation learning.
-- Evaluate the strengths and limitations of explicit and implicit geospatial embedding approaches.
+- Explain how modern overparameterized models challenge the classical bias-variance view of machine learning.
+- Describe the interpolation regime, double descent, and grokking at a conceptual level.
+- Interpret neural networks as implicit representations or neural knowledge bases that can store information in their parameters.
+- Explain how implicit neural representations can encode spatial, temporal, or spatiotemporal data.
+- Describe location encoders as neural models that map geographic coordinates and context to learned representations.
+- Compare geospatial interpolation with learned location-based representation models.
+- Explain the basic idea of SatCLIP-/GeoCLIP-like self-supervised geolocalization objectives.
 
 </div>
 

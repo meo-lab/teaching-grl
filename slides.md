@@ -23,9 +23,9 @@ After completing the course, you will be able to:
 
 1. **Explain** the main concepts of *geospatial representation learning*, including *explicit embeddings*, *embedding databases*, *location encoders*, and *implicit neural representations*.
 
-2. **Identify and compare** relevant *geospatial data sources*, including satellite imagery, time series, GIS layers, and multimodal Earth observation datasets.
+2. **understand and compare** relevant *geospatial data sources*, including satellite imagery, time series, GIS layers, and multimodal Earth observation datasets.
 
-3. **Implement and evaluate** selected *machine learning workflows* for geospatial data using *Python-based tools*.
+3. **Implement and evaluate** selected *machine learning workflows* for geospatial data on environmental and socio-ecological applications using *Python-based tools*.
 
 4. **Critically assess** recent *research papers* in geospatial AI, foundation models, and Earth embeddings.
 
@@ -192,32 +192,32 @@ Why Geospatial Representation Learning?
 
 <a href="./2-geospatial-data-images-maps-time-series/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 2</h3>
-Geospatial Data: Images, Maps, Time Series
+Geospatial Data: Sources, Modalities, and Applications
 </a>
 
 <a href="./3-deep-learning-for-geospatial-prediction/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
-Deep Learning for Geospatial Prediction
+Machine Learning Foundations for Geospatial Prediction
 </a>
 
 <a href="./4-self-supervised-learning-and-foundation-models/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 4</h3>
-Self-Supervised Learning and Foundation Models
+Self-Supervised Learning, Foundation Models, and Explicit Embeddings
 </a>
 
 <a href="./5-earth-embeddings-and-location-encoders/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 5</h3>
-Earth Embeddings and Location Encoders
+Neural Networks as Knowledge Bases: Interpolation, Grokking, and Location Encoders
 </a>
 
 <a href="./6-spatiotemporal-representations-and-neural-fields/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 6</h3>
-Spatiotemporal Representations and Neural Fields
+Geospatial Embedding Representations: Explicit, Implicit, Hybrid, and Interpretable
 </a>
 
 <a href="./7-geospatial-retrieval-reasoning-and-agents/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 7</h3>
-Geospatial Retrieval, Reasoning, and Agents
+Geospatial AI Agents and Dynamic Prompting
 </a>
 
 <div class="phase-content-tile phase-content-exam">
@@ -240,32 +240,32 @@ Practical: Why Geospatial Representation Learning?
 
 <a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 2</h3>
-Practical: Geospatial Data - Images, Maps, Time Series
+Practical: Geospatial Data - Sources, Modalities, and Applications
 </a>
 
 <a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 3</h3>
-Practical: Deep Learning for Geospatial Prediction
+Practical: Machine Learning Foundations for Geospatial Prediction
 </a>
 
 <a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 4</h3>
-Practical: Self-Supervised Learning and Foundation Models
+Practical: Self-Supervised Learning, Foundation Models, and Explicit Embeddings
 </a>
 
 <a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 5</h3>
-Practical: Earth Embeddings and Location Encoders
+Practical: Neural Networks as Knowledge Bases: Interpolation, Grokking, and Location Encoders
 </a>
 
 <a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 6</h3>
-Practical: Spatiotemporal Representations and Neural Fields
+Practical: Geospatial Embedding Representations: Explicit, Implicit, Hybrid, and Interpretable
 </a>
 
 <a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 7</h3>
-Practical: Geospatial Retrieval, Reasoning, and Agents
+Practical: Geospatial AI Agents and Dynamic Prompting
 </a>
 
 <div class="phase-content-tile phase-content-exam">

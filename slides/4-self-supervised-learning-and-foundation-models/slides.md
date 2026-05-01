@@ -8,7 +8,7 @@ subhead: Lecture 4
 home: ../
 ---
 
-# Self-Supervised Learning and Foundation Models
+# Self-Supervised Learning, Foundation Models, and Explicit Embeddings
 
 ## Geospatial Representation Learning
 
@@ -22,10 +22,12 @@ home: ../
 
 ## Lecture
 
-- Explain the principles of self-supervised learning for geospatial and Earth observation data.
+- Explain the motivation for self-supervised learning on large geospatial and Earth observation archives.
 - Compare contrastive, masked, generative, and multimodal pretraining strategies.
-- Describe how geospatial foundation models are trained and adapted to downstream tasks.
-- Critically assess the benefits and limitations of foundation models for geospatial applications.
+- Describe how foundation models produce reusable representations for downstream geospatial tasks.
+- Explain explicit geospatial embeddings as precomputed representations derived from foundation models or large-scale feature extractors.
+- Use the concepts of transfer learning, linear probing, fine-tuning, and embedding-based retrieval to reason about downstream model use.
+- Critically assess benefits and limitations of explicit embeddings, including domain shift, scale mismatch, bias, storage cost, and evaluation difficulty.
 
 </div>
 

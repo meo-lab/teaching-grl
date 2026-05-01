@@ -8,7 +8,7 @@ subhead: Lecture 3
 home: ../
 ---
 
-# Deep Learning for Geospatial Prediction
+# Machine Learning Foundations for Geospatial Prediction
 
 ## Geospatial Representation Learning
 
@@ -22,10 +22,12 @@ home: ../
 
 ## Lecture
 
-- Explain core deep learning concepts for geospatial prediction tasks.
-- Describe how CNNs, transformers, and sequence models are applied to satellite imagery, maps, and time series.
-- Distinguish classification, regression, segmentation, retrieval, and forecasting tasks in geospatial AI.
-- Evaluate model performance using suitable metrics and validation strategies for spatial data.
+- Explain supervised machine learning in terms of data, labels, models, losses, optimization, and generalization.
+- Describe the traditional bias-variance trade-off and its relevance for geospatial prediction tasks.
+- Explain how backpropagation and gradient-based optimization enable learning from data.
+- Interpret neural networks as tensor transformation machines.
+- Compare the basic roles of MLPs, CNNs, RNNs, and transformers in geospatial machine learning.
+- Evaluate geospatial prediction models using suitable validation strategies, including spatially aware train-validation-test splits.
 
 </div>
 

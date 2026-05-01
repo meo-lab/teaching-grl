@@ -23,11 +23,11 @@ home: ../
 ## Lecture
 
 - Describe the motivation and scope of geospatial representation learning.
-- Explain why location, spatial context, scale, and time matter for geospatial data.
-- Identify geospatial AI tasks such as classification, prediction, retrieval, mapping, and monitoring.
-- Distinguish geospatial representation learning from general machine learning and classical geospatial analysis.
-- Recognize geospatial features, embeddings, location encoders, and neural representations.
-- Relate the topic to Earth observation, GIS, mobile robotics, agriculture, climate, biodiversity, and urban analysis.
+- Explain why location, spatial context, scale, and time are central properties of geospatial data.
+- Identify the main geospatial data types and applications addressed in the course.
+- Recognize deep learning model families used in geospatial representation learning, including MLPs, CNNs, RNNs, transformers, and neural fields.
+- Distinguish between explicit embeddings, embedding databases, location encoders, and implicit neural representations at a high level.
+- Relate geospatial representation learning to environmental, socio-ecological, remote sensing, GIS, robotics, climate, agriculture, biodiversity, and urban applications.
 
 </div>
 

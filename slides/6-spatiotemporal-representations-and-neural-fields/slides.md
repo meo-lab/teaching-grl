@@ -8,7 +8,7 @@ subhead: Lecture 6
 home: ../
 ---
 
-# Spatiotemporal Representations and Neural Fields
+# Geospatial Embedding Representations: Explicit, Implicit, Hybrid, and Interpretable
 
 ## Geospatial Representation Learning
 
@@ -22,10 +22,13 @@ home: ../
 
 ## Lecture
 
-- Explain how temporal dynamics can be represented in geospatial machine learning models.
-- Describe neural fields and implicit neural representations for continuous spatial and spatiotemporal data.
-- Compare grid-based, sequence-based, graph-based, and coordinate-based representations of Earth system data.
-- Assess neural fields for interpolation, compression, forecasting, and multimodal integration.
+- Compare explicit geospatial embeddings, embedding databases, location encoders, and implicit neural representations.
+- Explain how geospatial embeddings can serve as compact proxies for raw geodata in downstream applications.
+- Identify applications of geospatial embedding representations in prediction, retrieval, interpolation, monitoring, and environmental analysis.
+- Describe hybrid approaches that combine explicit embeddings, implicit models, raw data access, and retrieval-augmented generation.
+- Explain how geospatial information can be distributed across databases, model parameters, retrieval systems, and prompts.
+- Apply basic interpretability concepts for embeddings, including cosine similarity, nearest-neighbor analysis, PCA, and linear probing.
+- Describe how regression or variable-control approaches can help disentangle environmental, spatial, temporal, and socio-economic information in embeddings.
 
 </div>
 
