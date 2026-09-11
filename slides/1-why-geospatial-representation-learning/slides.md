@@ -1392,11 +1392,6 @@ Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
 </a>
 </div>
 
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
 # Task: Think of a place
 
 ## Think of a place you visited on vacation.
@@ -1950,30 +1945,6 @@ section: geospatial-representations
 sectionTitle: Geospatial
 ---
 
-# Heterogeneous Datasets in Geodatabases
-
-::left::
-
-### Geodata is heterogeneous
-
-![Heterogeneous geodata sources](./figures/geodatasources.svg){class="mt-5 h-[330px] w-full object-contain"}
-
-::right::
-
-### Implementation examples
-
-- **Spatial database:** [PostGIS](https://postgis.net/documentation/getting_started/) extends PostgreSQL with spatial types, indexes, and functions.
-- **Geolocated raster:** [GeoTIFF](https://www.ogc.org/publications/standard/geotiff/) stores georeferenced imagery in TIFF files.
-- **Multidimensional arrays:** [NetCDF](https://docs.unidata.ucar.edu/netcdf/) stores scientific data across dimensions such as time, depth, latitude, and longitude.
-
-Different sources use different schemas, coordinate systems, resolutions, timestamps, and file or database abstractions.
-
----
-layout: bonn-two-cols-header
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
 # Location and Coordinates join all Geodata
 
 ::left::
@@ -2008,25 +1979,92 @@ section: geospatial-representations
 sectionTitle: Geospatial
 ---
 
-# Takeaways Mental Representations
+# Describing a Place
 
-<div class="grid grid-cols-3 gap-4 mt-8">
-
-<div class="p-4 rounded-xl border box-card box-1">
-<h3>Mental representations <span class="box-icon i-carbon:user-profile"></span></h3>
-<img
-  src="./figures/mentalmap.jpeg"
-  class="mt-3 w-full h-[108px] object-cover rounded"
-  alt="Mental map illustration"
-/>
-<div class="box-body">Human memories, intuitions, expectations, and place knowledge built from experience.</div>
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/describeaplace.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Diagram describing a place"
+  />
 </div>
 
+---
+layout: bonn-two-cols-header
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Heterogeneous Datasets in Geodatabases
+
+## Describe a place by Geodatabases
+
+::left::
+
+### Geodata is heterogeneous
+
+![Heterogeneous geodata sources](./figures/geodatasources.svg){class="mt-5 h-[330px] w-full object-contain"}
+
+::right::
+
+### Implementation examples
+
+- **Spatial database:** [PostGIS](https://postgis.net/documentation/getting_started/) extends PostgreSQL with spatial types, indexes, and functions.
+- **Geolocated raster:** [GeoTIFF](https://www.ogc.org/publications/standard/geotiff/) stores georeferenced imagery in TIFF files.
+- **Multidimensional arrays:** [NetCDF](https://docs.unidata.ucar.edu/netcdf/) stores scientific data across dimensions such as time, depth, latitude, and longitude.
+
+Different sources use different schemas, coordinate systems, resolutions, timestamps, and file or database abstractions.
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Geospatial Foundation Models
+
+## Encode a place through Deep Models
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/mmearth.png"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Geospatial foundation model overview"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Explicit Precomputed Geospatial Representations
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/precomputed.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Explicit precomputed geospatial representations"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Alpha Earth Embeddings
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/aef2.png"
+    class="h-[360px] w-full object-contain rounded-xl"
+    alt="AlphaEarth Foundations embedding field overview"
+  />
 </div>
 
 <div class="slide-citation">
-  <a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
-    Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
+  <a href="https://arxiv.org/abs/2507.22291" target="_blank" rel="noopener noreferrer">
+    Brown, C. F., Kazmierski, M. R., Pasquarella, V. J., Rucklidge, W. J., Samsikova, M., Zhang, C., ... &amp; Kohli, P. (2025). Alphaearth foundations: An embedding field model for accurate and efficient global mapping from sparse label data. <em>arXiv preprint arXiv:2507.22291</em>.
   </a>
 </div>
 
@@ -2035,11 +2073,102 @@ section: geospatial-representations
 sectionTitle: Geospatial
 ---
 
-# Geospatial representations
+# Alpha Earth Embedding Explorer
+
+<iframe
+  class="mt-4 h-[350px] w-full rounded-xl shadow"
+  src="https://ee-marcrusswurm.projects.earthengine.app/view/cosine-aef"
+  title="Alpha Earth embedding cosine similarity Earth Engine app"
+  frameborder="0"
+  allowfullscreen>
+</iframe>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# From Explicit and Implicit Embeddings
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/taxonomy.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Taxonomy of explicit and implicit embeddings"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Geolocalization for Implicit Embeddings
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/geolocalization1.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Geolocalization overview"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Geolocalization implement with Deep Models
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/geolocalization2.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Geolocalization embedding overview"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Example: Satellite Contrastive Location-Image Pre-training (SatCLIP)
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/satclip.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="SatCLIP overview"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# SatCLIP Encoder for Implicit Embeddings
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/satclip2.png"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="SatCLIP details"
+  />
+</div>
+
+
+---
+section: geospatial-representations
+sectionTitle: Geospatial
+---
+
+# Recap: Geospatial representations
 
 <div class="grid grid-cols-3 gap-4 mt-8">
 
-<div class="p-4 rounded-xl border box-card box-1">
+<div v-click class="p-4 rounded-xl border box-card box-1">
 <h3>Mental representations <span class="box-icon i-carbon:user-profile"></span></h3>
 <img
   src="./figures/mentalmap.jpeg"
@@ -2049,7 +2178,7 @@ sectionTitle: Geospatial
 <div class="box-body">Human memories, intuitions, expectations, and place knowledge built from experience.</div>
 </div>
 
-<div class="p-4 rounded-xl border box-card box-2">
+<div v-click class="p-4 rounded-xl border box-card box-2">
 <h3>Geospatial databases <span class="box-icon i-carbon:map"></span></h3>
 <img
   src="./figures/gis.png"
@@ -2057,6 +2186,16 @@ sectionTitle: Geospatial
   alt="Geospatial database illustration"
 />
 <div class="box-body">Rasters, vectors, polygons, and geodata layers that encode explicit spatial structure.</div>
+</div>
+
+<div v-click class="p-4 rounded-xl border box-card box-3">
+<h3>Geospatial databases <span class="box-icon i-carbon:map"></span></h3>
+<img
+  src="./figures/satclip_globe.png"
+  class="mt-3 w-full h-[108px] object-contain rounded"
+  alt="Geospatial database illustration"
+/>
+<div class="box-body">High-level embedding location representations.</div>
 </div>
 
 </div>
@@ -2081,7 +2220,7 @@ section: language-representations
 sectionTitle: Language
 ---
 
-# Takeaway: We Navigate the World through Representations
+# We Navigate the World by Representations
 
 <div class="mt-8 grid grid-cols-3 gap-5">
   <div v-click class="rounded-xl border p-5">
