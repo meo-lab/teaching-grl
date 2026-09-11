@@ -966,7 +966,7 @@ section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
-# Geo-information Science Data
+# Geo-information Science
 
 <img class="bonn-section-image-sm" src="./figures/gis.jpg" alt="Coordinate reference system illustration" />
 
@@ -1058,149 +1058,30 @@ section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
-# OpenStreetMap --- the Wikipedia of geodata
+# Administrative Boundaries
 
-<div class="grid grid-cols-[1fr_70px_1fr] gap-4 mt-2 items-center text-center">
+<div class="grid grid-cols-2 gap-8 mt-1 items-start">
 
-<div>
-
-## OSM Database
-
-<img
-  src="./figures/osm_popp_db.png"
-  class="w-full h-[285px] object-contain rounded-xl"
-  alt="OpenStreetMap database features around Poppelsdorf shown as points, lines, and polygons"
-/>
-
-<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">
-Points, lines, and polygons
+<div class="flex flex-col items-center">
+  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">GADM — Global Administrative Areas</div>
+  <img src="./figures/gadm-germany.png" class="h-[240px] object-contain rounded-lg" alt="GADM administrative divisions of Germany"/>
+  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">Germany · 6 nesting levels · global coverage</div>
+  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">Freely available polygons for every country; widely used in ecological &amp; socioeconomic modelling.</div>
+  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">Gringer / Wikipedia · CC BY-SA</div>
 </div>
 
+<div class="flex flex-col items-center">
+  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">NUTS — EU Territorial Statistics Units</div>
+  <img src="./figures/nuts-levels.png" class="h-[240px] object-contain rounded-lg" alt="NUTS-1, NUTS-2 and NUTS-3 hierarchical regions"/>
+  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">NUTS-1 → NUTS-2 → NUTS-3 · three nesting levels</div>
+  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">EU standard: NUTS-1 (federal states), NUTS-2 (Regierungsbezirke), NUTS-3 (districts). Reference frame for Eurostat statistics.</div>
+  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">© Eurostat · ec.europa.eu/eurostat</div>
 </div>
 
-<div class="flex flex-col items-center justify-center text-blue-800">
-  <div class="text-[0.82rem] leading-tight font-semibold">Style and<br />rasterize</div>
-  <div class="mt-2 text-4xl">→</div>
-</div>
-
-<div>
-
-## OSM Background Map
-
-<img
-  src="./figures/osm_popp.png"
-  class="w-full h-[285px] object-contain rounded-xl"
-  alt="Styled OpenStreetMap background map around Poppelsdorf"
-/>
-
-<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">
-Rendered raster tiles
-</div>
-
-</div>
-
-</div>
-
-<div class="mt-1 text-[0.66rem] leading-tight text-center text-gray-500">
-Map data © OpenStreetMap contributors.
 </div>
 
 <!--
-OpenStreetMap stores tagged vector features rather than a fixed map image. Styling and rasterization transform the database into familiar background-map tiles.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-<script setup>
-import { ref } from 'vue'
-
-const initialWmsUrl = 'https://ows.terrestris.de/osm/service?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=OSM-WMS&STYLES=&SRS=EPSG:4326&BBOX=7.0875,50.7225,7.0967,50.7276&WIDTH=512&HEIGHT=300&FORMAT=image/png'
-const wmsUrlInput = ref(initialWmsUrl)
-const submittedWmsUrl = ref(initialWmsUrl)
-const wmsError = ref('')
-
-function loadWmsMap() {
-  try {
-    const url = new URL(wmsUrlInput.value.trim())
-    if (!['http:', 'https:'].includes(url.protocol))
-      throw new Error('unsupported protocol')
-
-    wmsError.value = ''
-    submittedWmsUrl.value = url.toString()
-  }
-  catch {
-    submittedWmsUrl.value = ''
-    wmsError.value = 'Please enter a valid http or https image URL.'
-  }
-}
-
-function handleWmsImageError() {
-  wmsError.value = 'The map image could not be loaded. Check the URL and BBOX values.'
-}
-
-function handleWmsImageLoad() {
-  wmsError.value = ''
-}
-</script>
-
-# Web Mapping Service (WMS) API
-
-<div class="mt-1 text-[0.92rem] text-gray-700">
-The <strong class="text-blue-800">bounding box (BBOX)</strong> controls the geographic area shown in the returned raster image.
-</div>
-
-<form class="mt-2 flex gap-2" @submit.prevent="loadWmsMap">
-  <input
-    v-model="wmsUrlInput"
-    type="text"
-    spellcheck="false"
-    aria-label="WMS GetMap URL"
-    class="min-w-0 flex-1 rounded-lg border-2 border-blue-700 bg-white px-3 py-2 font-mono text-[0.82rem] leading-tight text-gray-800 shadow-sm outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200"
-  />
-  <button
-    type="submit"
-    class="shrink-0 rounded-lg bg-blue-800 px-5 py-2 text-[0.92rem] font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-  >
-    Load map
-  </button>
-</form>
-
-<div class="mt-2 flex items-start gap-4 text-[0.72rem] leading-snug text-gray-600">
-  <div class="shrink-0 rounded-md bg-yellow-100 px-2.5 py-1 font-mono font-bold text-blue-900 ring-1 ring-yellow-400">
-    BBOX = WEST, SOUTH, EAST, NORTH
-  </div>
-  <div>
-    Change both longitudes to move east or west and both latitudes to move north or south. Narrower coordinate ranges zoom in.
-  </div>
-</div>
-
-<div class="relative mt-2 flex h-[258px] items-center justify-center overflow-hidden rounded-xl border border-gray-300 bg-gray-100">
-  <img
-    v-if="submittedWmsUrl"
-    :src="submittedWmsUrl"
-    class="h-full w-full object-contain"
-    alt="Raster map returned by the submitted WMS GetMap URL"
-    @load="handleWmsImageLoad"
-    @error="handleWmsImageError"
-  />
-  <div
-    v-if="wmsError"
-    class="absolute inset-x-6 top-1/2 -translate-y-1/2 rounded-lg border border-red-300 bg-white/95 px-4 py-3 text-center text-[0.88rem] font-semibold text-red-700 shadow"
-    role="alert"
-  >
-    {{ wmsError }}
-  </div>
-</div>
-
-<div class="mt-1 text-center text-[0.66rem] leading-tight text-gray-500">
-© OpenStreetMap contributors · WMS provided by terrestris
-</div>
-
-<!--
-Edit only the BBOX values first. The URL remains an ordinary image source: the browser requests the WMS response when Load map is selected or Enter is pressed.
+Administrative boundaries connect geographic data to the socioeconomic and political context used for statistics and policy. GADM covers the entire globe and is the default choice for global modelling studies. NUTS is EU-specific but provides strict hierarchical nesting that makes multi-scale analysis consistent. Note that boundaries change over time — NUTS was revised in 2016 and 2021, so always verify the vintage of your boundary file when doing time-series analysis.
 -->
 
 ---
@@ -1262,30 +1143,55 @@ section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
-# Administrative Boundaries
+# OpenStreetMap --- the Wikipedia of geodata
 
-<div class="grid grid-cols-2 gap-8 mt-1 items-start">
+<div class="grid grid-cols-[1fr_70px_1fr] gap-4 mt-2 items-center text-center">
 
-<div class="flex flex-col items-center">
-  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">GADM — Global Administrative Areas</div>
-  <img src="./figures/gadm-germany.png" class="h-[240px] object-contain rounded-lg" alt="GADM administrative divisions of Germany"/>
-  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">Germany · 6 nesting levels · global coverage</div>
-  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">Freely available polygons for every country; widely used in ecological &amp; socioeconomic modelling.</div>
-  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">Gringer / Wikipedia · CC BY-SA</div>
+<div>
+
+## OSM Database
+
+<img
+  src="./figures/osm_popp_db.png"
+  class="w-full h-[285px] object-contain rounded-xl"
+  alt="OpenStreetMap database features around Poppelsdorf shown as points, lines, and polygons"
+/>
+
+<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">
+Points, lines, and polygons
 </div>
 
-<div class="flex flex-col items-center">
-  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">NUTS — EU Territorial Statistics Units</div>
-  <img src="./figures/nuts-levels.png" class="h-[240px] object-contain rounded-lg" alt="NUTS-1, NUTS-2 and NUTS-3 hierarchical regions"/>
-  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">NUTS-1 → NUTS-2 → NUTS-3 · three nesting levels</div>
-  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">EU standard: NUTS-1 (federal states), NUTS-2 (Regierungsbezirke), NUTS-3 (districts). Reference frame for Eurostat statistics.</div>
-  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">© Eurostat · ec.europa.eu/eurostat</div>
 </div>
 
+<div class="flex flex-col items-center justify-center text-blue-800">
+  <div class="text-[0.82rem] leading-tight font-semibold">Style and<br />rasterize</div>
+  <div class="mt-2 text-4xl">→</div>
+</div>
+
+<div>
+
+## OSM Background Map
+
+<img
+  src="./figures/osm_popp.png"
+  class="w-full h-[285px] object-contain rounded-xl"
+  alt="Styled OpenStreetMap background map around Poppelsdorf"
+/>
+
+<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">
+Rendered raster tiles
+</div>
+
+</div>
+
+</div>
+
+<div class="mt-1 text-[0.66rem] leading-tight text-center text-gray-500">
+Map data © OpenStreetMap contributors.
 </div>
 
 <!--
-Administrative boundaries connect geographic data to the socioeconomic and political context used for statistics and policy. GADM covers the entire globe and is the default choice for global modelling studies. NUTS is EU-specific but provides strict hierarchical nesting that makes multi-scale analysis consistent. Note that boundaries change over time — NUTS was revised in 2016 and 2021, so always verify the vintage of your boundary file when doing time-series analysis.
+OpenStreetMap stores tagged vector features rather than a fixed map image. Styling and rasterization transform the database into familiar background-map tiles.
 -->
 
 ---
@@ -1293,9 +1199,145 @@ section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
-# Takeaways
+# Web Map Service (WMS)
 
-## Geo-information Science
+<WmsGetMapDemo />
+
+<!--
+Students can edit the WMS request directly. The browser requests the image only after Load map or Enter.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# Web Feature Service (WFS)
+
+<WfsGetFeatureDemo />
+
+<!--
+Unlike WMS, WFS returns features rather than pixels. The service returns GML in EPSG:4326; the tabs show equivalent GML, GeoJSON, and WKT geometry representations. GeoJSON coordinates use longitude, latitude order.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# WFS/WMS in Practice
+
+<div class="grid grid-cols-2 gap-6 mt-3 text-center">
+
+<div>
+
+## Flightradar24
+
+<a href="https://www.flightradar24.com/" target="_blank" rel="noopener noreferrer" title="Open Flightradar24">
+  <img
+    src="./figures/flightradar.png"
+    class="w-full h-[300px] object-contain rounded-xl border border-gray-200 shadow-sm cursor-pointer"
+    alt="Screenshot of the Flightradar24 geospatial web application"
+  />
+</a>
+
+</div>
+
+<div>
+
+## MarineTraffic
+
+<a href="https://www.marinetraffic.com/" target="_blank" rel="noopener noreferrer" title="Open MarineTraffic">
+  <img
+    src="./figures/marinetraffic.png"
+    class="w-full h-[300px] object-contain rounded-xl border border-gray-200 shadow-sm cursor-pointer"
+    alt="Screenshot of the MarineTraffic geospatial web application"
+  />
+</a>
+
+</div>
+
+</div>
+
+<!--
+Both applications combine a continuously updated set of geospatial features with an interactive background map. Click either screenshot to open the corresponding service.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# Further GIS Examples
+
+<div class="grid grid-cols-3 gap-5 mt-3 text-center">
+
+<div>
+
+## Strava Heat Map
+
+<a href="https://www.strava.com/" target="_blank" rel="noopener noreferrer" title="Open Strava">
+  <img
+    src="./figures/strava_heatmap.png"
+    class="w-full h-[285px] object-contain rounded-xl border border-gray-200 shadow-sm cursor-pointer"
+    alt="Screenshot of the Strava heat map"
+  />
+</a>
+
+<div class="mt-2 text-[0.68rem] leading-tight text-gray-500">
+Screenshot: <a href="https://www.strava.com/" target="_blank" rel="noopener noreferrer">Strava</a>
+</div>
+
+</div>
+
+<div>
+
+## Population Density
+
+<a href="https://luminocity3d.org/WorldPopDen/#11/50.6553/7.2853" target="_blank" rel="noopener noreferrer" title="Open World Population Density">
+  <img
+    src="./figures/population_density.png"
+    class="w-full h-[285px] object-contain rounded-xl border border-gray-200 shadow-sm cursor-pointer"
+    alt="Screenshot of the World Population Density portal"
+  />
+</a>
+
+<div class="mt-2 text-[0.68rem] leading-tight text-gray-500">
+Screenshot: <a href="https://luminocity3d.org/WorldPopDen/#11/50.6553/7.2853" target="_blank" rel="noopener noreferrer">Luminocity3D</a>
+</div>
+
+</div>
+
+<div>
+
+## Quality of Living (Wohnlagen)
+
+<a href="https://gutachterausschuss.bonn.de/produkte/wohnlagen-mietspiegel.php" target="_blank" rel="noopener noreferrer" title="Open the Bonn Wohnlagen portal">
+  <img
+    src="./figures/wohnlagen.png"
+    class="w-full h-[285px] object-contain rounded-xl border border-gray-200 shadow-sm cursor-pointer"
+    alt="Screenshot of the Bonn Wohnlagen portal"
+  />
+</a>
+
+<div class="mt-2 text-[0.68rem] leading-tight text-gray-500">
+Screenshot: <a href="https://gutachterausschuss.bonn.de/produkte/wohnlagen-mietspiegel.php" target="_blank" rel="noopener noreferrer">Gutachterausschuss Bonn</a>
+</div>
+
+</div>
+
+</div>
+
+<!--
+These GIS web applications present different thematic layers: aggregated movement, population distribution, and residential location quality. Click a screenshot to open its source portal.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# Takeaways - Geo-information Science
 
 <div class="grid grid-cols-2 gap-8 mt-2">
 
@@ -1332,349 +1374,207 @@ Real world → thematic layers → analysis
 
 </div>
 
+---
+layout: bonn-section
+sectionColor: "#4f50ba"
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
+---
+
+# Models and Re-analysis Products
+
+---
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
+---
+
+# From Observations to Modelled Fields
+
+<div class="mt-2 text-[1.15rem] text-blue-900 font-semibold">
+Combine observations with physical models to estimate how Earth’s systems evolve.
+</div>
+
+<div class="grid grid-cols-[1fr_52px_1.35fr_52px_1fr] gap-3 mt-7 items-center text-center">
+
+<div class="p-5 rounded-xl border border-blue-200 bg-blue-50">
+  <div class="text-xl font-bold text-blue-900">Observations</div>
+</div>
+
+<div class="text-3xl text-blue-700">→</div>
+
+<div class="p-5 rounded-xl border border-violet-200 bg-violet-50">
+  <div class="text-xl font-bold text-violet-900">Model + data assimilation</div>
+</div>
+
+<div class="text-3xl text-blue-700">→</div>
+
+<div class="p-5 rounded-xl border border-teal-200 bg-teal-50">
+  <div class="text-xl font-bold text-teal-900">Estimated fields</div>
+</div>
+
+</div>
+
+<ul class="mt-7 space-y-2 text-[0.98rem] leading-snug text-gray-700">
+  <li>Satellites, stations, buoys, and profiles provide observations.</li>
+  <li>Physical models describe evolution; data assimilation updates the model state.</li>
+  <li>Outputs describe conditions across space, time, and height or depth.</li>
+</ul>
+
 <!--
-GIS data is the primary source for human-shaped geography: maps, boundaries, infrastructure, and land use. Unlike remote sensing, which derives data from sensor measurements, GIS data is often directly digitised, crowd-sourced, or statistically derived. For GRL: OSM and LULC products provide rich training labels; administrative boundaries define spatial evaluation regions.
+Not every model run assimilates observations. Remote-sensing and GIS products can also contain derived or modelled information; this section focuses on dynamic Earth-system models.
 -->
 
 ---
-section: geo-information-science
-sectionTitle: Geo-information Science
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
 ---
 
-# A Grid Turns Space into Values
+# Analysis, Forecast, Hindcast, Reanalysis, Projection
 
-<div class="grid grid-cols-[1fr_auto_1fr] gap-7 mt-12 items-center text-center">
-  <div class="p-7 rounded-xl border box-card box-1"><h3>Location</h3><div class="mt-3 text-gray-700">row · column · cell</div></div>
-  <div class="text-3xl text-blue-800">→</div>
-  <div class="p-7 rounded-xl border box-card box-2"><h3>Measurement</h3><div class="mt-3 text-gray-700">one or many values</div></div>
+<div class="compact-table mt-4 text-[0.88rem]">
+
+| Product | Purpose |
+|---|---|
+| **Analysis** | Estimate the state at a given time using a model and available observations. |
+| **Forecast** | Predict subsequent conditions from an initialized state. |
+| **Hindcast** | Run a model for a past period; assimilation depends on the experiment. |
+| **Reanalysis** | Reconstruct the past by assimilating archived observations with a consistent modelling system. |
+| **Climate projection** | Simulate possible future climate under specified forcing scenarios. |
+
 </div>
 
-<blockquote class="mt-10">
-The grid defines where measurements are stored—and what spatial detail can be represented.
+<!--
+Hindcasts may also mean retrospective forecasts used to evaluate forecast skill.
+
+Reanalysis uses a consistent model and assimilation system, but the observing network changes over time.
+
+Climate projections describe conditional climate outcomes, not predictions of weather on a particular future date.
+-->
+
+---
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
+---
+
+# ERA5 — Reconstructing the Atmosphere
+
+<div class="grid grid-cols-2 gap-8 mt-3 items-stretch">
+
+<div class="flex flex-col">
+
+<ul class="space-y-3 text-[1.02rem] leading-snug text-gray-700">
+  <li>Global atmospheric reanalysis combining observations and a numerical model.</li>
+  <li>Temperature, wind, pressure, precipitation, and other variables.</li>
+  <li>Hourly fields at the surface and multiple atmospheric levels.</li>
+</ul>
+
+<div class="mt-6 p-3 rounded-lg bg-blue-50 border border-blue-200 text-[0.92rem] text-blue-900">
+  <strong>Example:</strong> At a location and time, retrieve estimated temperature and wind.
+</div>
+
+<div class="mt-auto text-[0.68rem] text-gray-500">
+Source: <a href="https://www.ecmwf.int/en/forecasts/dataset/ecmwf-reanalysis-v5" target="_blank" rel="noopener noreferrer">ECMWF ERA5</a>
+</div>
+
+</div>
+
+<div class="min-h-[315px] rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-gray-400 text-lg">
+ERA5 example map
+</div>
+
+</div>
+
+<!--
+ERA5 variables include both analysis fields and quantities obtained from short model forecasts. Values are estimates with variable-dependent uncertainty.
+-->
+
+---
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
+---
+
+# HYCOM — Modelling the Ocean
+
+<div class="grid grid-cols-2 gap-8 mt-3 items-stretch">
+
+<div class="flex flex-col">
+
+<ul class="space-y-3 text-[1.02rem] leading-snug text-gray-700">
+  <li>Ocean dynamics represented across horizontal locations and vertical layers.</li>
+  <li>Temperature, salinity, sea level, and current velocity.</li>
+  <li>HYCOM-based products include analyses, forecasts, and historical simulations.</li>
+</ul>
+
+<div class="mt-6 p-3 rounded-lg bg-blue-50 border border-blue-200 text-[0.92rem] text-blue-900">
+  <strong>Example:</strong> At a location, depth, and time, retrieve temperature and current velocity.
+</div>
+
+<div class="mt-auto text-[0.68rem] text-gray-500">
+Source: <a href="https://www.hycom.org/" target="_blank" rel="noopener noreferrer">HYCOM</a>
+</div>
+
+</div>
+
+<div class="min-h-[315px] rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center text-gray-400 text-lg">
+HYCOM example map
+</div>
+
+</div>
+
+<!--
+HYCOM is a model, not one uniquely defined dataset. The selected experiment determines coverage, resolution, assimilation, and whether the product is an analysis, forecast, or historical simulation.
+-->
+
+---
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
+---
+
+# Model Outputs as Geospatial Data
+
+<div class="mt-5 py-5 px-8 rounded-xl bg-blue-50 border border-blue-200 text-center">
+  <code class="text-[1.55rem] font-semibold text-blue-900">value = f(location, height/depth, time, variable)</code>
+</div>
+
+<ul class="mt-8 space-y-4 text-[1.06rem] leading-snug text-gray-700">
+  <li>Usually multidimensional gridded fields; common formats include NetCDF, GRIB, and Zarr.</li>
+  <li>Select a time and level for a map, or a location for a time series.</li>
+  <li>Other examples: ERA5-Land (land), CAMS (atmospheric composition), GloFAS (rivers), CMIP6 (climate projections).</li>
+</ul>
+
+<!--
+Forecast data additionally distinguish initialization time, lead time, and valid time.
+
+Ensembles and scenarios add further dimensions.
+
+Wind and current vectors are generally stored as gridded components; they are not necessarily GIS vector features.
+
+Model grids may be regular, curvilinear, or unstructured.
+
+Sampling a field at a coordinate involves a grid-selection or interpolation choice.
+-->
+
+---
+section: model-outputs
+sectionTitle: Models and Re-analysis Products
+---
+
+# Takeaways — Models and Re-analysis Products
+
+<div class="mt-8 text-left text-[1.16rem] leading-snug text-gray-700">
+
+<ul class="space-y-5">
+  <li>Model products provide estimates of environmental conditions across space and time.</li>
+  <li>Analysis, forecast, hindcast, reanalysis, and projection answer different questions.</li>
+  <li>Check the product, time definition, resolution, units, and uncertainty before using a value.</li>
+</ul>
+
+</div>
+
+<blockquote class="mt-10 text-center text-[1.25rem] font-semibold text-blue-900">
+A complete grid does not imply perfect knowledge.
 </blockquote>
 
 <!--
-Prepare the core raster concepts of cells, values, extent, and resolution. Detailed definitions and examples will be added later.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Spatial Resolution Changes What We See
-
-<div class="grid grid-cols-3 gap-6 mt-9 items-end text-center">
-  <div><div class="grid grid-cols-3 gap-1 w-28 h-28 mx-auto"><div v-for="n in 9" class="bg-blue-200 border border-white"></div></div><h3 class="mt-4">Coarse</h3></div>
-  <div><div class="grid grid-cols-5 gap-1 w-28 h-28 mx-auto"><div v-for="n in 25" class="bg-blue-400 border border-white"></div></div><h3 class="mt-4">Medium</h3></div>
-  <div><div class="grid grid-cols-8 gap-[2px] w-28 h-28 mx-auto"><div v-for="n in 64" class="bg-blue-700 border border-white"></div></div><h3 class="mt-4">Fine</h3></div>
-</div>
-
-<!--
-Reserve space to develop spatial resolution and scale. Later examples should show that resolution changes both visible detail and suitable tasks.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Optical Imagery — Seeing Earth's Surface
-
-<div class="mt-8 text-xl text-gray-800">
-Aerial and satellite views across scales and wavelengths
-</div>
-
-<!--
-Introduce optical imagery as one important family of raster observations. Later slides can distinguish platforms, spatial resolution, and spectral information.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# More Than a Color Photograph
-
-<div class="grid grid-cols-3 gap-6 mt-10">
-  <div class="p-6 rounded-xl border box-card box-1 text-center"><h3>Platform</h3><div class="mt-3 text-gray-700">airborne ↔ spaceborne</div></div>
-  <div class="p-6 rounded-xl border box-card box-2 text-center"><h3>Scale</h3><div class="mt-3 text-gray-700">local ↔ global</div></div>
-  <div class="p-6 rounded-xl border box-card box-3 text-center"><h3>Spectrum</h3><div class="mt-3 text-gray-700">visible ↔ beyond visible</div></div>
-</div>
-
-<!--
-Mark the three dimensions along which the optical-imagery material can later expand. Keep the emphasis on imagery as measurements rather than ordinary photographs.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Satellite Time Series — Watching Earth Change
-
-<div class="mt-8 text-xl text-gray-700">
-The same place, observed again and again
-</div>
-
-<!--
-Move from individual images to repeated observations. This section will later develop cadence, seasonality, change, and missing acquisitions.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# A Stack of Images Becomes a Time Series
-
-<div class="flex items-center justify-center gap-5 mt-12">
-  <div class="w-36 h-28 rounded-xl bg-blue-200 border-2 border-white shadow-md flex items-center justify-center text-blue-900 font-bold">t₁</div>
-  <div class="text-2xl text-blue-800">→</div>
-  <div class="w-36 h-28 rounded-xl bg-blue-400 border-2 border-white shadow-md flex items-center justify-center text-white font-bold">t₂</div>
-  <div class="text-2xl text-blue-800">→</div>
-  <div class="w-36 h-28 rounded-xl bg-blue-700 border-2 border-white shadow-md flex items-center justify-center text-white font-bold">t₃</div>
-</div>
-
-<blockquote class="mt-10">
-Time reveals processes that a single snapshot cannot.
-</blockquote>
-
-<!--
-Reserve a bridge from spatial imagery to temporal signals. Later content can compare image stacks, per-pixel series, and derived change products.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Radar — Measuring Earth Differently
-
-<div class="mt-8 text-xl text-gray-700">
-Active sensing with a different view of the surface
-</div>
-
-<!--
-Introduce radar and SAR as a distinct Earth-observation modality. Later material should contrast what radar measures with optical reflectance.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Different Sensors Reveal Different Properties
-
-<div class="grid grid-cols-2 gap-8 mt-10">
-  <div class="p-7 rounded-xl border box-card box-1"><h3>Optical</h3><div class="mt-4 text-gray-700">Energy reflected or emitted by the surface</div></div>
-  <div class="p-7 rounded-xl border box-card box-2"><h3>Radar</h3><div class="mt-4 text-gray-700">A transmitted signal and its return</div></div>
-</div>
-
-<!--
-Create a placeholder for the conceptual optical–radar comparison. Acquisition geometry, wavelength, and interpretation belong in later detailed slides.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Point Observations — Sampling Earth
-
-<div class="mt-8 text-xl text-gray-700">
-Measurements at irregular locations and footprints
-</div>
-
-<!--
-Shift from regular grids to irregularly located samples. Leave room for both in-situ sensors and satellite-derived footprints.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Samples Are Not the Whole Field
-
-<div class="grid grid-cols-2 gap-8 mt-10">
-  <div class="p-7 rounded-xl border box-card box-1"><h3>Where was Earth sampled?</h3><div class="mt-4 text-gray-700">Locations, paths, and footprints</div></div>
-  <div class="p-7 rounded-xl border box-card box-2"><h3>What lies between samples?</h3><div class="mt-4 text-gray-700">Coverage, gaps, and inference</div></div>
-</div>
-
-<!--
-Introduce sampling geometry and incomplete coverage as defining properties of point observations. Detailed treatment of interpolation and sampling bias is intentionally deferred.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# 3D Data — Point Clouds and Elevation
-
-<div class="mt-8 text-xl text-gray-700">
-Height, depth, and the structure above the surface
-</div>
-
-<!--
-Extend geospatial observations into the vertical dimension. Later examples can distinguish elevation surfaces, point clouds, and volumetric measurements.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# The Vertical Dimension Has Many Representations
-
-<div class="grid grid-cols-3 gap-6 mt-10">
-  <div class="p-6 rounded-xl border box-card box-1 text-center"><h3>Surface</h3><div class="mt-3 text-gray-700">elevation</div></div>
-  <div class="p-6 rounded-xl border box-card box-2 text-center"><h3>Points</h3><div class="mt-3 text-gray-700">3D structure</div></div>
-  <div class="p-6 rounded-xl border box-card box-3 text-center"><h3>Volume</h3><div class="mt-3 text-gray-700">layers and depth</div></div>
-</div>
-
-<!--
-Provide a placeholder taxonomy for vertical data. The later teaching pass can add terrain, LiDAR, bathymetry, and atmospheric or ocean profiles.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Lines and Networks — Representing Connections
-
-<div class="mt-8 text-xl text-gray-800">
-Paths, flows, and connected systems
-</div>
-
-<!--
-Introduce linear geometries and the additional relationships encoded by networks. Concrete examples such as roads, rivers, and trajectories will be developed later.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Geometry and Connectivity Tell Different Stories
-
-<div class="grid grid-cols-2 gap-8 mt-10">
-  <div class="p-7 rounded-xl border box-card box-1"><h3>Line geometry</h3><div class="mt-4 text-gray-700">Where does it go?</div></div>
-  <div class="p-7 rounded-xl border box-card box-2"><h3>Network structure</h3><div class="mt-4 text-gray-700">What connects to what?</div></div>
-</div>
-
-<!--
-Reserve the distinction between the shape of a line and the topology of a network. This later supports graph-based geospatial representations.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Polygons and Regions — Representing Objects
-
-<div class="mt-8 text-xl text-gray-700">
-Boundaries turn space into discrete regions
-</div>
-
-<!--
-Introduce polygons as bounded spatial objects or areas. Later examples can cover parcels, buildings, administrative units, and land-use regions.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Boundaries Depend on Purpose
-
-<div class="grid grid-cols-2 gap-8 mt-10">
-  <div class="p-7 rounded-xl border box-card box-1"><h3>Physical boundaries</h3><div class="mt-4 text-gray-700">Observed or delineated</div></div>
-  <div class="p-7 rounded-xl border box-card box-2"><h3>Conceptual boundaries</h3><div class="mt-4 text-gray-700">Defined for a task or institution</div></div>
-</div>
-
-<!--
-Flag that regions are not always inherent objects in the world. Later content can develop boundary uncertainty, scale, and aggregation.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Models and Reanalysis — Filling the Gaps
-
-<div class="mt-8 text-xl text-gray-700">
-Spatial fields generated, estimated, or simulated by models
-</div>
-
-<!--
-Introduce model outputs and reanalysis as a different route to spatial fields. Prepare the distinction between direct observations and model-informed estimates.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# Observation and Model Are Not Opposites
-
-<div class="flex items-center justify-center gap-6 mt-12">
-  <div class="p-6 w-52 rounded-xl border box-card box-1 text-center"><h3>Observations</h3></div>
-  <div class="text-3xl text-blue-800">+</div>
-  <div class="p-6 w-52 rounded-xl border box-card box-2 text-center"><h3>Models</h3></div>
-  <div class="text-3xl text-blue-800">→</div>
-  <div class="p-6 w-52 rounded-xl border box-card box-3 text-center"><h3>Spatial fields</h3></div>
-</div>
-
-<blockquote class="mt-10">
-Model-based products combine assumptions, dynamics, and measurements.
-</blockquote>
-
-<!--
-Create a placeholder for data assimilation, modeled fields, and reanalysis products such as ERA5. Detailed workflows and uncertainty belong in the later content pass.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# One Location, Many Measurements
-
-<div class="mt-8 text-xl text-gray-700">
-There is no single representation of a place
-</div>
-
-<!--
-Synthesize the block around the central idea that one location supports many representations. This sets up the learning problem created by heterogeneous geospatial data.
--->
-
----
-section: geo-information-science
-sectionTitle: Geo-information Science
----
-
-# One Place, Many Views
-
-<div class="grid grid-cols-4 gap-4 mt-7 text-center">
-  <div class="p-4 rounded-xl border box-card box-1"><h3>Imagery</h3></div>
-  <div class="p-4 rounded-xl border box-card box-2"><h3>Time series</h3></div>
-  <div class="p-4 rounded-xl border box-card box-3"><h3>Radar</h3></div>
-  <div class="p-4 rounded-xl border box-card box-1"><h3>Elevation</h3></div>
-  <div class="p-4 rounded-xl border box-card box-2"><h3>Weather</h3></div>
-  <div class="p-4 rounded-xl border box-card box-3"><h3>Regions</h3></div>
-  <div class="p-4 rounded-xl border box-card box-1"><h3>Networks</h3></div>
-  <div class="p-4 rounded-xl border box-card box-2"><h3>Model fields</h3></div>
-</div>
-
-<blockquote class="mt-8">
-How can we represent—and learn from—all of these views together?
-</blockquote>
-
-<!--
-Close Block 2 by gathering its modalities around one place. Use the final question to motivate the rest of the geospatial representation learning course.
+Grid spacing is not equivalent to effective spatial detail. These products can supply environmental context for geospatial representation learning, but should not automatically be treated as ground truth.
 -->
