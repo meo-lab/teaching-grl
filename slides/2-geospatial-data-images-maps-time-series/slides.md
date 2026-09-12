@@ -1026,6 +1026,38 @@ section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
+# Raster Georeference
+
+Raster images are georeferenced by an affine transformation A that defines the top left coordinate with pixel sizes.
+
+<RasterAffineDemo />
+
+<!--
+The affine transform first maps pixel-column and pixel-row coordinates to projected coordinates in EPSG:32632. Proj4 then converts each cell corner and center to EPSG:4326 for Leaflet, which expects latitude-longitude order when drawing the overlay. Leaflet retains its standard Web Mercator basemap.
+
+These are projected grid metres. UTM has small local scale distortion, and the basemap applies its own display projection.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# Task: Georeference this Image
+
+<RasterGeorefTaskDemo />
+
+<!--
+Students must derive the six affine coefficients from the gdalinfo output. The Origin provides E₀ and N₀. Pixel Size provides a and e; north-up imagery has b = 0 and d = 0. The correct matrix is [10, 0, 365110; 0, -10, 5621210; 0, 0, 1].
+
+The PNG is a browser-compatible rendering of the supplied 47 × 46 pixel GeoTIFF. The component maps its four image corners into EPSG:32632 and then converts them to EPSG:4326 for Leaflet. With this north-up raster, a standard Leaflet image overlay is sufficient.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
 # Vector Data — Geometry + Attributes
 
 <img
@@ -1058,84 +1090,109 @@ section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
-# Administrative Boundaries
+# Explore Vector Geometries
 
-<div class="grid grid-cols-2 gap-8 mt-1 items-start">
-
-<div class="flex flex-col items-center">
-  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">GADM — Global Administrative Areas</div>
-  <img src="./figures/gadm-germany.png" class="h-[240px] object-contain rounded-lg" alt="GADM administrative divisions of Germany"/>
-  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">Germany · 6 nesting levels · global coverage</div>
-  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">Freely available polygons for every country; widely used in ecological &amp; socioeconomic modelling.</div>
-  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">Gringer / Wikipedia · CC BY-SA</div>
-</div>
-
-<div class="flex flex-col items-center">
-  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">NUTS — EU Territorial Statistics Units</div>
-  <img src="./figures/nuts-levels.png" class="h-[240px] object-contain rounded-lg" alt="NUTS-1, NUTS-2 and NUTS-3 hierarchical regions"/>
-  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">NUTS-1 → NUTS-2 → NUTS-3 · three nesting levels</div>
-  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">EU standard: NUTS-1 (federal states), NUTS-2 (Regierungsbezirke), NUTS-3 (districts). Reference frame for Eurostat statistics.</div>
-  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">© Eurostat · ec.europa.eu/eurostat</div>
-</div>
-
-</div>
-
-<!--
-Administrative boundaries connect geographic data to the socioeconomic and political context used for statistics and policy. GADM covers the entire globe and is the default choice for global modelling studies. NUTS is EU-specific but provides strict hierarchical nesting that makes multi-scale analysis consistent. Note that boundaries change over time — NUTS was revised in 2016 and 2021, so always verify the vintage of your boundary file when doing time-series analysis.
--->
-
+<GeoJsonFeatureExplorer />
 ---
 section: geo-information-science
 sectionTitle: Geo-information Science
 ---
 
-# Land Use / Land Cover (LULC) Databases
+# Geospatial Vector Data Formats & Storage
 
-<div class="grid grid-cols-[5fr_6fr] gap-5 mt-1 items-start">
+<div class="mt-2 grid grid-cols-[1fr_52px_1fr_52px_1fr] items-center gap-0">
 
-<div>
+<div class="flex flex-col items-center text-center px-5 py-2.5 rounded-2xl bg-sky-50 border border-sky-200 self-stretch justify-between">
+  <svg viewBox="0 0 60 56" width="60" height="56" class="mb-1" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5" y="4" width="46" height="58" rx="5" fill="white" stroke="#0ea5e9" stroke-width="2"/>
+    <polygon points="37,4 51,18 37,18" fill="#bae6fd"/>
+    <polyline points="37,4 37,18 51,18" fill="none" stroke="#0ea5e9" stroke-width="2"/>
+    <line x1="13" y1="27" x2="43" y2="27" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="13" y1="35" x2="43" y2="35" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="13" y1="43" x2="38" y2="43" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="13" y1="51" x2="34" y2="51" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>
+  <div class="font-bold text-sky-900 text-[1rem] mb-1">Text files</div>
+  <div class="flex flex-col gap-1 text-[0.88rem] text-gray-700">
+    <span><a href="https://www.rfc-editor.org/rfc/rfc7946.html" target="_blank" class="hover:underline underline-offset-2">GeoJSON</a></span><span><a href="https://www.ogc.org/standards/sfa/" target="_blank" class="hover:underline underline-offset-2">WKT</a> / <a href="https://www.rfc-editor.org/rfc/rfc4180.html" target="_blank" class="hover:underline underline-offset-2">CSV</a></span><span><a href="https://www.ogc.org/standards/gml/" target="_blank" class="hover:underline underline-offset-2">GML</a></span><span><a href="https://www.ogc.org/standards/kml/" target="_blank" class="hover:underline underline-offset-2">KML</a></span>
+  </div>
+  <div class="mt-1.5 text-[0.73rem] text-sky-700 italic">Readable and easy to exchange</div>
+</div>
 
-<div class="text-[0.82rem] text-gray-700 mb-2"><strong>Land use</strong> describes human activity (agriculture, urban, forestry). <strong>Land cover</strong> describes the physical surface (vegetation, bare soil, water).</div>
+<div class="flex flex-col items-center gap-1">
+  <svg viewBox="0 0 52 20" width="52" height="20" xmlns="http://www.w3.org/2000/svg">
+    <line x1="4" y1="10" x2="43" y2="10" stroke="#94a3b8" stroke-width="2"/>
+    <polygon points="43,5 52,10 43,15" fill="#94a3b8"/>
+  </svg>
+  <span class="text-[0.63rem] text-gray-400 text-center leading-tight">more<br/>efficient</span>
+</div>
 
-<div class="grid grid-cols-1 gap-1.5 text-[0.78rem]">
-  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
-    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">ESA WorldCover</div><div class="text-gray-400">2020–2021</div></div>
-    <div class="text-gray-600">10 m global · 11 classes · Sentinel-1 &amp; -2</div>
+<div class="flex flex-col items-center text-center px-5 py-2.5 rounded-2xl bg-violet-50 border border-violet-200 self-stretch justify-between">
+  <svg viewBox="0 0 60 56" width="60" height="56" class="mb-1" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="48" width="44" height="14" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="8" y="31" width="44" height="14" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="8" y="14" width="44" height="14" rx="4" fill="white" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="14" y="16" width="6" height="10" rx="2" fill="#7c3aed" opacity="0.75"/>
+    <rect x="22" y="16" width="4" height="10" rx="1" fill="#7c3aed" opacity="0.45"/>
+    <rect x="28" y="16" width="7" height="10" rx="2" fill="#7c3aed" opacity="0.65"/>
+    <rect x="14" y="33" width="8" height="10" rx="2" fill="#7c3aed" opacity="0.55"/>
+    <rect x="24" y="33" width="5" height="10" rx="1" fill="#7c3aed" opacity="0.7"/>
+    <rect x="31" y="33" width="4" height="10" rx="1" fill="#7c3aed" opacity="0.4"/>
+    <rect x="14" y="50" width="4" height="10" rx="1" fill="#7c3aed" opacity="0.6"/>
+    <rect x="20" y="50" width="8" height="10" rx="2" fill="#7c3aed" opacity="0.45"/>
+    <rect x="30" y="50" width="6" height="10" rx="2" fill="#7c3aed" opacity="0.65"/>
+  </svg>
+  <div class="font-bold text-violet-900 text-[1rem] mb-1">Binary files</div>
+  <div class="flex flex-col gap-1 text-[0.88rem] text-gray-700">
+    <span><a href="https://support.esri.com/en-us/technical-paper/esri-shapefile-technical-description-254" target="_blank" class="hover:underline underline-offset-2">Shapefile</a></span><span><a href="https://www.geopackage.org/" target="_blank" class="hover:underline underline-offset-2">GeoPackage</a></span><span><a href="https://geoparquet.org/" target="_blank" class="hover:underline underline-offset-2">GeoParquet</a></span><span><a href="https://flatgeobuf.org/" target="_blank" class="hover:underline underline-offset-2">FlatGeobuf</a></span>
   </div>
-  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
-    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">CORINE Land Cover (CLC)</div><div class="text-gray-400">EU, since 1990</div></div>
-    <div class="text-gray-600">100 m · 44 classes · updated every 6 years</div>
+  <div class="mt-1.5 text-[0.73rem] text-violet-700 italic">Compact and efficient</div>
+</div>
+
+<div class="flex flex-col items-center gap-1">
+  <svg viewBox="0 0 52 20" width="52" height="20" xmlns="http://www.w3.org/2000/svg">
+    <line x1="4" y1="10" x2="43" y2="10" stroke="#94a3b8" stroke-width="2"/>
+    <polygon points="43,5 52,10 43,15" fill="#94a3b8"/>
+  </svg>
+  <span class="text-[0.63rem] text-gray-400 text-center leading-tight">query<br/>&amp; share</span>
+</div>
+
+<div class="flex flex-col items-center text-center px-5 py-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 self-stretch justify-between">
+  <svg viewBox="0 0 60 56" width="60" height="56" class="mb-1" xmlns="http://www.w3.org/2000/svg">
+    <rect x="8" y="20" width="44" height="36" fill="white" stroke="#059669" stroke-width="1.8"/>
+    <ellipse cx="30" cy="56" rx="22" ry="7" fill="#d1fae5" stroke="#059669" stroke-width="1.8"/>
+    <ellipse cx="30" cy="20" rx="22" ry="7" fill="white" stroke="#059669" stroke-width="1.8"/>
+    <line x1="9" y1="30" x2="51" y2="30" stroke="#059669" stroke-width="1" stroke-dasharray="4,2" opacity="0.7"/>
+    <line x1="9" y1="38" x2="51" y2="38" stroke="#059669" stroke-width="1" stroke-dasharray="4,2" opacity="0.7"/>
+    <line x1="9" y1="46" x2="51" y2="46" stroke="#059669" stroke-width="1" stroke-dasharray="4,2" opacity="0.7"/>
+  </svg>
+  <div class="font-bold text-emerald-900 text-[1rem] mb-1">Database</div>
+  <div class="flex flex-col gap-1 text-[0.88rem] text-gray-700">
+    <span><a href="https://www.postgresql.org/" target="_blank" class="hover:underline underline-offset-2">PostgreSQL</a></span><span><a href="https://postgis.net/" target="_blank" class="hover:underline underline-offset-2">PostGIS</a></span>
   </div>
-  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
-    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">GlobeLand30</div><div class="text-gray-400">Global</div></div>
-    <div class="text-gray-600">30 m · 10 classes · 2000 / 2010 / 2020 epochs</div>
-  </div>
-  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
-    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">Dynamic World (Google)</div><div class="text-gray-400">Near-real-time</div></div>
-    <div class="text-gray-600">10 m · 9 classes · probabilistic per-scene output</div>
-  </div>
+  <div class="mt-1.5 text-[0.73rem] text-emerald-700 italic">Queryable and shared</div>
 </div>
 
 </div>
 
-<div class="flex flex-col gap-2">
-
-  <div class="flex flex-col items-center">
-    <img src="./figures/lulc-global.jpg" class="w-full rounded-lg object-cover" style="max-height:165px;" alt="ESA 2015 global land cover map"/>
-    <div class="text-[0.63rem] text-gray-400 italic mt-0.5">Global land cover map 2015 · © ESA / ESA Climate Change Initiative</div>
-  </div>
-
-  <div class="flex flex-col items-center">
-    <img src="./figures/lulc-amsterdam.png" class="w-full rounded-lg object-cover" style="max-height:155px;" alt="ESA WorldCover 10m map Amsterdam area"/>
-    <div class="text-[0.63rem] text-gray-400 italic mt-0.5">ESA WorldCover 10 m — Amsterdam · © Copernicus / ESA</div>
-  </div>
-
-</div>
-
+<div class="relative mt-1 px-2">
+  <svg viewBox="0 0 860 38" width="100%" height="38" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowAmber" markerWidth="9" markerHeight="9" refX="9" refY="4.5" orient="auto">
+        <polygon points="0,0 9,4.5 0,9" fill="#d97706"/>
+      </marker>
+    </defs>
+    <!-- Asymmetric bezier: starts going DOWN from database, then sweeps LEFT,
+         approaching the text-files column from the right so the arrowhead points left -->
+    <path d="M 840,8 C 840,34 180,34 10,12"
+          fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="8,4"
+          marker-end="url(#arrowAmber)"/>
+  </svg>
+  <div class="text-center text-[0.82rem] font-semibold text-amber-800 -mt-2"><a href="https://www.ogc.org/standards/wfs/" target="_blank" class="hover:underline underline-offset-2">WFS</a> / <a href="https://ogcapi.ogc.org/features/" target="_blank" class="hover:underline underline-offset-2">OGC API Features</a></div>
 </div>
 
 <!--
-LULC datasets are among the most widely used geospatial data sources for environmental science and remote sensing. They combine satellite imagery with ground truth labels to produce thematic maps at regional to global scale. The distinction between land use and land cover matters: two fields with the same surface cover (bare soil) can have different uses (fallow vs. construction). The two images illustrate scale: the top shows a global-scale product from ESA's Climate Change Initiative, the bottom shows the 10 m WorldCover product zoomed into Amsterdam — notice how fine-grained urban, water, and vegetation classes become visible at local scale.
+Text-based formats are human-readable and ideal for data exchange and debugging, but verbose. Binary formats sacrifice readability for compactness and indexing; GeoParquet in particular is columnar and cloud-optimised. A PostGIS database adds SQL-based spatial queries, multi-user write access, and topology validation — at the cost of setup and infrastructure. The return arrow shows that a WFS endpoint (or the newer OGC API – Features) lets any client query a PostGIS database and receive GeoJSON or GML, closing the loop back to text-format consumers.
 -->
 
 ---
@@ -1261,6 +1318,91 @@ sectionTitle: Geo-information Science
 
 <!--
 Both applications combine a continuously updated set of geospatial features with an interactive background map. Click either screenshot to open the corresponding service.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# Administrative Boundaries
+
+<div class="grid grid-cols-2 gap-8 mt-1 items-start">
+
+<div class="flex flex-col items-center">
+  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">GADM — Global Administrative Areas</div>
+  <img src="./figures/gadm-germany.png" class="h-[240px] object-contain rounded-lg" alt="GADM administrative divisions of Germany"/>
+  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">Germany · 6 nesting levels · global coverage</div>
+  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">Freely available polygons for every country; widely used in ecological &amp; socioeconomic modelling.</div>
+  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">Gringer / Wikipedia · CC BY-SA</div>
+</div>
+
+<div class="flex flex-col items-center">
+  <div class="font-bold text-indigo-800 text-[1.05rem] mb-1.5">NUTS — EU Territorial Statistics Units</div>
+  <img src="./figures/nuts-levels.png" class="h-[240px] object-contain rounded-lg" alt="NUTS-1, NUTS-2 and NUTS-3 hierarchical regions"/>
+  <div class="mt-1 text-[0.68rem] text-gray-400 text-center">NUTS-1 → NUTS-2 → NUTS-3 · three nesting levels</div>
+  <div class="mt-1.5 text-[0.8rem] text-gray-700 text-center px-2">EU standard: NUTS-1 (federal states), NUTS-2 (Regierungsbezirke), NUTS-3 (districts). Reference frame for Eurostat statistics.</div>
+  <div class="mt-1 text-[0.63rem] text-gray-400 text-center italic">© Eurostat · ec.europa.eu/eurostat</div>
+</div>
+
+</div>
+
+<!--
+Administrative boundaries connect geographic data to the socioeconomic and political context used for statistics and policy. GADM covers the entire globe and is the default choice for global modelling studies. NUTS is EU-specific but provides strict hierarchical nesting that makes multi-scale analysis consistent. Note that boundaries change over time — NUTS was revised in 2016 and 2021, so always verify the vintage of your boundary file when doing time-series analysis.
+-->
+
+---
+section: geo-information-science
+sectionTitle: Geo-information Science
+---
+
+# Land Use / Land Cover (LULC) Databases
+
+<div class="grid grid-cols-[5fr_6fr] gap-5 mt-1 items-start">
+
+<div>
+
+<div class="text-[0.82rem] text-gray-700 mb-2"><strong>Land use</strong> describes human activity (agriculture, urban, forestry). <strong>Land cover</strong> describes the physical surface (vegetation, bare soil, water).</div>
+
+<div class="grid grid-cols-1 gap-1.5 text-[0.78rem]">
+  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
+    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">ESA WorldCover</div><div class="text-gray-400">2020–2021</div></div>
+    <div class="text-gray-600">10 m global · 11 classes · Sentinel-1 &amp; -2</div>
+  </div>
+  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
+    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">CORINE Land Cover (CLC)</div><div class="text-gray-400">EU, since 1990</div></div>
+    <div class="text-gray-600">100 m · 44 classes · updated every 6 years</div>
+  </div>
+  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
+    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">GlobeLand30</div><div class="text-gray-400">Global</div></div>
+    <div class="text-gray-600">30 m · 10 classes · 2000 / 2010 / 2020 epochs</div>
+  </div>
+  <div class="p-2 rounded-lg bg-teal-50 border border-teal-200">
+    <div class="flex justify-between items-baseline"><div class="font-semibold text-teal-800">Dynamic World (Google)</div><div class="text-gray-400">Near-real-time</div></div>
+    <div class="text-gray-600">10 m · 9 classes · probabilistic per-scene output</div>
+  </div>
+</div>
+
+</div>
+
+<div class="flex flex-col gap-2">
+
+  <div class="flex flex-col items-center">
+    <img src="./figures/lulc-global.jpg" class="w-full rounded-lg object-cover" style="max-height:165px;" alt="ESA 2015 global land cover map"/>
+    <div class="text-[0.63rem] text-gray-400 italic mt-0.5">Global land cover map 2015 · © ESA / ESA Climate Change Initiative</div>
+  </div>
+
+  <div class="flex flex-col items-center">
+    <img src="./figures/lulc-amsterdam.png" class="w-full rounded-lg object-cover" style="max-height:155px;" alt="ESA WorldCover 10m map Amsterdam area"/>
+    <div class="text-[0.63rem] text-gray-400 italic mt-0.5">ESA WorldCover 10 m — Amsterdam · © Copernicus / ESA</div>
+  </div>
+
+</div>
+
+</div>
+
+<!--
+LULC datasets are among the most widely used geospatial data sources for environmental science and remote sensing. They combine satellite imagery with ground truth labels to produce thematic maps at regional to global scale. The distinction between land use and land cover matters: two fields with the same surface cover (bare soil) can have different uses (fallow vs. construction). The two images illustrate scale: the top shows a global-scale product from ESA's Climate Change Initiative, the bottom shows the 10 m WorldCover product zoomed into Amsterdam — notice how fine-grained urban, water, and vegetation classes become visible at local scale.
 -->
 
 ---
