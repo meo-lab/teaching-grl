@@ -183,41 +183,48 @@ Google Colab notebooks provide hands-on practice:
 
 # Phase 1: Lecture Overview
 
+Representations → Geospatial Data → Machine Learning → Supervised Deep Learning → Location Encoders & Spatial Embeddings → Self-Supervised Deep Learning → Geospatial Embeddings → Synthesis
+
 <div class="phase-content-grid">
 
 <a href="./1-why-geospatial-representation-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 1</h3>
-Why Geospatial Representation Learning?
+Representations<br><span class="text-sm text-gray-600">What is a representation?</span>
 </a>
 
 <a href="./2-geospatial-data-images-maps-time-series/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 2</h3>
-Geospatial Data: Sources, Modalities, and Applications
+Geospatial Data<br><span class="text-sm text-gray-600">What is geodata?</span>
 </a>
 
-<a href="./3-deep-learning-for-geospatial-prediction/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./3-machine-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
-Machine Learning Foundations for Geospatial Prediction
+Machine Learning<br><span class="text-sm text-gray-600">Learning from structured data</span>
 </a>
 
-<a href="./4-self-supervised-learning-and-foundation-models/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./4-supervised-deep-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 4</h3>
-Self-Supervised Learning, Foundation Models, and Explicit Embeddings
+Supervised Deep Learning<br><span class="text-sm text-gray-600">Learning from raw labeled data</span>
 </a>
 
-<a href="./5-earth-embeddings-and-location-encoders/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./5-location-encoders-and-spatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 5</h3>
-Neural Networks as Knowledge Bases: Interpolation, Grokking, and Location Encoders
+Location Encoders &amp; Spatial Embeddings<br><span class="text-sm text-gray-600">Representing space continuously</span>
 </a>
 
-<a href="./6-spatiotemporal-representations-and-neural-fields/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./6-self-supervised-deep-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 6</h3>
-Geospatial Embedding Representations: Explicit, Implicit, Hybrid, and Interpretable
+Self-Supervised Deep Learning<br><span class="text-sm text-gray-600">Learning representations without labels</span>
 </a>
 
-<a href="./7-geospatial-retrieval-reasoning-and-agents/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./7-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 7</h3>
-Geospatial AI Agents and Dynamic Prompting
+Geospatial Embeddings<br><span class="text-sm text-gray-600">Representing places and the Earth</span>
+</a>
+
+<a href="./8-synthesis-choosing-the-right-representation/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 8</h3>
+Synthesis<br><span class="text-sm text-gray-600">Choosing the right representation</span>
 </a>
 
 <div class="phase-content-tile phase-content-exam">
@@ -233,39 +240,44 @@ Phase 1 content
 
 <div class="phase-content-grid">
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-1/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 1</h3>
 Practical: Why Geospatial Representation Learning?
 </a>
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-2/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 2</h3>
 Practical: Geospatial Data - Sources, Modalities, and Applications
 </a>
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-3/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 3</h3>
-Practical: Machine Learning Foundations for Geospatial Prediction
+Practical: Machine Learning
 </a>
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-4/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 4</h3>
-Practical: Self-Supervised Learning, Foundation Models, and Explicit Embeddings
+Practical: Supervised Deep Learning
 </a>
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-5/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 5</h3>
-Practical: Neural Networks as Knowledge Bases: Interpolation, Grokking, and Location Encoders
+Practical: Location Encoders &amp; Spatial Embeddings
 </a>
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-6/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 6</h3>
-Practical: Geospatial Embedding Representations: Explicit, Implicit, Hybrid, and Interpretable
+Practical: Self-Supervised Deep Learning
 </a>
 
-<a href="#" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./labs/lab-7/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 7</h3>
-Practical: Geospatial AI Agents and Dynamic Prompting
+Practical: Geospatial Embeddings
+</a>
+
+<a href="./labs/lab-8/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lab 8</h3>
+Practical: Synthesis and Integration
 </a>
 
 <div class="phase-content-tile phase-content-exam">

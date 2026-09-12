@@ -14,10 +14,10 @@ import SoftmaxCosineDemo from './components/SoftmaxCosineDemo.vue'
 import AutoregressiveNextTokenDemo from './components/AutoregressiveNextTokenDemo.vue'
 </script>
 
-# Geospatial Representation Learning
+# Representations
 
 <div class="mt-8 text-xl text-gray-600 font-semibold">
-Introduction to Geospatial Representations
+What is a representation?
 </div>
 
 <!--

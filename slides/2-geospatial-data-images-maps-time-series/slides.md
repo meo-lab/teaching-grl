@@ -8,9 +8,9 @@ subhead: Lecture 2
 home: ../
 ---
 
-# Geospatial Data: Sources, Modalities, and Applications
+# Geospatial Data
 
-## Geospatial Representation Learning
+## What is geodata?
 
 ---
 

@@ -17,24 +17,28 @@ const decks = [
     slug: '2-geospatial-data-images-maps-time-series',
   },
   {
-    entry: 'slides/3-deep-learning-for-geospatial-prediction/slides.md',
-    slug: '3-deep-learning-for-geospatial-prediction',
+    entry: 'slides/3-machine-learning/slides.md',
+    slug: '3-machine-learning',
   },
   {
-    entry: 'slides/4-self-supervised-learning-and-foundation-models/slides.md',
-    slug: '4-self-supervised-learning-and-foundation-models',
+    entry: 'slides/4-supervised-deep-learning/slides.md',
+    slug: '4-supervised-deep-learning',
   },
   {
-    entry: 'slides/5-earth-embeddings-and-location-encoders/slides.md',
-    slug: '5-earth-embeddings-and-location-encoders',
+    entry: 'slides/5-location-encoders-and-spatial-embeddings/slides.md',
+    slug: '5-location-encoders-and-spatial-embeddings',
   },
   {
-    entry: 'slides/6-spatiotemporal-representations-and-neural-fields/slides.md',
-    slug: '6-spatiotemporal-representations-and-neural-fields',
+    entry: 'slides/6-self-supervised-deep-learning/slides.md',
+    slug: '6-self-supervised-deep-learning',
   },
   {
-    entry: 'slides/7-geospatial-retrieval-reasoning-and-agents/slides.md',
-    slug: '7-geospatial-retrieval-reasoning-and-agents',
+    entry: 'slides/7-geospatial-embeddings/slides.md',
+    slug: '7-geospatial-embeddings',
+  },
+  {
+    entry: 'slides/8-synthesis-choosing-the-right-representation/slides.md',
+    slug: '8-synthesis-choosing-the-right-representation',
   },
 ].map(deck => ({
   ...deck,
