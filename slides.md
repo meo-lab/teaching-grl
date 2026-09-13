@@ -183,7 +183,7 @@ Google Colab notebooks provide hands-on practice:
 
 # Phase 1: Lecture Overview
 
-Representations → Geospatial Data → Machine Learning → Supervised Deep Learning → Location Encoders & Spatial Embeddings → Self-Supervised Deep Learning → Geospatial Embeddings → Synthesis
+Representations → Geospatial Data → Deep Learning I → Deep Learning II → Location Encoders & Spatial Embeddings → Self-Supervised Deep Learning → Geospatial Embeddings → Synthesis
 
 <div class="phase-content-grid">
 
@@ -197,14 +197,14 @@ Representations<br><span class="text-sm text-gray-600">What is a representation?
 Geospatial Data<br><span class="text-sm text-gray-600">What is geodata?</span>
 </a>
 
-<a href="./3-machine-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./3-deep-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
-Machine Learning<br><span class="text-sm text-gray-600">Learning from structured data</span>
+Deep Learning I<br><span class="text-sm text-gray-600">What is Learning?</span>
 </a>
 
-<a href="./4-supervised-deep-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./4-deep-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 4</h3>
-Supervised Deep Learning<br><span class="text-sm text-gray-600">Learning from raw labeled data</span>
+Deep Learning II<br><span class="text-sm text-gray-600">Learning beyond Memorization</span>
 </a>
 
 <a href="./5-location-encoders-and-spatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">

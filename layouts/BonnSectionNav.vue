@@ -57,7 +57,7 @@ const activeSectionId = computed(() => {
 
 <template>
   <nav
-    v-if="sections.length > 1"
+    v-if="sections.length > 0"
     class="bonn-section-nav"
     aria-label="Lecture sections"
   >

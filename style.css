@@ -62,6 +62,12 @@
   line-height: 1.15;
 }
 
+/* Standalone images become paragraphs; keep the theme's subtitle fade off diagrams.
+   Set opacity on an individual image when fading is intentional. */
+.bonn-content h1 + p:has(img, svg) {
+  opacity: 1;
+}
+
 .bonn-content h2 {
   margin: 0 0 16px;
   color: var(--bonn-muted);

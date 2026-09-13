@@ -17,12 +17,12 @@ const decks = [
     slug: '2-geospatial-data-images-maps-time-series',
   },
   {
-    entry: 'slides/3-machine-learning/slides.md',
-    slug: '3-machine-learning',
+    entry: 'slides/3-deep-learning-i/slides.md',
+    slug: '3-deep-learning-i',
   },
   {
-    entry: 'slides/4-supervised-deep-learning/slides.md',
-    slug: '4-supervised-deep-learning',
+    entry: 'slides/4-deep-learning-ii/slides.md',
+    slug: '4-deep-learning-ii',
   },
   {
     entry: 'slides/5-location-encoders-and-spatial-embeddings/slides.md',

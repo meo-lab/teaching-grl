@@ -8,9 +8,9 @@ subhead: Lecture 4
 home: ../
 ---
 
-# Supervised Deep Learning
+# Deep Learning II
 
-## Learning from raw labeled data
+## Learning beyond Memorization
 
 <!--
 This lecture extends the ML setup to end-to-end representation learning from raw inputs with labels.
