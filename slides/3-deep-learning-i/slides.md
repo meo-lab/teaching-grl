@@ -44,17 +44,17 @@ Lecture 3 is about the mechanics of learning; Lecture 4 is about why it generali
 
 # Learning Outcomes Roadmap
 
-<div class="mt-3 text-[.72rem]">
+<div class="mt-3 text-[.64rem] leading-tight whitespace-nowrap">
 
 | | Learning outcome | Lecture | Block |
 |---|---|---|---|
-| ⬜ | Explain how neural networks transform inputs into learned representations that make tasks simpler. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
-| ⬜ | Explain layers, parameters, biases, and nonlinear activation functions in an MLP. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
-| ⬜ | Explain forward pass, loss, gradients, backpropagation, and parameter updates. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Learning and Optimization |
-| ⬜ | Explain the inductive bias behind CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 3</span> | Expert Jigsaw |
-| ⬜ | Explain finite datasets vs. samples drawn from an underlying data distribution. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Samples and Distributions |
+| ⬜ | Explain how neural networks learn representations that simplify tasks. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
+| ⬜ | Explain layers, parameters, biases, and nonlinear activations in an MLP. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
+| ⬜ | Explain forward passes, losses, gradients, backpropagation, and updates. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Learning and Optimization |
+| ⬜ | Explain the inductive biases of CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 3</span> | Expert Jigsaw |
+| ⬜ | Distinguish finite datasets from samples of an underlying distribution. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Samples and Distributions |
 | ⬜ | Explain generalization, overfitting, bias–variance, and train/validation/test evaluation. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Classical Generalization |
-| ⬜ | Explain how interpolation threshold, double descent, and overparameterization modify the classical view. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Modern Generalization |
+| ⬜ | Explain interpolation thresholds, double descent, and overparameterization. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Modern Generalization |
 
 </div>
 
@@ -73,22 +73,13 @@ The ⬜ markers can be swapped to ✅ as outcomes are reached.
 <div class="grid grid-cols-2 gap-5">
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
     <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Block 1 — Models and Representations</div>
-    <ul class="text-[.78rem] leading-7 text-blue-900">
-      <li>representations</li>
-      <li>MLPs</li>
-      <li>hidden spaces</li>
-      <li>nonlinearities</li>
-    </ul>
+
+<img src="./assets/model.svg" class="w-full h-[190px] object-contain" alt="A deep learning model transforms an input tensor through layers into an output tensor" />
+
   </div>
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
     <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Block 2 — Learning and Optimization</div>
-    <ul class="text-[.78rem] leading-7 text-blue-900">
-      <li>forward pass</li>
-      <li>loss</li>
-      <li>gradients</li>
-      <li>backpropagation</li>
-      <li>parameter updates</li>
-    </ul>
+    <img src="./assets/min.png" class="w-[120px] h-[120px] object-contain" alt="Loss surface over weight space with multiple minima" />
   </div>
 </div>
 
@@ -100,6 +91,35 @@ Students should track these two blocks as the lecture progresses.
 -->
 
 ---
+section: overview
+---
+
+# Two Core Topics in This Lecture
+
+<div class="grid grid-cols-2 gap-8 mt-5">
+  <div>
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Deep Learning Model</div>
+    <ol class="text-[.8rem] leading-8 mb-4">
+      <li><strong>Architectures</strong> — MLP, CNN, Transformer</li>
+      <li><strong>Tasks</strong> — Classification &amp; Segmentation</li>
+    </ol>
+    <img src="./assets/model.svg" class="w-full h-[190px] object-contain" alt="A deep learning model transforms an input tensor through layers into an output tensor" />
+  </div>
+  <div>
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Model Training</div>
+    <ol class="text-[.8rem] leading-8 mb-4">
+      <li><strong>Loss surfaces</strong> and gradient descent</li>
+      <li>Forward pass → Loss → Backprop → Update</li>
+    </ol>
+    <img src="./assets/min.png" class="w-full h-[190px] object-contain" alt="Stylized loss surface with multiple minima and gradient descent paths" />
+  </div>
+</div>
+
+<!--
+Transition slide before diving into Block 1.
+Left previews the model block (architectures, tasks, MLPs).
+Right previews the training block (loss, gradient descent, backprop).
+-->
 
 ---
 layout: bonn-section
@@ -108,19 +128,7 @@ section: overview
 sectionTitle: Overview
 ---
 
-# Overview
-
-<div class="text-[.9rem] text-gray-700 mt-4">
-How neural networks learn (Lecture 3) and why learned patterns generalize (Lecture 4).
-</div>
-
----
-section: overview
----
-
 # The Aspects of Learning
-
-
 <div class="flex flex-col items-center justify-center h-full">
   <iframe
     src="https://giphy.com/embed/MmozymbZc0RdC"
@@ -130,13 +138,14 @@ section: overview
     frameBorder="0"
     allowFullScreen>
   </iframe>
-  <p class="mt-2 text-xs text-gray-500">
+    <p class="mt-2 text-xs text-gray-500">
     via
     <a href="https://giphy.com/gifs/MmozymbZc0RdC" target="_blank" rel="noopener noreferrer" class="underline">GIPHY</a>,
     original source
     <a href="https://imgur.com/gallery/FBMm2DO" target="_blank" rel="noopener noreferrer" class="underline">imgur.com/gallery/FBMm2DO</a>
   </p>
 </div>
+
 
 ---
 section: overview
@@ -208,37 +217,6 @@ Classic ML: features are hand-designed. Supervised DL: architecture is the desig
 -->
 
 ---
-section: overview
----
-
-# Two Core Topics in This Lecture
-
-<div class="grid grid-cols-2 gap-8 mt-5">
-  <div>
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Deep Learning Model</div>
-    <ol class="text-[.8rem] leading-8 mb-4">
-      <li><strong>Architectures</strong> — MLP, CNN, Transformer</li>
-      <li><strong>Tasks</strong> — Classification &amp; Segmentation</li>
-    </ol>
-    <img src="./assets/mlp_cover.svg" class="w-full h-[190px] object-contain" alt="MLP model transforming an input tensor into an output tensor through layers" />
-  </div>
-  <div>
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Model Training</div>
-    <ol class="text-[.8rem] leading-8 mb-4">
-      <li><strong>Loss surfaces</strong> and gradient descent</li>
-      <li>Forward pass → Loss → Backprop → Update</li>
-    </ol>
-    <img src="./assets/loss_surfaces.svg" class="w-full h-[190px] object-contain" alt="Loss surface over weight space with multiple minima" />
-  </div>
-</div>
-
-<!--
-Transition slide before diving into Block 1.
-Left previews the model block (architectures, tasks, MLPs).
-Right previews the training block (loss, gradient descent, backprop).
--->
-
----
 layout: bonn-section
 sectionColor: "#00457c"
 section: models-and-representations
@@ -250,50 +228,6 @@ sectionTitle: Models and Representations
 <div class="text-[.9rem] text-gray-700 mt-4">
 How model architecture shapes internal representations of geospatial data.
 </div>
-
----
-section: models-and-representations
----
-
-# Data and Experience
-
-<figure class="bonn-section-image" style="display: flex; flex-direction: column; align-items: center; justify-self: center; width: calc(100% - 80px); max-height: 500px; margin: 0;">
-  <img
-    src="./assets/window.jpg"
-    style="width: auto; height: 380px; max-height: 380px; object-fit: contain; opacity: 1;"
-    alt="A sunlit window overlooking a city with cushions on the window seat"
-  />
-  <figcaption style="max-width: 440px; margin-top: 10px; color: var(--bonn-text); font-size: .68rem; line-height: 1.3; text-align: center;">
-    Data is the window through which a learner experiences the world.
-    <span style="display: block; margin-top: 4px; color: var(--bonn-muted); font-size: .48rem;">
-      Shalev-Shwartz, S., &amp; Ben-David, S. (2014). <em>Understanding Machine Learning: From Theory to Algorithms</em>.
-    </span>
-  </figcaption>
-</figure>
-
-<div class="bonn-section-citation">
-  Photo by <a href="https://www.pexels.com/@d-ng-nhan-324384/" target="_blank" rel="noopener noreferrer">Dương Nhân</a> on <a href="https://www.pexels.com/photo/a-pillows-on-the-couch-near-the-glass-window-with-a-city-view-4389953/" target="_blank" rel="noopener noreferrer">Pexels</a>
-</div>
-
-
----
-section: models-and-representations
----
-
-# Data as blocks of numbers - E.g., Tensors
-
-<img
-  src="./assets/tensors.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Scalars, vectors, matrices, images, and image time series represented as tensors with zero to four dimensions"
-/>
-
----
-section: models-and-representations
----
-
-# Data samples from a distribution
-
 
 ---
 section: models-and-representations
