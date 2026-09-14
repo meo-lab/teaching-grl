@@ -4,7 +4,7 @@ addons:
 defaults:
   layout: bonn-content
 layout: bonn-cover
-subhead: Lecture 5
+subhead: Lecture 6
 home: ../
 ---
 

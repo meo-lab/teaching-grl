@@ -383,6 +383,22 @@
   margin-top: 1.4rem;
 }
 
+.lecture-overview-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .6rem;
+  margin-top: 1rem;
+}
+
+.lecture-overview-grid .phase-content-tile {
+  min-height: 6.25rem;
+  padding: .58rem .62rem;
+  font-size: .66rem;
+}
+
+.lecture-overview-grid .phase-content-tile h3 {
+  font-size: .68rem;
+}
+
 .phase-content-tile {
   min-height: 5.1rem;
   padding: .65rem .72rem;

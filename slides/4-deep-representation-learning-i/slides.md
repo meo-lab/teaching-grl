@@ -4,7 +4,7 @@ addons:
 defaults:
   layout: bonn-content
 layout: bonn-cover
-subhead: Lecture 3
+subhead: Lecture 4
 home: ../
 ---
 
@@ -12,7 +12,7 @@ home: ../
 import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
 </script>
 
-# Deep Learning I
+# Deep Representation Learning I
 
 ## What is Learning?
 
@@ -22,22 +22,22 @@ This lecture formalizes supervised learning on structured inputs before introduc
 
 ---
 
-# Two Questions for Lectures 3–4
+# Two Questions for Lectures 4–5
 
 <div class="grid grid-cols-2 gap-8 mt-8">
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-6">
-    <div class="text-[.6rem] uppercase tracking-widest text-blue-600 font-bold mb-3">Lecture 3</div>
+    <div class="text-[.6rem] uppercase tracking-widest text-blue-600 font-bold mb-3">Lecture 4</div>
     <div class="text-[1.05rem] leading-snug font-semibold text-blue-900">How does a neural network learn?</div>
   </div>
   <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-    <div class="text-[.6rem] uppercase tracking-widest text-emerald-600 font-bold mb-3">Lecture 4</div>
+    <div class="text-[.6rem] uppercase tracking-widest text-emerald-600 font-bold mb-3">Lecture 5</div>
     <div class="text-[1.05rem] leading-snug font-semibold text-emerald-900">Why should what it learns work beyond the training data?</div>
   </div>
 </div>
 
 <!--
 Set up the two-lecture arc before any technical detail.
-Lecture 3 is about the mechanics of learning; Lecture 4 is about why it generalises.
+Lecture 4 is about the mechanics of learning; Lecture 5 is about why it generalises.
 -->
 
 ---
@@ -48,19 +48,19 @@ Lecture 3 is about the mechanics of learning; Lecture 4 is about why it generali
 
 | | Learning outcome | Lecture | Block |
 |---|---|---|---|
-| ⬜ | Explain how neural networks learn representations that simplify tasks. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
-| ⬜ | Explain layers, parameters, biases, and nonlinear activations in an MLP. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
-| ⬜ | Explain forward passes, losses, gradients, backpropagation, and updates. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Learning and Optimization |
-| ⬜ | Explain the inductive biases of CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 3</span> | Expert Jigsaw |
-| ⬜ | Distinguish finite datasets from samples of an underlying distribution. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Samples and Distributions |
-| ⬜ | Explain generalization, overfitting, bias–variance, and train/validation/test evaluation. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Classical Generalization |
-| ⬜ | Explain interpolation thresholds, double descent, and overparameterization. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Modern Generalization |
+| ⬜ | Explain how neural networks learn representations that simplify tasks. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Models and Representations |
+| ⬜ | Explain layers, parameters, biases, and nonlinear activations in an MLP. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Models and Representations |
+| ⬜ | Explain forward passes, losses, gradients, backpropagation, and updates. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Learning and Optimization |
+| ⬜ | Explain the inductive biases of CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 4</span> | Expert Jigsaw |
+| ⬜ | Distinguish finite datasets from samples of an underlying distribution. | <span class="text-emerald-700 font-semibold">Lecture 5</span> | Samples and Distributions |
+| ⬜ | Explain generalization, overfitting, bias–variance, and train/validation/test evaluation. | <span class="text-emerald-700 font-semibold">Lecture 5</span> | Classical Generalization |
+| ⬜ | Explain interpolation thresholds, double descent, and overparameterization. | <span class="text-emerald-700 font-semibold">Lecture 5</span> | Modern Generalization |
 
 </div>
 
 <!--
-This table is the shared map for Lectures 3 and 4.
-We will revisit it mid-lecture to mark what has been covered, and again at the start of Lecture 4.
+This table is the shared map for Lectures 4 and 5.
+We will revisit it mid-lecture to mark what has been covered, and again at the start of Lecture 5.
 The ⬜ markers can be swapped to ✅ as outcomes are reached.
 -->
 

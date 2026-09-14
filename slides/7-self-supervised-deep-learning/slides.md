@@ -4,7 +4,7 @@ addons:
 defaults:
   layout: bonn-content
 layout: bonn-cover
-subhead: Lecture 6
+subhead: Lecture 7
 home: ../
 ---
 
@@ -13,7 +13,7 @@ home: ../
 ## Learning representations without labels
 
 <!--
-This lecture explicitly contrasts with Lecture 4 by removing manual labels and learning through structure in the data.
+This lecture explicitly contrasts with Lecture 5 by removing manual labels and learning through structure in the data.
 -->
 
 ---

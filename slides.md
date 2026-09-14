@@ -183,9 +183,9 @@ Google Colab notebooks provide hands-on practice:
 
 # Phase 1: Lecture Overview
 
-Representations → Geospatial Data → Deep Learning I → Deep Learning II → Location Encoders & Spatial Embeddings → Self-Supervised Deep Learning → Geospatial Embeddings → Synthesis
+Geospatial data becomes fixed representations for classical machine learning, then learned representations for deep learning.
 
-<div class="phase-content-grid">
+<div class="phase-content-grid lecture-overview-grid">
 
 <a href="./1-why-geospatial-representation-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 1</h3>
@@ -197,33 +197,38 @@ Representations<br><span class="text-sm text-gray-600">What is a representation?
 Geospatial Data<br><span class="text-sm text-gray-600">What is geodata?</span>
 </a>
 
-<a href="./3-deep-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./3-machine-learning-on-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
-Deep Learning I<br><span class="text-sm text-gray-600">What is Learning?</span>
+Machine Learning on Data Representations<br><span class="text-sm text-gray-600">Learning on fixed representations</span>
 </a>
 
-<a href="./4-deep-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./4-deep-representation-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 4</h3>
-Deep Learning II<br><span class="text-sm text-gray-600">Learning beyond Memorization</span>
+Deep Representation Learning I<br><span class="text-sm text-gray-600">Learning the representation itself</span>
 </a>
 
-<a href="./5-location-encoders-and-spatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<a href="./5-deep-representation-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 5</h3>
+Deep Representation Learning II<br><span class="text-sm text-gray-600">Learning beyond memorization</span>
+</a>
+
+<a href="./6-location-encoders-and-spatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 6</h3>
 Location Encoders &amp; Spatial Embeddings<br><span class="text-sm text-gray-600">Representing space continuously</span>
 </a>
 
-<a href="./6-self-supervised-deep-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 6</h3>
+<a href="./7-self-supervised-deep-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 7</h3>
 Self-Supervised Deep Learning<br><span class="text-sm text-gray-600">Learning representations without labels</span>
 </a>
 
-<a href="./7-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 7</h3>
+<a href="./8-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 8</h3>
 Geospatial Embeddings<br><span class="text-sm text-gray-600">Representing places and the Earth</span>
 </a>
 
-<a href="./8-synthesis-choosing-the-right-representation/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 8</h3>
+<a href="./9-synthesis-choosing-the-right-representation/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 9</h3>
 Synthesis<br><span class="text-sm text-gray-600">Choosing the right representation</span>
 </a>
 
@@ -252,7 +257,7 @@ Practical: Geospatial Data - Sources, Modalities, and Applications
 
 <a href="./labs/lab-3/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 3</h3>
-Practical: Machine Learning
+Machine Learning on Data Representations<br><span class="text-sm text-gray-600">Classical models on fixed geospatial representations</span>
 </a>
 
 <a href="./labs/lab-4/" class="phase-content-tile no-underline text-current hover:bg-gray-50">

@@ -47,7 +47,7 @@
         </svg>
         <h3>Learnable model</h3>
         <p>Can adapt its internal parameters</p>
-        <span class="aol-chip aol-chip-strong">Lecture 3 &middot; Deep Learning I</span>
+        <span class="aol-chip aol-chip-strong">Lecture 4 &middot; Deep Representation Learning I</span>
       </div>
 
       <!-- connector: model -> generalization -->
@@ -64,7 +64,7 @@
         </svg>
         <h3>Generalization</h3>
         <p>Performs well in new, unseen situations</p>
-        <span class="aol-chip aol-chip-outline">Lecture 4 &middot; Deep Learning II</span>
+        <span class="aol-chip aol-chip-outline">Lecture 5 &middot; Deep Representation Learning II</span>
       </div>
 
       <!-- Learning algorithm loop (beneath model) -->
@@ -81,7 +81,7 @@
         </svg>
         <h3>Learning algorithm</h3>
         <p>Uses experience to adjust the model</p>
-        <span class="aol-chip aol-chip-strong">Lecture 3 &middot; Deep Learning I</span>
+        <span class="aol-chip aol-chip-strong">Lecture 4 &middot; Deep Representation Learning I</span>
       </div>
 
       <!-- Ingredients vs. success criterion -->

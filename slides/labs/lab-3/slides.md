@@ -8,10 +8,10 @@ subhead: Lab 3
 home: ../../
 ---
 
-# Geospatial Representation Learning
+# Lab 3 — Machine Learning on Data Representations
 
 <div class="mt-8 text-xl text-gray-600 font-semibold">
-Lab 3: Machine Learning Foundations for Geospatial Prediction
+Classical models on fixed geospatial representations
 </div>
 
 ---

@@ -17,28 +17,64 @@ const decks = [
     slug: '2-geospatial-data-images-maps-time-series',
   },
   {
-    entry: 'slides/3-deep-learning-i/slides.md',
-    slug: '3-deep-learning-i',
+    entry: 'slides/3-machine-learning-on-data-representations/slides.md',
+    slug: '3-machine-learning-on-data-representations',
   },
   {
-    entry: 'slides/4-deep-learning-ii/slides.md',
-    slug: '4-deep-learning-ii',
+    entry: 'slides/4-deep-representation-learning-i/slides.md',
+    slug: '4-deep-representation-learning-i',
   },
   {
-    entry: 'slides/5-location-encoders-and-spatial-embeddings/slides.md',
-    slug: '5-location-encoders-and-spatial-embeddings',
+    entry: 'slides/5-deep-representation-learning-ii/slides.md',
+    slug: '5-deep-representation-learning-ii',
   },
   {
-    entry: 'slides/6-self-supervised-deep-learning/slides.md',
-    slug: '6-self-supervised-deep-learning',
+    entry: 'slides/6-location-encoders-and-spatial-embeddings/slides.md',
+    slug: '6-location-encoders-and-spatial-embeddings',
   },
   {
-    entry: 'slides/7-geospatial-embeddings/slides.md',
-    slug: '7-geospatial-embeddings',
+    entry: 'slides/7-self-supervised-deep-learning/slides.md',
+    slug: '7-self-supervised-deep-learning',
   },
   {
-    entry: 'slides/8-synthesis-choosing-the-right-representation/slides.md',
-    slug: '8-synthesis-choosing-the-right-representation',
+    entry: 'slides/8-geospatial-embeddings/slides.md',
+    slug: '8-geospatial-embeddings',
+  },
+  {
+    entry: 'slides/9-synthesis-choosing-the-right-representation/slides.md',
+    slug: '9-synthesis-choosing-the-right-representation',
+  },
+  {
+    entry: 'slides/labs/lab-1/slides.md',
+    slug: 'labs/lab-1',
+  },
+  {
+    entry: 'slides/labs/lab-2/slides.md',
+    slug: 'labs/lab-2',
+  },
+  {
+    entry: 'slides/labs/lab-3/slides.md',
+    slug: 'labs/lab-3',
+  },
+  {
+    entry: 'slides/labs/lab-4/slides.md',
+    slug: 'labs/lab-4',
+  },
+  {
+    entry: 'slides/labs/lab-5/slides.md',
+    slug: 'labs/lab-5',
+  },
+  {
+    entry: 'slides/labs/lab-6/slides.md',
+    slug: 'labs/lab-6',
+  },
+  {
+    entry: 'slides/labs/lab-7/slides.md',
+    slug: 'labs/lab-7',
+  },
+  {
+    entry: 'slides/labs/lab-8/slides.md',
+    slug: 'labs/lab-8',
   },
 ].map(deck => ({
   ...deck,
@@ -75,7 +111,19 @@ for (const deck of decks) {
     mkdirSync(routeDir, { recursive: true })
     copyFileSync(resolve(deck.dest, 'index.html'), resolve(routeDir, 'index.html'))
   }
-  run('npx', ['slidev', 'export', deck.entry, '--output', deck.pdf])
+  run('npx', [
+    'slidev',
+    'export',
+    deck.entry,
+    '--output',
+    deck.pdf,
+    '--wait-until',
+    'load',
+    '--wait',
+    '1000',
+    '--timeout',
+    '120000',
+  ])
 }
 
 rmSync(tempDir, { recursive: true, force: true })
