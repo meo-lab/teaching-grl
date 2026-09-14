@@ -330,6 +330,64 @@ section: model
 />
 
 ---
+section: model
+---
+
+# Overview: Deep Model Architectures
+
+<div class="mt-3">
+  <div class="flex items-center mb-4">
+    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 rounded-l">1950s</div>
+    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 border-l border-white/30">1990s</div>
+    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 border-l border-white/30">2015</div>
+    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 rounded-r border-l border-white/30">2020s →</div>
+  </div>
+
+  <div class="grid grid-cols-4 gap-4">
+    <div>
+      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">MLP</div>
+      <ul class="text-[.72rem] leading-6 text-gray-700">
+        <li>Linear Projections</li>
+        <li>Activation Functions</li>
+        <li>Linear Algebra &amp; Biological Analogy</li>
+        <li>Parallelism on GPUs</li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">CNN</div>
+      <ul class="text-[.72rem] leading-6 text-gray-700">
+        <li>Convolutions</li>
+        <li>Pooling</li>
+        <li>Recep. Fields</li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">ResNet</div>
+      <ul class="text-[.72rem] leading-6 text-gray-700">
+        <li>Deeper Networks</li>
+        <li>Batch Normalization</li>
+        <li>Skip Connections</li>
+        <li>Classification &amp; Segmentation Tasks</li>
+      </ul>
+    </div>
+    <div>
+      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">Transformers</div>
+      <ul class="text-[.72rem] leading-6 text-gray-700">
+        <li>Attention Mechanism</li>
+        <li>Self-Attention (SA)</li>
+        <li>Multi-Head SA</li>
+        <li>Transformer Layers</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!--
+Historical arc before diving into the MLP in detail.
+Each era introduced a new inductive bias: MLPs — universal approximation; CNNs — locality and translation equivariance; ResNets — depth with trainability; Transformers — global context via attention.
+-->
+
+---
 layout: bonn-section
 sectionColor: "#00457c"
 section: mlp
