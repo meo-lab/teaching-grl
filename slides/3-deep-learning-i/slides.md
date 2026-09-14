@@ -24,25 +24,38 @@ This lecture formalizes supervised learning on structured inputs before introduc
 
 # In this lecture
 
-- Inputs, targets, and supervised learning
-- Classification and regression
-- Train / validation / test splits
-- Decision trees and ensemble methods
-- Random forests as the main model
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div>
+    <div class="text-[.62rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Model</div>
+    <ul class="text-[.8rem] leading-7">
+      <li>Deep learning architectures (MLP, CNN, Transformer)</li>
+      <li>Tasks: classification &amp; segmentation</li>
+      <li>Representations and feature learning</li>
+    </ul>
+  </div>
+  <div>
+    <div class="text-[.62rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Training</div>
+    <ul class="text-[.8rem] leading-7">
+      <li>Loss surfaces and gradient descent</li>
+      <li>Forward pass, backpropagation, parameter updates</li>
+    </ul>
+  </div>
+</div>
 
 <!--
-This lecture defines what learning means operationally and sets up the contrast to supervised deep learning in Lecture 4.
+Two blocks today: first the model (architecture and representations), then training (loss, gradients, backprop).
 -->
+
+---
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: learning
-sectionTitle: The Aspects of Learning
+section: overview
+sectionTitle: Overview
 ---
 
 # The Aspects of Learning
-
 
 <div class="flex flex-col items-center justify-center h-full">
   <iframe
@@ -62,7 +75,7 @@ sectionTitle: The Aspects of Learning
 </div>
 
 ---
-section: learning
+section: overview
 ---
 
 # What Does a System Need to Learn?
@@ -82,6 +95,122 @@ Brainstorm live with the class, one question at a time, clicking to reveal each 
 5. How do we know it learned rather than memorized? -> reveal Generalization (click 4)
    Land the distinction: experiences, model, and algorithm are the ingredients for learning;
    generalization to unseen situations is the success criterion.
+-->
+
+---
+section: overview
+---
+
+# Two Questions for Lectures 3–4
+
+<div class="grid grid-cols-2 gap-6 mt-6">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.55rem] uppercase tracking-wide text-blue-700 font-bold">Lecture 3</div>
+    <div class="mt-2 text-[.95rem] leading-snug font-semibold">How does a neural network learn?</div>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+    <div class="text-[.55rem] uppercase tracking-wide text-emerald-700 font-bold">Lecture 4</div>
+    <div class="mt-2 text-[.95rem] leading-snug font-semibold">Why should what it learns work beyond the training data?</div>
+  </div>
+</div>
+
+<!--
+Set up a two-lecture arc before technical details.
+Lecture 3 focuses on learning mechanics; Lecture 4 focuses on generalization.
+-->
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: overview
+sectionTitle: Overview
+---
+
+# Learning Outcomes Roadmap
+
+| Status | Learning outcome | Lecture | Block |
+| --- | --- | --- | --- |
+| ⬜ | Explain how networks turn inputs into representations that simplify tasks. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Model |
+| ⬜ | Explain layers, parameters, biases, and nonlinear activations in an MLP. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Model |
+| ⬜ | Explain forward pass, loss, gradients, backpropagation, and parameter updates. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Training |
+| ⬜ | Explain inductive biases in CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 3</span> | Expert Jigsaw |
+| ⬜ | Explain finite datasets vs. samples from an underlying data distribution. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Samples and Distributions |
+| ⬜ | Explain generalization, overfitting, bias–variance, and train/validation/test evaluation. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Classical Generalization |
+| ⬜ | Explain how interpolation threshold, double descent, and overparameterization revise the classical view. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Modern Generalization |
+
+<!--
+This table is a reusable map.
+We will revisit it later in Lecture 3 and again at the start of Lecture 4.
+-->
+
+---
+section: overview
+---
+
+# Today: How Networks Learn Useful Representations
+
+<div class="text-[.9rem] mb-4">
+Today’s focus: <span class="font-semibold">representations</span>, <span class="font-semibold">MLP building blocks</span>, and <span class="font-semibold">learning + optimization</span>.
+</div>
+
+<div class="grid grid-cols-2 gap-5">
+  <div class="rounded-xl border border-gray-200 p-4">
+    <div class="text-[.62rem] font-semibold mb-2">Block 1 — Model</div>
+    <ul class="leading-7 text-[.75rem]">
+      <li>representations</li>
+      <li>MLPs</li>
+      <li>hidden spaces</li>
+      <li>nonlinearities</li>
+    </ul>
+  </div>
+  <div class="rounded-xl border border-gray-200 p-4">
+    <div class="text-[.62rem] font-semibold mb-2">Block 2 — Training</div>
+    <ul class="leading-7 text-[.75rem]">
+      <li>forward pass</li>
+      <li>loss</li>
+      <li>gradients</li>
+      <li>backpropagation</li>
+      <li>parameter updates</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mt-4 text-[.72rem] text-gray-600">Next: start with representations, models, and what can be learned from data.</div>
+
+<!--
+Zoom in on the Lecture 3 goals so students know what to track today.
+Use this as the transition into the existing model/representation content.
+-->
+
+---
+section: overview
+---
+
+# Two Core Topics in This Lecture
+
+<div class="grid grid-cols-2 gap-8 mt-5">
+  <div>
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Deep Learning Model</div>
+    <ol class="text-[.8rem] leading-8 mb-4">
+      <li><strong>Architectures</strong> — MLP, CNN, Transformer</li>
+      <li><strong>Tasks</strong> — Classification &amp; Segmentation</li>
+    </ol>
+    <img src="./assets/mlp_cover.svg" class="w-full h-[190px] object-contain" alt="MLP model transforming an input tensor into an output tensor through layers" />
+  </div>
+  <div>
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Model Training</div>
+    <ol class="text-[.8rem] leading-8 mb-4">
+      <li><strong>Loss surfaces</strong> and gradient descent</li>
+      <li>Forward pass → Loss → Backprop → Update</li>
+    </ol>
+    <img src="./assets/loss_surfaces.svg" class="w-full h-[190px] object-contain" alt="Loss surface over weight space with multiple minima" />
+  </div>
+</div>
+
+<!--
+Transition slide before diving into Block 1.
+Left side previews the model block (architectures, tasks, MLPs).
+Right side previews the training block (loss, gradient descent, backprop).
 -->
 
 ---
@@ -110,25 +239,6 @@ sectionTitle: Model
 <div class="bonn-section-citation">
   Photo by <a href="https://www.pexels.com/@d-ng-nhan-324384/" target="_blank" rel="noopener noreferrer">Dương Nhân</a> on <a href="https://www.pexels.com/photo/a-pillows-on-the-couch-near-the-glass-window-with-a-city-view-4389953/" target="_blank" rel="noopener noreferrer">Pexels</a>
 </div>
-
-
----
-section: data
----
-
-# Data as blocks of numbers - E.g., Tensors
-
-<img
-  src="./assets/tensors.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Scalars, vectors, matrices, images, and image time series represented as tensors with zero to four dimensions"
-/>
-
----
-section: data
----
-
-# Data samples from a distribution
 
 
 ---
@@ -255,8 +365,8 @@ section: model
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: mlp
-sectionTitle: MLP
+section: model
+sectionTitle: Model
 ---
 
 # The Multi-Layer Perceptron (MLP) Model
@@ -348,8 +458,8 @@ section: model
 />
 
 ---
-section: model-training
-sectionTitle: Model Training
+section: training
+sectionTitle: Training
 ---
 
 # Training: Adjusting Weights to Minimize Loss
@@ -361,7 +471,7 @@ sectionTitle: Model Training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # The Learning Objective: argmin
@@ -373,7 +483,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Loss Function: Mean Squared Error
@@ -385,7 +495,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Loss Function: Cross-Entropy
@@ -397,7 +507,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Loss Surfaces
@@ -409,7 +519,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Gradient Descent
@@ -421,7 +531,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
@@ -433,7 +543,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
@@ -445,7 +555,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
@@ -457,7 +567,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
@@ -469,7 +579,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
@@ -481,7 +591,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
@@ -493,7 +603,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: training
 ---
 
 # Backpropagation
