@@ -438,6 +438,23 @@ section: model
 section: model
 ---
 
+# More "Deeper" Layers → more Complex Transformations
+
+<img
+  src="./assets/mlp_deeper_layers.jpg"
+  class="w-full h-[360px] object-contain"
+  alt="A two-layer MLP maps input space (a) through a linear projection (b) and non-linear tanh distortion (c) to output class probabilities (d)"
+/>
+
+<!--
+Key insight: the first layer (W1) linearly projects the input into a higher-dimensional space; the activation (tanh) then non-linearly distorts that space so a simple linear classifier in the final layer can separate the classes.
+(a) Input space x=(x1,x2); (b) linear projection into R^3; (c) non-linear distortion with tanh; (d) output class probabilities.
+-->
+
+---
+section: model
+---
+
 # How an MLP transforms feature space
 
 <MlpFeatureSpaceDemo />
