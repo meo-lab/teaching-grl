@@ -88,6 +88,52 @@ Brainstorm live with the class, one question at a time, clicking to reveal each 
 section: learning
 ---
 
+# Timeline and Evolution of Deep Learning
+
+<div class="mt-4">
+  <div class="flex items-center mb-4">
+    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 rounded-l">&lt;2012</div>
+    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 text-center border-l border-white/30">2015 onwards</div>
+    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 text-right rounded-r border-l border-white/30">&gt;2020 →</div>
+  </div>
+
+  <table class="w-full text-[.75rem] border-collapse">
+    <thead>
+      <tr>
+        <th class="bg-[#00457c] text-white text-left px-3 py-2 font-semibold w-1/3">Classic Machine Learning</th>
+        <th class="bg-[#00457c] text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Supervised Deep Learning</th>
+        <th class="bg-[#00457c] text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Self-Supervised Learning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 align-top"><strong>Feature Design:</strong> Which features extract the most information?</td>
+        <td class="px-3 py-2 align-top border-l border-gray-200"><strong>Model Design:</strong> Which architecture is best for my tensors?</td>
+        <td class="px-3 py-2 align-top border-l border-gray-200"><strong>Loss Design:</strong> Which loss function or training strategy?</td>
+      </tr>
+      <tr class="border-b border-gray-200 bg-gray-50">
+        <td class="px-3 py-2"><strong>Data:</strong> small labelled</td>
+        <td class="px-3 py-2 border-l border-gray-200"><strong>Data:</strong> large labelled</td>
+        <td class="px-3 py-2 border-l border-gray-200"><strong>Data:</strong> large unlabelled</td>
+      </tr>
+      <tr>
+        <td class="px-3 py-2"><strong>Models:</strong> Random Forest, Boosting, Lin. Regression</td>
+        <td class="px-3 py-2 border-l border-gray-200"><strong>Models:</strong> MLPs, CNNs, RNNs</td>
+        <td class="px-3 py-2 border-l border-gray-200"><strong>Model:</strong> Transformers</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!--
+Historical framing: three eras of machine learning, defined by the central design question.
+Classic ML: features are hand-designed. Supervised DL: architecture is the design choice. Self-supervised: the loss/training strategy is the key decision.
+-->
+
+---
+section: learning
+---
+
 # Two Core Topics in This Lecture
 
 <div class="grid grid-cols-2 gap-8 mt-5">
