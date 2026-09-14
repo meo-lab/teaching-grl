@@ -22,16 +22,81 @@ This lecture formalizes supervised learning on structured inputs before introduc
 
 ---
 
-# In this lecture
+# Two Questions for Lectures 3–4
 
-- Inputs, targets, and supervised learning
-- Classification and regression
-- Train / validation / test splits
-- Decision trees and ensemble methods
-- Random forests as the main model
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-6">
+    <div class="text-[.6rem] uppercase tracking-widest text-blue-600 font-bold mb-3">Lecture 3</div>
+    <div class="text-[1.05rem] leading-snug font-semibold text-blue-900">How does a neural network learn?</div>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
+    <div class="text-[.6rem] uppercase tracking-widest text-emerald-600 font-bold mb-3">Lecture 4</div>
+    <div class="text-[1.05rem] leading-snug font-semibold text-emerald-900">Why should what it learns work beyond the training data?</div>
+  </div>
+</div>
 
 <!--
-This lecture defines what learning means operationally and sets up the contrast to supervised deep learning in Lecture 4.
+Set up the two-lecture arc before any technical detail.
+Lecture 3 is about the mechanics of learning; Lecture 4 is about why it generalises.
+-->
+
+---
+
+# Learning Outcomes Roadmap
+
+<div class="mt-3 text-[.72rem]">
+
+| | Learning outcome | Lecture | Block |
+|---|---|---|---|
+| ⬜ | Explain how neural networks transform inputs into learned representations that make tasks simpler. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
+| ⬜ | Explain layers, parameters, biases, and nonlinear activation functions in an MLP. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Models and Representations |
+| ⬜ | Explain forward pass, loss, gradients, backpropagation, and parameter updates. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Learning and Optimization |
+| ⬜ | Explain the inductive bias behind CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 3</span> | Expert Jigsaw |
+| ⬜ | Explain finite datasets vs. samples drawn from an underlying data distribution. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Samples and Distributions |
+| ⬜ | Explain generalization, overfitting, bias–variance, and train/validation/test evaluation. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Classical Generalization |
+| ⬜ | Explain how interpolation threshold, double descent, and overparameterization modify the classical view. | <span class="text-emerald-700 font-semibold">Lecture 4</span> | Modern Generalization |
+
+</div>
+
+<!--
+This table is the shared map for Lectures 3 and 4.
+We will revisit it mid-lecture to mark what has been covered, and again at the start of Lecture 4.
+The ⬜ markers can be swapped to ✅ as outcomes are reached.
+-->
+
+---
+
+# Today: How Do Neural Networks Learn Useful Representations?
+
+<div class="text-[.85rem] text-gray-600 mb-5">Focusing on the first three outcomes from the roadmap.</div>
+
+<div class="grid grid-cols-2 gap-5">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Block 1 — Models and Representations</div>
+    <ul class="text-[.78rem] leading-7 text-blue-900">
+      <li>representations</li>
+      <li>MLPs</li>
+      <li>hidden spaces</li>
+      <li>nonlinearities</li>
+    </ul>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Block 2 — Learning and Optimization</div>
+    <ul class="text-[.78rem] leading-7 text-blue-900">
+      <li>forward pass</li>
+      <li>loss</li>
+      <li>gradients</li>
+      <li>backpropagation</li>
+      <li>parameter updates</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mt-4 text-[.7rem] text-gray-500">Next: what does learning actually mean for a system?</div>
+
+<!--
+Zoom in on today's scope before the lecture becomes technical.
+Students should track these two blocks as the lecture progresses.
 -->
 
 ---
