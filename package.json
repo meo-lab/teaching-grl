@@ -13,6 +13,7 @@
     "@slidev/cli": "^52.14.2",
     "@slidev/theme-default": "latest",
     "@supabase/supabase-js": "^2.106.1",
+    "@tensorflow/tfjs": "^4.22.0",
     "leaflet": "^1.9.4",
     "p5": "^1.11.11",
     "proj4": "^2.22.0"
