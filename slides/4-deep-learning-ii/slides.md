@@ -31,6 +31,7 @@ Keep this conceptual and practical; transformers are intentionally deferred to L
 -->
 
 ---
+<<<<<<< HEAD
 section: models-and-representations
 ---
 
@@ -56,18 +57,32 @@ section: models-and-representations
 
 ---
 section: models-and-representations
+=======
+layout: bonn-section
+sectionColor: "#00457c"
+section: data
+sectionTitle: Data
+>>>>>>> ec4af56b9d56102eb9155c9fc74e74190f225da3
 ---
 
 # Data as blocks of numbers - E.g., Tensors
 
 <img
+<<<<<<< HEAD
   src="./assets/tensors.svg"
+=======
+  src="../3-deep-learning-i/assets/tensors.svg"
+>>>>>>> ec4af56b9d56102eb9155c9fc74e74190f225da3
   class="w-full h-[360px] object-contain"
   alt="Scalars, vectors, matrices, images, and image time series represented as tensors with zero to four dimensions"
 />
 
 ---
+<<<<<<< HEAD
 section: models-and-representations
+=======
+section: data
+>>>>>>> ec4af56b9d56102eb9155c9fc74e74190f225da3
 ---
 
 # Data samples from a distribution
