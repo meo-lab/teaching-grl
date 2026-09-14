@@ -35,10 +35,22 @@ This lecture defines what learning means operationally and sets up the contrast 
 -->
 
 ---
+
+---
 layout: bonn-section
 sectionColor: "#00457c"
-section: learning
-sectionTitle: The Aspects of Learning
+section: overview
+sectionTitle: Overview
+---
+
+# Overview
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+How neural networks learn (Lecture 3) and why learned patterns generalize (Lecture 4).
+</div>
+
+---
+section: overview
 ---
 
 # The Aspects of Learning
@@ -62,7 +74,7 @@ sectionTitle: The Aspects of Learning
 </div>
 
 ---
-section: learning
+section: overview
 ---
 
 # What Does a System Need to Learn?
@@ -85,7 +97,7 @@ Brainstorm live with the class, one question at a time, clicking to reveal each 
 -->
 
 ---
-section: learning
+section: overview
 ---
 
 # Timeline and Evolution of Deep Learning
@@ -131,7 +143,7 @@ Classic ML: features are hand-designed. Supervised DL: architecture is the desig
 -->
 
 ---
-section: learning
+section: overview
 ---
 
 # Two Core Topics in This Lecture
@@ -164,8 +176,18 @@ Right previews the training block (loss, gradient descent, backprop).
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: model
-sectionTitle: Model
+section: models-and-representations
+sectionTitle: Models and Representations
+---
+
+# Models and Representations
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+How model architecture shapes internal representations of geospatial data.
+</div>
+
+---
+section: models-and-representations
 ---
 
 # Data and Experience
@@ -190,7 +212,7 @@ sectionTitle: Model
 
 
 ---
-section: data
+section: models-and-representations
 ---
 
 # Data as blocks of numbers - E.g., Tensors
@@ -202,29 +224,14 @@ section: data
 />
 
 ---
-section: data
+section: models-and-representations
 ---
 
 # Data samples from a distribution
 
 
 ---
-layout: bonn-section
-sectionColor: "#00457c"
-section: model
-sectionTitle: Model
----
-
-# The Learnable Model
-
-<img src="./assets/reading.jpg" alt="An adult and child reading a book together" />
-
-<div class="bonn-section-citation">
-  Photo by <a href="https://www.pexels.com/@silverkblack/" target="_blank" rel="noopener noreferrer">Vitaly Gariev</a> on <a href="https://www.pexels.com/photo/mother-and-son-lying-down-on-carpet-with-book-23224850/" target="_blank" rel="noopener noreferrer">Pexels</a>
-</div>
-
----
-section: model
+section: models-and-representations
 ---
 
 # Our Learned Understanding
@@ -258,7 +265,7 @@ section: model
 
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Deep Learning Model
@@ -270,7 +277,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Sentinel-2 as an Image Tensor
@@ -282,7 +289,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Image Classification
@@ -294,7 +301,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Image Segmentation
@@ -306,7 +313,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Object Detection
@@ -318,7 +325,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Time Series Classification
@@ -330,7 +337,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Overview: Deep Model Architectures
@@ -388,18 +395,7 @@ Each era introduced a new inductive bias: MLPs — universal approximation; CNNs
 -->
 
 ---
-layout: bonn-section
-sectionColor: "#00457c"
-section: mlp
-sectionTitle: MLP
----
-
-# The Multi-Layer Perceptron (MLP) Model
-
-<img src="./assets/mlp_cover.svg" alt="An illustration of a multilayer perceptron transforming inputs into outputs" />
-
----
-section: model
+section: models-and-representations
 ---
 
 # Linear Transformation
@@ -411,7 +407,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Linear Transformation with a Bias Term
@@ -423,7 +419,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Weighted Connections
@@ -435,7 +431,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # More "Deeper" Layers → more Complex Transformations
@@ -452,7 +448,7 @@ Key insight: the first layer (W1) linearly projects the input into a higher-dime
 -->
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # How an MLP transforms feature space
@@ -464,7 +460,7 @@ Inspired by Andrej Karpathy's <a href="https://cs.stanford.edu/people/karpathy/c
 </div>
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Machine Learning and Deep Learning
@@ -476,7 +472,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Feature Learning
@@ -488,7 +484,7 @@ section: model
 />
 
 ---
-section: model
+section: models-and-representations
 ---
 
 # Foundation Models
@@ -500,8 +496,20 @@ section: model
 />
 
 ---
-section: model-training
-sectionTitle: Model Training
+layout: bonn-section
+sectionColor: "#00457c"
+section: learning-and-optimization
+sectionTitle: Learning and Optimization
+---
+
+# Learning and Optimization
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+From predictions to loss, gradients, and parameter updates.
+</div>
+
+---
+section: learning-and-optimization
 ---
 
 # Training: Adjusting Weights to Minimize Loss
@@ -513,7 +521,7 @@ sectionTitle: Model Training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # The Learning Objective: argmin
@@ -525,7 +533,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Loss Function: Mean Squared Error
@@ -537,7 +545,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Loss Function: Cross-Entropy
@@ -549,7 +557,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Loss Surfaces
@@ -561,7 +569,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Gradient Descent
@@ -573,7 +581,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
@@ -585,7 +593,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
@@ -597,7 +605,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
@@ -609,7 +617,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
@@ -621,7 +629,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
@@ -633,7 +641,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
@@ -645,7 +653,7 @@ section: model-training
 />
 
 ---
-section: model-training
+section: learning-and-optimization
 ---
 
 # Backpropagation
