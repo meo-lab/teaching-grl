@@ -174,6 +174,24 @@ Brainstorm live with the class, one question at a time, clicking to reveal each 
 section: overview
 ---
 
+# Recap: The Classic ML Pipeline
+
+<img
+  src="./assets/classic_ml.svg"
+  class="w-full h-[380px] object-contain"
+  alt="The classic machine learning pipeline: raw data → feature engineering → feature vector → classifier → prediction"
+/>
+
+<!--
+Brief recap of Lecture 3 before moving to deep learning.
+In classic ML, features are hand-designed by domain experts; the model operates on those fixed representations.
+Deep learning replaces hand-crafted features with learned representations — this lecture is about how and why that works.
+-->
+
+---
+section: overview
+---
+
 # Timeline and Evolution of Deep Learning
 
 <div class="mt-4">
