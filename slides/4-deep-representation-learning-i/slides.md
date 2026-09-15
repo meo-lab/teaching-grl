@@ -10,6 +10,7 @@ home: ../
 
 <script setup>
 import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
+import PixelReshape from '../../components/PixelReshape.vue'
 </script>
 
 # Deep Representation Learning I
@@ -22,22 +23,22 @@ This lecture formalizes supervised learning on structured inputs before introduc
 
 ---
 
-# Two Questions for Lectures 4–5
+# Two Questions for Lectures 3–4
 
 <div class="grid grid-cols-2 gap-8 mt-8">
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-6">
-    <div class="text-[.6rem] uppercase tracking-widest text-blue-600 font-bold mb-3">Lecture 4</div>
+    <div class="text-[.6rem] uppercase tracking-widest text-blue-600 font-bold mb-3">Lecture 3</div>
     <div class="text-[1.05rem] leading-snug font-semibold text-blue-900">How does a neural network learn?</div>
   </div>
   <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
-    <div class="text-[.6rem] uppercase tracking-widest text-emerald-600 font-bold mb-3">Lecture 5</div>
+    <div class="text-[.6rem] uppercase tracking-widest text-emerald-600 font-bold mb-3">Lecture 4</div>
     <div class="text-[1.05rem] leading-snug font-semibold text-emerald-900">Why should what it learns work beyond the training data?</div>
   </div>
 </div>
 
 <!--
-Set up the two-lecture arc before any technical detail.
-Lecture 4 is about the mechanics of learning; Lecture 5 is about why it generalises.
+Set up the Lecture 3 → Lecture 4 bridge before technical detail.
+Lecture 3 asks how learning works; Lecture 4 asks why learned structure can generalize.
 -->
 
 ---
@@ -46,52 +47,226 @@ Lecture 4 is about the mechanics of learning; Lecture 5 is about why it generali
 
 <div class="mt-3 text-[.64rem] leading-tight whitespace-nowrap">
 
-| | Learning outcome | Lecture | Block |
-|---|---|---|---|
-| ⬜ | Explain how neural networks learn representations that simplify tasks. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Models and Representations |
-| ⬜ | Explain layers, parameters, biases, and nonlinear activations in an MLP. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Models and Representations |
-| ⬜ | Explain forward passes, losses, gradients, backpropagation, and updates. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Learning and Optimization |
-| ⬜ | Explain the inductive biases of CNNs, RNNs, GNNs, Transformers, and common losses. | <span class="text-amber-700 font-semibold">Lab 4</span> | Expert Jigsaw |
-| ⬜ | Distinguish finite datasets from samples of an underlying distribution. | <span class="text-emerald-700 font-semibold">Lecture 5</span> | Samples and Distributions |
-| ⬜ | Explain generalization, overfitting, bias–variance, and train/validation/test evaluation. | <span class="text-emerald-700 font-semibold">Lecture 5</span> | Classical Generalization |
-| ⬜ | Explain interpolation thresholds, double descent, and overparameterization. | <span class="text-emerald-700 font-semibold">Lecture 5</span> | Modern Generalization |
+| | Learning outcome | Block |
+|---|---|---|
+| ⬜ | Explain why representation choice determines task difficulty. | Why Learn Representations? |
+| ⬜ | Interpret logistic regression as a linear decision boundary in feature space. | Why Learn Representations? |
+| ⬜ | Explain how an MLP learns transformations of feature space. | Multilayer Perceptrons |
+| ⬜ | Distinguish representation learner vs final decision layer in a network. | Multilayer Perceptrons |
+| ⬜ | Explain the roles of loss, gradient descent, and backpropagation. | Gradient Descent &amp; Backpropagation |
 
 </div>
 
 <!--
-This table is the shared map for Lectures 4 and 5.
-We will revisit it mid-lecture to mark what has been covered, and again at the start of Lecture 5.
+This table is the map for today's three blocks.
+We will revisit it as a progress tracker while moving through the lecture.
 The ⬜ markers can be swapped to ✅ as outcomes are reached.
 -->
 
 ---
 
-# Today: How Do Neural Networks Learn Useful Representations?
+# Today: Lecture Structure
 
-<div class="text-[.85rem] text-gray-600 mb-5">Focusing on the first three outcomes from the roadmap.</div>
+<div class="text-[.85rem] text-gray-600 mb-5">Three major blocks guide the narrative.</div>
 
-<div class="grid grid-cols-2 gap-5">
+<div class="grid grid-cols-3 gap-4 mt-3">
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Block 1 — Models and Representations</div>
-
-<img src="./assets/model.svg" class="w-full h-[190px] object-contain" alt="A deep learning model transforms an input tensor through layers into an output tensor" />
-
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">1</div>
+    <div class="text-[.78rem] font-semibold">Why Learn Representations?</div>
   </div>
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Block 2 — Learning and Optimization</div>
-    <img src="./assets/min.png" class="w-[120px] h-[120px] object-contain" alt="Loss surface over weight space with multiple minima" />
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">2</div>
+    <div class="text-[.78rem] font-semibold">Multilayer Perceptrons</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">3</div>
+    <div class="text-[.78rem] font-semibold">Gradient Descent &amp; Backpropagation</div>
   </div>
 </div>
 
-<div class="mt-4 text-[.7rem] text-gray-500">Next: what does learning actually mean for a system?</div>
+<div class="mt-4 text-[.7rem] text-gray-500">Start with representation quality and geometric separability.</div>
 
 <!--
 Zoom in on today's scope before the lecture becomes technical.
-Students should track these two blocks as the lecture progresses.
+Students should track progress across the three blocks.
 -->
 
 ---
-section: overview
+layout: bonn-section
+sectionColor: "#00457c"
+section: why-learn-representations
+sectionTitle: Why Learn Representations?
+---
+
+# Why Learn Representations?
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+Good representations make hard problems easy.
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-6">From manual feature design to learned representations.</div>
+
+---
+section: why-learn-representations
+---
+
+# What is a representation?
+
+- Same information can be represented in more or less useful ways.
+- Utility depends on whether structure is exposed for the task.
+- Learning often succeeds or fails because of representation choice.
+
+<!--
+Keep this intuitive and non-technical.
+Representation quality is the anchor idea for the full lecture.
+-->
+
+---
+section: why-learn-representations
+---
+
+# 784 numbers. One digit.
+
+<div class="text-[.78rem] text-gray-600 mb-2">
+Can you find a representation that reveals the structure?
+</div>
+
+<PixelReshape />
+
+<!--
+These are 784 fixed grayscale values from one MNIST sample.
+Ask students to move through multiple column counts; at 28, the spatial structure appears.
+Emphasize that values and ordering never changed.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Same data. Different representation.
+
+<div class="text-[.95rem] mt-4 mb-5">
+\[
+x \in \mathbb{R}^{784}
+\quad\longleftrightarrow\quad
+X \in \mathbb{R}^{28\times 28}
+\]
+</div>
+
+<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-[.8rem]">
+No information was added.<br>
+The representation exposed spatial structure.
+</div>
+
+<div class="mt-4 text-[.74rem] text-gray-600">
+An MLP can still process the same image as a 784-dimensional vector.
+</div>
+
+<!--
+Interpret the demo immediately: same values and order, different arrangement.
+Bridge forward to feature-space geometry and MLP representation learning.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Bridge from Lecture 3
+
+<div class="rounded-xl border border-gray-200 p-4 mt-3 text-[.8rem]">
+<strong>Lecture 3 workflow:</strong><br>
+data → manually designed representation → model → prediction
+</div>
+
+<div class="mt-4 text-[.8rem]">
+Students improved performance by:
+</div>
+
+- choosing features,
+- engineering NDVI,
+- adding complementary variables.
+
+<div class="mt-3 text-[.74rem] text-gray-600">In Lecture 3, we designed the representation ourselves.</div>
+
+<!--
+Make continuity explicit so this lecture feels like a direct extension.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Logistic Regression in Feature Space
+
+<div class="text-[.85rem] mt-2">\(x \rightarrow w^\top x + b \rightarrow \sigma(\cdot) \rightarrow \hat{y}\)</div>
+
+<div class="grid grid-cols-2 gap-5 mt-4 text-[.78rem]">
+  <div class="rounded-lg border border-gray-200 p-3">
+    <strong>Samples</strong> are points in feature space.
+  </div>
+  <div class="rounded-lg border border-gray-200 p-3">
+    <strong>Coordinates</strong> are feature values.
+  </div>
+  <div class="rounded-lg border border-gray-200 p-3">
+    Logistic regression learns a <strong>linear decision boundary</strong>.
+  </div>
+  <div class="rounded-lg border border-gray-200 p-3">
+    In 2D: line. In higher dimensions: hyperplane.
+  </div>
+</div>
+
+<!--
+Anchor geometric interpretation before introducing learned representations.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Representation Determines Difficulty
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+    <div class="text-[.62rem] font-semibold uppercase tracking-wide text-red-700 mb-2">Poor representation</div>
+    <div class="text-[.8rem]">Classes overlap in awkward geometry.</div>
+    <div class="text-[.72rem] text-red-800 mt-2">Simple linear boundary struggles.</div>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+    <div class="text-[.62rem] font-semibold uppercase tracking-wide text-emerald-700 mb-2">Useful representation</div>
+    <div class="text-[.8rem]">Classes become easier to separate.</div>
+    <div class="text-[.72rem] text-emerald-800 mt-2">Simple linear classifier can be sufficient.</div>
+  </div>
+</div>
+
+<!--
+This is the conceptual pivot: geometry in feature space controls model difficulty.
+-->
+
+---
+section: why-learn-representations
+---
+
+# What if we learn the representation?
+
+<div class="grid grid-cols-2 gap-6 mt-5 text-[.8rem]">
+  <div class="rounded-xl border border-gray-200 p-4">
+    <div class="font-semibold mb-2">Lecture 3</div>
+    <div>\(x\) → feature engineering → logistic regression</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="font-semibold mb-2 text-blue-900">Lecture 4</div>
+    <div>\(x\) → learned representation → decision layer</div>
+  </div>
+</div>
+
+<div class="mt-5 text-[.72rem] text-gray-600">Next block: Multilayer Perceptrons.</div>
+
+<!--
+Explicit transition from manual feature design to representation learning.
+-->
+
+---
+section: why-learn-representations
 ---
 
 # Two Core Topics in This Lecture
@@ -124,8 +299,8 @@ Right previews the training block (loss, gradient descent, backprop).
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: overview
-sectionTitle: Overview
+section: why-learn-representations
+sectionTitle: Why Learn Representations?
 ---
 
 # The Aspects of Learning
@@ -148,7 +323,7 @@ sectionTitle: Overview
 
 
 ---
-section: overview
+section: why-learn-representations
 ---
 
 # What Does a System Need to Learn?
@@ -171,7 +346,7 @@ Brainstorm live with the class, one question at a time, clicking to reveal each 
 -->
 
 ---
-section: overview
+section: why-learn-representations
 ---
 
 # Recap: The Classic ML Pipeline
@@ -189,7 +364,7 @@ Deep learning replaces hand-crafted features with learned representations — th
 -->
 
 ---
-section: overview
+section: why-learn-representations
 ---
 
 # Timeline and Evolution of Deep Learning
@@ -237,18 +412,64 @@ Classic ML: features are hand-designed. Supervised DL: architecture is the desig
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: models-and-representations
-sectionTitle: Models and Representations
+section: multilayer-perceptrons
+sectionTitle: Multilayer Perceptrons
 ---
 
-# Models and Representations
+# Multilayer Perceptrons
 
 <div class="text-[.9rem] text-gray-700 mt-4">
-How model architecture shapes internal representations of geospatial data.
+Learning the representation.
 </div>
 
+<div class="text-[.72rem] text-gray-500 mt-6">From linear decisions on fixed features to learned feature-space transformations.</div>
+
 ---
-section: models-and-representations
+section: multilayer-perceptrons
+---
+
+# From Logistic Regression to a Learned Representation
+
+<div class="grid grid-cols-2 gap-6 mt-5 text-[.8rem]">
+  <div class="rounded-xl border border-gray-200 p-4">
+    <div class="font-semibold mb-2">Familiar baseline</div>
+    <div>\(x \rightarrow w^\top x + b \rightarrow \sigma(\cdot) \rightarrow \hat{y}\)</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="font-semibold mb-2 text-blue-900">MLP perspective</div>
+    <div>\(x \rightarrow h_\theta(x) \rightarrow\) decision layer \(\rightarrow \hat{y}\)</div>
+  </div>
+</div>
+
+<div class="mt-4 text-[.72rem] text-gray-600">Separate the representation learner from the final decision layer.</div>
+
+<!--
+Start Block 2 from logistic regression so students keep a stable anchor.
+Then introduce the learned representation idea explicitly.
+-->
+
+---
+section: multilayer-perceptrons
+---
+
+# Why Nonlinear Activations?
+
+<div class="rounded-xl border border-amber-200 bg-amber-50 p-4 mt-3 text-[.82rem]">
+If every layer were only linear, stacking layers would still be one linear transformation.
+</div>
+
+<div class="mt-4 text-[.8rem]">
+Nonlinear activations let the network reshape feature geometry,
+so classes can become easier to separate with a simple final boundary.
+</div>
+
+<!--
+This motivates activations without long derivations.
+Connect directly to representation geometry.
+-->
+
+---
+section: multilayer-perceptrons
 ---
 
 # Our Learned Understanding
@@ -282,7 +503,7 @@ section: models-and-representations
 
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Deep Learning Model
@@ -294,7 +515,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Sentinel-2 as an Image Tensor
@@ -306,7 +527,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Image Classification
@@ -318,7 +539,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Image Segmentation
@@ -330,7 +551,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Object Detection
@@ -342,7 +563,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Time Series Classification
@@ -354,7 +575,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Overview: Deep Model Architectures
@@ -412,7 +633,7 @@ Each era introduced a new inductive bias: MLPs — universal approximation; CNNs
 -->
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Linear Transformation
@@ -424,7 +645,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Linear Transformation with a Bias Term
@@ -436,7 +657,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Weighted Connections
@@ -448,7 +669,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # More "Deeper" Layers → more Complex Transformations
@@ -465,7 +686,7 @@ Key insight: the first layer (W1) linearly projects the input into a higher-dime
 -->
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # How an MLP transforms feature space
@@ -477,7 +698,7 @@ Inspired by Andrej Karpathy's <a href="https://cs.stanford.edu/people/karpathy/c
 </div>
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Machine Learning and Deep Learning
@@ -489,7 +710,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Feature Learning
@@ -501,7 +722,7 @@ section: models-and-representations
 />
 
 ---
-section: models-and-representations
+section: multilayer-perceptrons
 ---
 
 # Foundation Models
@@ -513,20 +734,43 @@ section: models-and-representations
 />
 
 ---
-layout: bonn-section
-sectionColor: "#00457c"
-section: learning-and-optimization
-sectionTitle: Learning and Optimization
+section: multilayer-perceptrons
 ---
 
-# Learning and Optimization
+# Block 2 Takeaway
 
-<div class="text-[.9rem] text-gray-700 mt-4">
-From predictions to loss, gradients, and parameter updates.
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-4 mt-3 text-[.82rem]">
+The final classifier can stay simple.
+<br>
+The network learns a representation in which the task becomes simple.
 </div>
 
+<div class="mt-5 text-[.8rem] text-gray-700 font-semibold">
+But how are all these parameters learned?
+</div>
+
+<!--
+Summary transition from learned representations to parameter learning.
+This opens Block 3.
+-->
+
 ---
-section: learning-and-optimization
+layout: bonn-section
+sectionColor: "#00457c"
+section: gradient-descent-backpropagation
+sectionTitle: Gradient Descent & Backpropagation
+---
+
+# Gradient Descent & Backpropagation
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+Learning the parameters.
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-6">parameters → prediction → loss → gradient → update</div>
+
+---
+section: gradient-descent-backpropagation
 ---
 
 # Training: Adjusting Weights to Minimize Loss
@@ -538,7 +782,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # The Learning Objective: argmin
@@ -550,7 +794,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Loss Function: Mean Squared Error
@@ -562,7 +806,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Loss Function: Cross-Entropy
@@ -574,7 +818,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Loss Surfaces
@@ -586,7 +830,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Gradient Descent
@@ -598,7 +842,30 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
+---
+
+# Gradient Descent vs Backpropagation
+
+<div class="grid grid-cols-2 gap-5 mt-4 text-[.8rem]">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="font-semibold text-blue-900 mb-2">Gradient Descent</div>
+    <div>How to update parameters once gradients are known.</div>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+    <div class="font-semibold text-emerald-900 mb-2">Backpropagation</div>
+    <div>How to compute gradients efficiently through many layers.</div>
+  </div>
+</div>
+
+<div class="mt-4 text-[.72rem] text-gray-600">Backprop gives the gradients; gradient descent uses them to step the parameters.</div>
+
+<!--
+Clarify the common confusion: optimization rule vs gradient-computation algorithm.
+-->
+
+---
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -610,7 +877,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -622,7 +889,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -634,7 +901,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -646,7 +913,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -658,7 +925,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -670,7 +937,7 @@ section: learning-and-optimization
 />
 
 ---
-section: learning-and-optimization
+section: gradient-descent-backpropagation
 ---
 
 # Backpropagation
@@ -680,3 +947,26 @@ section: learning-and-optimization
   class="w-full h-[360px] object-contain"
   alt="Backpropagation step 7: the same computation expressed in code as loss = MSE(y_pred, y), loss.backward(), and optimizer.step()"
 />
+
+---
+section: gradient-descent-backpropagation
+---
+
+# Close the Representation-Learning Loop
+
+<div class="grid grid-cols-3 gap-2 mt-4 text-[.7rem]">
+  <div class="rounded border border-gray-300 p-2 text-center">Input</div>
+  <div class="rounded border border-gray-300 p-2 text-center">Current representation</div>
+  <div class="rounded border border-gray-300 p-2 text-center">Prediction</div>
+  <div class="rounded border border-gray-300 p-2 text-center">Loss</div>
+  <div class="rounded border border-gray-300 p-2 text-center">Backpropagation</div>
+  <div class="rounded border border-gray-300 p-2 text-center">Parameter update</div>
+</div>
+
+<div class="mt-4 text-[.8rem] text-gray-700">
+Training changes parameters; changed parameters change the representation.
+</div>
+
+<!--
+End Block 3 by closing the full loop from representation to updates and back.
+-->
