@@ -11,6 +11,10 @@ home: ../
 <script setup>
 import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
 import PixelReshape from '../../components/PixelReshape.vue'
+import Lecture1AppleMatrixRepresentation from './components/Lecture1AppleMatrixRepresentation.vue'
+import PlotlyHistogram from './components/PlotlyHistogram.vue'
+import LinearDecisionBoundaryDemo from './components/LinearDecisionBoundaryDemo.vue'
+import LogisticRegressionDemo from './components/LogisticRegressionDemo.vue'
 </script>
 
 # Deep Representation Learning I
@@ -110,371 +114,13 @@ Good representations make hard problems easy.
 section: why-learn-representations
 ---
 
-# What is a representation?
+# A difficult task is easy in the right form.
 
-- Same information can be represented in more or less useful ways.
-- Utility depends on whether structure is exposed for the task.
-- Learning often succeeds or fails because of representation choice.
+## Recap Lecture 1
 
-<!--
-Keep this intuitive and non-technical.
-Representation quality is the anchor idea for the full lecture.
--->
+<div class="grid grid-cols-[2fr_1fr] gap-6 items-start mt-5">
 
----
-section: why-learn-representations
----
-
-# 784 numbers. One digit.
-
-<div class="text-[.78rem] text-gray-600 mb-2">
-Can you find a representation that reveals the structure?
-</div>
-
-<PixelReshape />
-
-<!--
-These are 784 fixed grayscale values from one MNIST sample.
-Ask students to move through multiple column counts; at 28, the spatial structure appears.
-Emphasize that values and ordering never changed.
--->
-
----
-section: why-learn-representations
----
-
-# Same data. Different representation.
-
-<div class="text-[.95rem] mt-4 mb-5">
-\[
-x \in \mathbb{R}^{784}
-\quad\longleftrightarrow\quad
-X \in \mathbb{R}^{28\times 28}
-\]
-</div>
-
-<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-[.8rem]">
-No information was added.<br>
-The representation exposed spatial structure.
-</div>
-
-<div class="mt-4 text-[.74rem] text-gray-600">
-An MLP can still process the same image as a 784-dimensional vector.
-</div>
-
-<!--
-Interpret the demo immediately: same values and order, different arrangement.
-Bridge forward to feature-space geometry and MLP representation learning.
--->
-
----
-section: why-learn-representations
----
-
-# Bridge from Lecture 3
-
-<div class="rounded-xl border border-gray-200 p-4 mt-3 text-[.8rem]">
-<strong>Lecture 3 workflow:</strong><br>
-data → manually designed representation → model → prediction
-</div>
-
-<div class="mt-4 text-[.8rem]">
-Students improved performance by:
-</div>
-
-- choosing features,
-- engineering NDVI,
-- adding complementary variables.
-
-<div class="mt-3 text-[.74rem] text-gray-600">In Lecture 3, we designed the representation ourselves.</div>
-
-<!--
-Make continuity explicit so this lecture feels like a direct extension.
--->
-
----
-section: why-learn-representations
----
-
-# Logistic Regression in Feature Space
-
-<div class="text-[.85rem] mt-2">\(x \rightarrow w^\top x + b \rightarrow \sigma(\cdot) \rightarrow \hat{y}\)</div>
-
-<div class="grid grid-cols-2 gap-5 mt-4 text-[.78rem]">
-  <div class="rounded-lg border border-gray-200 p-3">
-    <strong>Samples</strong> are points in feature space.
-  </div>
-  <div class="rounded-lg border border-gray-200 p-3">
-    <strong>Coordinates</strong> are feature values.
-  </div>
-  <div class="rounded-lg border border-gray-200 p-3">
-    Logistic regression learns a <strong>linear decision boundary</strong>.
-  </div>
-  <div class="rounded-lg border border-gray-200 p-3">
-    In 2D: line. In higher dimensions: hyperplane.
-  </div>
-</div>
-
-<!--
-Anchor geometric interpretation before introducing learned representations.
--->
-
----
-section: why-learn-representations
----
-
-# Representation Determines Difficulty
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-red-200 bg-red-50 p-4">
-    <div class="text-[.62rem] font-semibold uppercase tracking-wide text-red-700 mb-2">Poor representation</div>
-    <div class="text-[.8rem]">Classes overlap in awkward geometry.</div>
-    <div class="text-[.72rem] text-red-800 mt-2">Simple linear boundary struggles.</div>
-  </div>
-  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-    <div class="text-[.62rem] font-semibold uppercase tracking-wide text-emerald-700 mb-2">Useful representation</div>
-    <div class="text-[.8rem]">Classes become easier to separate.</div>
-    <div class="text-[.72rem] text-emerald-800 mt-2">Simple linear classifier can be sufficient.</div>
-  </div>
-</div>
-
-<!--
-This is the conceptual pivot: geometry in feature space controls model difficulty.
--->
-
----
-section: why-learn-representations
----
-
-# What if we learn the representation?
-
-<div class="grid grid-cols-2 gap-6 mt-5 text-[.8rem]">
-  <div class="rounded-xl border border-gray-200 p-4">
-    <div class="font-semibold mb-2">Lecture 3</div>
-    <div>\(x\) → feature engineering → logistic regression</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="font-semibold mb-2 text-blue-900">Lecture 4</div>
-    <div>\(x\) → learned representation → decision layer</div>
-  </div>
-</div>
-
-<div class="mt-5 text-[.72rem] text-gray-600">Next block: Multilayer Perceptrons.</div>
-
-<!--
-Explicit transition from manual feature design to representation learning.
--->
-
----
-section: why-learn-representations
----
-
-# Two Core Topics in This Lecture
-
-<div class="grid grid-cols-2 gap-8 mt-5">
-  <div>
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Deep Learning Model</div>
-    <ol class="text-[.8rem] leading-8 mb-4">
-      <li><strong>Architectures</strong> — MLP, CNN, Transformer</li>
-      <li><strong>Tasks</strong> — Classification &amp; Segmentation</li>
-    </ol>
-    <img src="./assets/model.svg" class="w-full h-[190px] object-contain" alt="A deep learning model transforms an input tensor through layers into an output tensor" />
-  </div>
-  <div>
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700 mb-2">Model Training</div>
-    <ol class="text-[.8rem] leading-8 mb-4">
-      <li><strong>Loss surfaces</strong> and gradient descent</li>
-      <li>Forward pass → Loss → Backprop → Update</li>
-    </ol>
-    <img src="./assets/min.png" class="w-full h-[190px] object-contain" alt="Stylized loss surface with multiple minima and gradient descent paths" />
-  </div>
-</div>
-
-<!--
-Transition slide before diving into Block 1.
-Left previews the model block (architectures, tasks, MLPs).
-Right previews the training block (loss, gradient descent, backprop).
--->
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: why-learn-representations
-sectionTitle: Why Learn Representations?
----
-
-# The Aspects of Learning
-<div class="flex flex-col items-center justify-center h-full">
-  <iframe
-    src="https://giphy.com/embed/MmozymbZc0RdC"
-    width="300"
-    height="300"
-    class="rounded-xl shadow"
-    frameBorder="0"
-    allowFullScreen>
-  </iframe>
-    <p class="mt-2 text-xs text-gray-500">
-    via
-    <a href="https://giphy.com/gifs/MmozymbZc0RdC" target="_blank" rel="noopener noreferrer" class="underline">GIPHY</a>,
-    original source
-    <a href="https://imgur.com/gallery/FBMm2DO" target="_blank" rel="noopener noreferrer" class="underline">imgur.com/gallery/FBMm2DO</a>
-  </p>
-</div>
-
-
----
-section: why-learn-representations
----
-
-# What Does a System Need to Learn?
-
-<AspectsOfLearningDiagram />
-
-<!--
-Brainstorm live with the class, one question at a time, clicking to reveal each answer:
-
-1. What does a system need in order to learn? (opening prompt in the slide title)
-2. What is doing the learning? -> reveal Learnable model (click 1)
-   Expected: it needs adjustable parameters and enough capacity to represent the task.
-3. What can it learn from? -> reveal Experiences (click 2)
-   Expected: experiences supply the information the model learns from (already covered in Lecture 2 as data).
-4. What turns experience into changes in the model? -> reveal Learning algorithm (click 3)
-   Expected: the learning algorithm determines how experience changes the model's parameters.
-5. How do we know it learned rather than memorized? -> reveal Generalization (click 4)
-   Land the distinction: experiences, model, and algorithm are the ingredients for learning;
-   generalization to unseen situations is the success criterion.
--->
-
----
-section: why-learn-representations
----
-
-# Recap: The Classic ML Pipeline
-
-<img
-  src="./assets/classic_ml.svg"
-  class="w-full h-[380px] object-contain"
-  alt="The classic machine learning pipeline: raw data → feature engineering → feature vector → classifier → prediction"
-/>
-
-<!--
-Brief recap of Lecture 3 before moving to deep learning.
-In classic ML, features are hand-designed by domain experts; the model operates on those fixed representations.
-Deep learning replaces hand-crafted features with learned representations — this lecture is about how and why that works.
--->
-
----
-section: why-learn-representations
----
-
-# Timeline and Evolution of Deep Learning
-
-<div class="mt-4">
-  <div class="flex items-center mb-4">
-    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 rounded-l">&lt;2012</div>
-    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 text-center border-l border-white/30">2015 onwards</div>
-    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 text-right rounded-r border-l border-white/30">&gt;2020 →</div>
-  </div>
-
-  <table class="w-full text-[.75rem] border-collapse">
-    <thead>
-      <tr>
-        <th class="bg-[#00457c] text-white text-left px-3 py-2 font-semibold w-1/3">Classic Machine Learning</th>
-        <th class="bg-[#00457c] text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Supervised Deep Learning</th>
-        <th class="bg-[#00457c] text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Self-Supervised Learning</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="border-b border-gray-200">
-        <td class="px-3 py-2 align-top"><strong>Feature Design:</strong> Which features extract the most information?</td>
-        <td class="px-3 py-2 align-top border-l border-gray-200"><strong>Model Design:</strong> Which architecture is best for my tensors?</td>
-        <td class="px-3 py-2 align-top border-l border-gray-200"><strong>Loss Design:</strong> Which loss function or training strategy?</td>
-      </tr>
-      <tr class="border-b border-gray-200 bg-gray-50">
-        <td class="px-3 py-2"><strong>Data:</strong> small labelled</td>
-        <td class="px-3 py-2 border-l border-gray-200"><strong>Data:</strong> large labelled</td>
-        <td class="px-3 py-2 border-l border-gray-200"><strong>Data:</strong> large unlabelled</td>
-      </tr>
-      <tr>
-        <td class="px-3 py-2"><strong>Models:</strong> Random Forest, Boosting, Lin. Regression</td>
-        <td class="px-3 py-2 border-l border-gray-200"><strong>Models:</strong> MLPs, CNNs, RNNs</td>
-        <td class="px-3 py-2 border-l border-gray-200"><strong>Model:</strong> Transformers</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!--
-Historical framing: three eras of machine learning, defined by the central design question.
-Classic ML: features are hand-designed. Supervised DL: architecture is the design choice. Self-supervised: the loss/training strategy is the key decision.
--->
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: multilayer-perceptrons
-sectionTitle: Multilayer Perceptrons
----
-
-# Multilayer Perceptrons
-
-<div class="text-[.9rem] text-gray-700 mt-4">
-Learning the representation.
-</div>
-
-<div class="text-[.72rem] text-gray-500 mt-6">From linear decisions on fixed features to learned feature-space transformations.</div>
-
----
-section: multilayer-perceptrons
----
-
-# From Logistic Regression to a Learned Representation
-
-<div class="grid grid-cols-2 gap-6 mt-5 text-[.8rem]">
-  <div class="rounded-xl border border-gray-200 p-4">
-    <div class="font-semibold mb-2">Familiar baseline</div>
-    <div>\(x \rightarrow w^\top x + b \rightarrow \sigma(\cdot) \rightarrow \hat{y}\)</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="font-semibold mb-2 text-blue-900">MLP perspective</div>
-    <div>\(x \rightarrow h_\theta(x) \rightarrow\) decision layer \(\rightarrow \hat{y}\)</div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.72rem] text-gray-600">Separate the representation learner from the final decision layer.</div>
-
-<!--
-Start Block 2 from logistic regression so students keep a stable anchor.
-Then introduce the learned representation idea explicitly.
--->
-
----
-section: multilayer-perceptrons
----
-
-# Why Nonlinear Activations?
-
-<div class="rounded-xl border border-amber-200 bg-amber-50 p-4 mt-3 text-[.82rem]">
-If every layer were only linear, stacking layers would still be one linear transformation.
-</div>
-
-<div class="mt-4 text-[.8rem]">
-Nonlinear activations let the network reshape feature geometry,
-so classes can become easier to separate with a simple final boundary.
-</div>
-
-<!--
-This motivates activations without long derivations.
-Connect directly to representation geometry.
--->
-
----
-section: multilayer-perceptrons
----
-
-# Our Learned Understanding
-
-<div class="mt-5 flex flex-col gap-3">
+<div class="flex flex-col gap-3">
   <div v-click="1" class="grid grid-cols-[90px_1fr] items-center gap-5 border-b border-gray-200 pb-2">
     <div class="text-[.55rem] font-bold uppercase tracking-wide text-gray-500">Chinese</div>
     <div lang="zh" class="text-[1.05rem] leading-snug text-gray-800">我们的心智已经学会理解这个句子。</div>
@@ -501,30 +147,212 @@ section: multilayer-perceptrons
   </div>
 </div>
 
+<div class="flex flex-col items-center">
+  <img src="./assets/reading.jpg" class="w-full rounded-lg object-cover max-h-[320px]" alt="A person reading a book, effortlessly parsing a complex language" />
+  <div class="text-[.5rem] text-gray-400 mt-2 text-center leading-tight">
+    Photo by <a href="https://www.pexels.com/@silverkblack/" target="_blank" rel="noopener noreferrer">Vitaly Gariev</a> on <a href="https://www.pexels.com/@silverkblack/" target="_blank" rel="noopener noreferrer">Pexels</a>
+  </div>
+</div>
+
+</div>
 
 ---
-section: multilayer-perceptrons
+section: why-learn-representations
 ---
 
-# Deep Learning Model
+# Choosing Suitable Data Representations
+
+## Recap Lecture 1
+
+<div class="mt-8 grid grid-cols-3 gap-5">
+  <div class="min-h-[300px] rounded-xl border p-4">
+    <h3>Images</h3>
+    <Lecture1AppleMatrixRepresentation :click-index="1" />
+  </div>
+
+  <div class="min-h-[300px] rounded-xl border p-4">
+    <h3>Math</h3>
+    <div class="flex min-h-[238px] flex-col text-center">
+      <div class="flex flex-1 flex-col items-center justify-center">
+        <div v-click="2" class="rounded border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-sm tracking-wide text-gray-700">
+          XLVII + LXXVIII = ?
+        </div>
+        <div v-click="3" class="mt-5 font-mono text-sm text-blue-800">
+          47 + 78 = 125
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="min-h-[300px] rounded-xl border p-4">
+    <h3>Places</h3>
+    <div v-click="4" class="flex min-h-[238px] flex-col items-center text-center">
+      <div class="mt-3 text-xs uppercase tracking-wide text-gray-500">
+        Coordinates
+      </div>
+      <div class="mt-1 break-all font-mono text-sm leading-tight text-gray-700">
+        50°43′57.73″ N,<br />
+        7°06′16.63″ E
+      </div>
+      <div v-click="5" class="mt-5">
+        <div class="text-xs uppercase tracking-wide text-gray-500">
+          Place
+        </div>
+        <div class="mt-1 text-lg font-semibold text-blue-800">
+          Hofgarten, Bonn, Germany
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--
+Let me show this with a few examples. A computer usually sees an image as a matrix of numbers, often between 0 and 255.
+[click]
+But when we represent those numbers as intensities of light, it becomes much easier for us to see structure in the raw data. Both are valid representations of the same underlying object.
+[click]
+What is the result of this addition in Roman numerals?
+[click]
+It is much easier to do math with Arabic numerals. And the shift from Roman numerals to Arabic numerals took roughly 300 to 600 years in the Western world. That gives us a sense of how hard it can be to move to a better but unfamiliar representation.
+[click]
+Similarly, coordinates are great for databases, but they are hard to read. Place descriptions are easier for people to understand, but they can be ambiguous.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Machine Learning needs good Features
+
+## Recap Lecture 3
 
 <img
-  src="./assets/model.svg"
+  src="./assets/classic_ml.svg"
+  class="w-full h-[170px] object-contain -mt-4"
+  alt="The classic machine learning pipeline: raw data → feature engineering → feature vector → classifier → prediction"
+/>
+
+<div class="grid grid-cols-2 gap-3 mt-1 justify-center">
+  <div>
+    <div class="text-[.6rem] font-semibold text-gray-500 mb-1">Raw Band: Green</div>
+    <div style="height: 140px; width: 300px;">
+      <PlotlyHistogram dataset="green" x-label="Green reflectance" :show-legend="false" />
+    </div>
+  </div>
+  <div class="mx-auto w-[280px]">
+    <div class="text-[.6rem] font-semibold text-gray-500 mb-1">Engineered Feature: NDVI</div>
+    <div style="height: 140px; width: 300px;">
+      <PlotlyHistogram dataset="ndvi" x-label="NDVI" :show-legend="false" />
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3 text-[.5rem] text-gray-500" style="position: absolute; left: 72px; bottom: 22px;">
+  <div class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2ca02c"></span>Vegetation</div>
+  <div class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#d62728"></span>Urban/Built-up</div>
+</div>
+
+<!--
+Brief recap of Lecture 3 before moving to deep learning.
+In classic ML, features are hand-designed by domain experts; the model operates on those fixed representations.
+Deep learning replaces hand-crafted features with learned representations — this lecture is about how and why that works.
+-->
+
+
+---
+section: why-learn-representations
+---
+
+# Good Representations allow for Simple Models
+
+<div class="mt-4">
+  <LinearDecisionBoundaryDemo />
+</div>
+
+<!--
+Feature space recap: NDVI vs. Green reflectance for 759 land-cover samples.
+Drag the two handles to reshape the line and watch w1, w2, b update live.
+This is the linear score w^T x + b; the sigmoid (logistic regression) comes next.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Logistic Regression for Classification
+
+<div class="mt-4">
+  <LogisticRegressionDemo />
+</div>
+
+<!--
+Same feature space and boundary mechanic as the previous slide, but the linear score
+z = w^T x + b is now passed through the sigmoid to become a probability P(y=1|x).
+The boundary itself does not move: z = 0 is still exactly where P = 0.5.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Learning Feature Representations
+
+<img
+  src="./assets/feature_learning.svg"
   class="w-full h-[360px] object-contain"
-  alt="A model transforms an input tensor into an output tensor through layers that change the tensor dimensions"
+  alt="Training data guides a deep learning model to learn feature representations for classification"
 />
 
 ---
-section: multilayer-perceptrons
+section: why-learn-representations
 ---
 
-# Sentinel-2 as an Image Tensor
+# Timeline and Evolution of Deep Learning
 
-<img
-  src="./assets/S2-image-tensor.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Sentinel-2 spectral bands arranged as the 13 channels of an image tensor"
-/>
+<div class="mt-4">
+  <div class="flex items-center mb-4">
+    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 rounded-l">&lt;2012</div>
+    <div class="flex-1 bg-[#0f7d5c] text-white text-[.72rem] font-semibold px-4 py-1.5 text-center border-l border-white/30">2015 onwards</div>
+    <div class="flex-1 bg-[#6f2d7f] text-white text-[.72rem] font-semibold px-4 py-1.5 text-right rounded-r border-l border-white/30">&gt;2020 →</div>
+  </div>
+
+  <table class="w-full text-[.75rem] border-collapse">
+    <thead>
+      <tr>
+        <th class="bg-[#00457c] !text-white text-left px-3 py-2 font-semibold w-1/3">Classic Machine Learning</th>
+        <th class="bg-[#0f7d5c] !text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Supervised Deep Learning</th>
+        <th class="bg-[#6f2d7f] !text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Self-Supervised Learning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 align-top bg-[#00457c]/5"><strong>Feature Design:</strong> Which features extract the most information?</td>
+        <td class="px-3 py-2 align-top border-l border-gray-200 bg-[#0f7d5c]/5"><strong>Model Design:</strong> Which architecture is best for my tensors?</td>
+        <td class="px-3 py-2 align-top border-l border-gray-200 bg-[#6f2d7f]/5"><strong>Loss Design:</strong> Which loss function or training strategy?</td>
+      </tr>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 bg-[#00457c]/10"><strong>Data:</strong> small labelled</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#0f7d5c]/10"><strong>Data:</strong> large labelled</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#6f2d7f]/10"><strong>Data:</strong> large unlabelled</td>
+      </tr>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 bg-[#00457c]/5"><strong>Models:</strong> Random Forest, Boosting, Lin. Regression</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#0f7d5c]/5"><strong>Models:</strong> MLPs, CNNs, RNNs</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#6f2d7f]/5"><strong>Model:</strong> Transformers</td>
+      </tr>
+      <tr>
+        <td class="px-3 py-2 text-[.68rem] italic font-semibold" style="color:#00457c">Covered in Lectures 2 &amp; 3</td>
+        <td class="px-3 py-2 border-l border-gray-200 text-[.68rem] italic font-semibold" style="color:#0f7d5c">Covered in Lectures 4 &amp; 5</td>
+        <td class="px-3 py-2 border-l border-gray-200 text-[.68rem] italic font-semibold" style="color:#6f2d7f">Covered from Lecture 7 onwards</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!--
+Historical framing: three eras of machine learning, defined by the central design question.
+Classic ML: features are hand-designed. Supervised DL: architecture is the design choice. Self-supervised: the loss/training strategy is the key decision.
+-->
 
 ---
 section: multilayer-perceptrons
@@ -574,63 +402,56 @@ section: multilayer-perceptrons
   alt="Models classify time series and image time series using their temporal and channel dimensions"
 />
 
+
 ---
 section: multilayer-perceptrons
 ---
 
 # Overview: Deep Model Architectures
 
-<div class="mt-3">
-  <div class="flex items-center mb-4">
-    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 rounded-l">1950s</div>
-    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 border-l border-white/30">1990s</div>
-    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 border-l border-white/30">2015</div>
-    <div class="flex-1 bg-[#00457c] text-white text-[.68rem] font-semibold px-3 py-1.5 rounded-r border-l border-white/30">2020s →</div>
-  </div>
+## Lab 4 Content
 
-  <div class="grid grid-cols-4 gap-4">
-    <div>
-      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">MLP</div>
-      <ul class="text-[.72rem] leading-6 text-gray-700">
-        <li>Linear Projections</li>
-        <li>Activation Functions</li>
-        <li>Linear Algebra &amp; Biological Analogy</li>
-        <li>Parallelism on GPUs</li>
-      </ul>
-    </div>
-    <div>
-      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">CNN</div>
-      <ul class="text-[.72rem] leading-6 text-gray-700">
-        <li>Convolutions</li>
-        <li>Pooling</li>
-        <li>Recep. Fields</li>
-      </ul>
-    </div>
-    <div>
-      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">ResNet</div>
-      <ul class="text-[.72rem] leading-6 text-gray-700">
-        <li>Deeper Networks</li>
-        <li>Batch Normalization</li>
-        <li>Skip Connections</li>
-        <li>Classification &amp; Segmentation Tasks</li>
-      </ul>
-    </div>
-    <div>
-      <div class="text-[.85rem] font-bold text-[#00457c] mb-1">Transformers</div>
-      <ul class="text-[.72rem] leading-6 text-gray-700">
-        <li>Attention Mechanism</li>
-        <li>Self-Attention (SA)</li>
-        <li>Multi-Head SA</li>
-        <li>Transformer Layers</li>
-      </ul>
-    </div>
-  </div>
+<img src="./assets/architectures.svg" />
+
+---
+section: why-learn-representations
+---
+
+# Recap: Learned Representations
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<ul class="flex flex-col gap-4 text-[.85rem] leading-snug">
+  <li>Good representations make difficult problems easier.</li>
+  <li>In classic machine learning, we manually select data and engineer features to be a good representation of the problem.</li>
+  <li>Deep learning models learn a feature representation that is then well-suited for a final linear classification with logistic regression.</li>
+</ul>
+
+<img
+  src="./assets/model.svg"
+  class="w-full h-[300px] object-contain"
+  alt="A deep learning model transforms an input tensor through layers into an output tensor"
+/>
+
 </div>
 
-<!--
-Historical arc before diving into the MLP in detail.
-Each era introduced a new inductive bias: MLPs — universal approximation; CNNs — locality and translation equivariance; ResNets — depth with trainability; Transformers — global context via attention.
--->
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: multilayer-perceptrons
+sectionTitle: Multilayer Perceptrons
+---
+
+# Multilayer Perceptrons
+
+<img src="./assets/mlp_cover.svg" alt="An illustration of a multilayer perceptron neural network" />
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+Learning the representation.
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-6">From linear decisions on fixed features to learned feature-space transformations.</div>
 
 ---
 section: multilayer-perceptrons
@@ -648,111 +469,241 @@ section: multilayer-perceptrons
 section: multilayer-perceptrons
 ---
 
-# Linear Transformation with a Bias Term
+# Linear Transformation with Bias
 
 <img
-  src="./assets/bias_linear.svg"
+  src="./assets/linear_transformation_bias.svg"
   class="w-full h-[360px] object-contain"
-  alt="An input vector is multiplied by a weight matrix and a bias vector is added to produce the output vector; GPU cores accelerate this computation through parallel processing"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
 />
 
 ---
 section: multilayer-perceptrons
 ---
 
-# Weighted Connections
+# Linear Transformation from 3D to 2D
+
+<div class="grid grid-cols-2 gap-4 mt-2 items-center">
 
 <img
-  src="./assets/MLP_math.svg"
+  src="./assets/linear_transformation_2-3D.svg"
   class="w-full h-[360px] object-contain"
-  alt="A network with two inputs, three hidden units, and two outputs, connected by lines of varying thickness"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+<video
+  src="./assets/2d_plot.mov"
+  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Transformation from 2D to 3D
+
+<div class="grid grid-cols-2 gap-4 mt-2 items-center">
+
+<img
+  src="./assets/linear_projection_2d_to_3d.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+<video
+  src="./assets/3d_plot.mov"
+  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Biological Interpretation of Adding Signals
+
+<img
+  src="./assets/biological_interpretation.svg"
+  class="w-full h-[360px] object-contain"
 />
 
 ---
 section: multilayer-perceptrons
 ---
 
-# More "Deeper" Layers → more Complex Transformations
+# Activation Functions – Biological Interpretation
 
 <img
-  src="./assets/mlp_deeper_layers.jpg"
+  src="./assets/biological_interpretation_activation_functions.svg"
   class="w-full h-[360px] object-contain"
-  alt="A two-layer MLP maps input space (a) through a linear projection (b) and non-linear tanh distortion (c) to output class probabilities (d)"
 />
 
-<!--
-Key insight: the first layer (W1) linearly projects the input into a higher-dimensional space; the activation (tanh) then non-linearly distorts that space so a simple linear classifier in the final layer can separate the classes.
-(a) Input space x=(x1,x2); (b) linear projection into R^3; (c) non-linear distortion with tanh; (d) output class probabilities.
--->
 
 ---
 section: multilayer-perceptrons
 ---
 
-# How an MLP transforms feature space
+# Linear Alebra: Stacking Layers
+
+## A 2D→3D Linear Projection moves data into 3D representation space
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/2d-3d-figure-lef.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<img
+  src="./assets/2d-3d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+
+# Linear Alebra: Stacking Layers
+
+## Two Linear projections 2D→3D→2D in a 2-Layer network
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/2d-3d-2d-figure-left.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<img
+  src="./assets/2d-3d-2d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Alebra: Stacking Layers
+
+## Two Linear projections 2D→3D→2D without non-linearity is a single 2D → 2D projection
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/2d-2d-figure-left.png"
+  class="w-full h-[260px] object-contain"
+/>
+
+
+<img
+  src="./assets/2d-2d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Alebra: Stacking Layers
+## Non-linear functions like ReLU are needed to transform feature space
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/relu.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+
+<video
+  src="./assets/relu.mov"
+  class="w-full h-[250px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# More layers → more complex transformations
+
+<img
+  src="./assets/transformations_in_an_MLP.png
+"
+  class="w-full h-[360px] object-contain"
+/>
+
+---
+section: multilayer-perceptrons
+---
+
+# Multi-Layer Perceptron - Implementation
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/MLP_summary.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<style>
+.mlp-impl-code pre { font-size: 9.5px !important; line-height: 1.4 !important; }
+</style>
+
+<div class="mlp-impl-code">
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class MLPClassifier(nn.Module):
+    def __init__(
+        self, input_dim, hidden_dim, num_classes
+    ):
+        super(MLPClassifier, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))      # 1st layer ReLU
+        x = F.relu(self.fc2(x))      # 2nd layer ReLU
+        x = F.sigmoid(self.fc3(x))   # Output (probs)
+        return x
+```
+
+</div>
+
+</div>
+
+
+---
+section: multilayer-perceptrons
+---
+
+# Demo: Multi-Layer Perceptron Feature Space
 
 <MlpFeatureSpaceDemo />
 
 <div class="mt-1 text-xs text-gray-500">
 Inspired by Andrej Karpathy's <a href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html" target="_blank" rel="noopener noreferrer">ConvNetJS Classify2D</a> demo. Implemented with Claude and Codex.
 </div>
-
----
-section: multilayer-perceptrons
----
-
-# Machine Learning and Deep Learning
-
-<img
-  src="./assets/classic_vs_deep_learning.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Comparison of designed features with a complex classifier and learned features with a simple classifier"
-/>
-
----
-section: multilayer-perceptrons
----
-
-# Feature Learning
-
-<img
-  src="./assets/feature_learning.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Training data guides a deep learning model to learn feature representations for classification"
-/>
-
----
-section: multilayer-perceptrons
----
-
-# Foundation Models
-
-<img
-  src="./assets/foundation_models.svg"
-  class="w-full h-[360px] object-contain"
-  alt="A remote sensing foundation model produces embeddings that support multiple downstream classification tasks"
-/>
-
----
-section: multilayer-perceptrons
----
-
-# Block 2 Takeaway
-
-<div class="rounded-xl border border-blue-200 bg-blue-50 p-4 mt-3 text-[.82rem]">
-The final classifier can stay simple.
-<br>
-The network learns a representation in which the task becomes simple.
-</div>
-
-<div class="mt-5 text-[.8rem] text-gray-700 font-semibold">
-But how are all these parameters learned?
-</div>
-
-<!--
-Summary transition from learned representations to parameter learning.
-This opens Block 3.
--->
 
 ---
 layout: bonn-section
@@ -774,6 +725,8 @@ section: gradient-descent-backpropagation
 ---
 
 # Training: Adjusting Weights to Minimize Loss
+
+## Finding good parameters W
 
 <img
   src="./assets/Loss-weights.svg"
@@ -821,25 +774,24 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Loss Surfaces
+# Loss Function: Cross-Entropy
 
 <img
-  src="./assets/loss_surfaces.svg"
+  src="./assets/gradient_descent2.png"
   class="w-full h-[360px] object-contain"
-  alt="The loss function traces a surface over the space of possible weights; training searches this surface for the minimum (argmin), and more complex models have more complex loss surfaces"
 />
 
 ---
 section: gradient-descent-backpropagation
 ---
 
-# Gradient Descent
+# Loss Surfaces
 
 <img
-  src="./assets/gradient_descent.svg"
+  src="./assets/loss_surface.png"
   class="w-full h-[360px] object-contain"
-  alt="Gradients of the loss function with respect to the weights point in the direction of steepest increase; training data is used to repeatedly step the weights in the opposite direction to descend the loss surface"
 />
+
 
 ---
 section: gradient-descent-backpropagation
@@ -851,10 +803,12 @@ section: gradient-descent-backpropagation
   <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
     <div class="font-semibold text-blue-900 mb-2">Gradient Descent</div>
     <div>How to update parameters once gradients are known.</div>
+    <img src="./assets/grad_descent_image.png"/>
   </div>
   <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
     <div class="font-semibold text-emerald-900 mb-2">Backpropagation</div>
     <div>How to compute gradients efficiently through many layers.</div>
+    <img src="./assets/backprop_6.svg"/>
   </div>
 </div>
 
@@ -868,7 +822,7 @@ Clarify the common confusion: optimization rule vs gradient-computation algorith
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 1
 
 <img
   src="./assets/backprop_1.svg"
@@ -880,7 +834,7 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 2
 
 <img
   src="./assets/backprop_2.svg"
@@ -892,7 +846,7 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 3
 
 <img
   src="./assets/backprop_3.svg"
@@ -904,7 +858,7 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 4
 
 <img
   src="./assets/backprop_4.svg"
@@ -916,7 +870,7 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 5
 
 <img
   src="./assets/backprop_5.svg"
@@ -928,7 +882,7 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 6
 
 <img
   src="./assets/backprop_6.svg"
@@ -940,33 +894,10 @@ section: gradient-descent-backpropagation
 section: gradient-descent-backpropagation
 ---
 
-# Backpropagation
+# Backpropagation 7
 
 <img
   src="./assets/backprop_7.svg"
   class="w-full h-[360px] object-contain"
   alt="Backpropagation step 7: the same computation expressed in code as loss = MSE(y_pred, y), loss.backward(), and optimizer.step()"
 />
-
----
-section: gradient-descent-backpropagation
----
-
-# Close the Representation-Learning Loop
-
-<div class="grid grid-cols-3 gap-2 mt-4 text-[.7rem]">
-  <div class="rounded border border-gray-300 p-2 text-center">Input</div>
-  <div class="rounded border border-gray-300 p-2 text-center">Current representation</div>
-  <div class="rounded border border-gray-300 p-2 text-center">Prediction</div>
-  <div class="rounded border border-gray-300 p-2 text-center">Loss</div>
-  <div class="rounded border border-gray-300 p-2 text-center">Backpropagation</div>
-  <div class="rounded border border-gray-300 p-2 text-center">Parameter update</div>
-</div>
-
-<div class="mt-4 text-[.8rem] text-gray-700">
-Training changes parameters; changed parameters change the representation.
-</div>
-
-<!--
-End Block 3 by closing the full loop from representation to updates and back.
--->

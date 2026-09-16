@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // UnderstandingPulse.vue: one doc per "{sessionId}__{pollId}", with a
+    // "points" subcollection of individual votes underneath. There is no
+    // login for students, so this mirrors the old Supabase setup (anon
+    // key, open insert/select) as closely as possible: anyone can read
+    // and add points, nobody can edit or delete existing ones, and the
+    // shape/range of each point is validated server-side so a client
+    // can't write arbitrary data or backdate a vote.
+    match /understanding_responses/{sessionPollId}/points/{pointId} {
+      allow read: if true;
+
+      allow create: if request.resource.data.keys().hasOnly(['client_id', 'value', 'created_at'])
+                    && request.resource.data.client_id is string
+                    && request.resource.data.client_id.size() > 0
+                    && request.resource.data.client_id.size() < 200
+                    && request.resource.data.value is number
+                    && request.resource.data.value >= 0
+                    && request.resource.data.value <= 1
+                    && request.resource.data.created_at == request.time;
+
+      allow update, delete: if false;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

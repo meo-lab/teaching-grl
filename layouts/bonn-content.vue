@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import logoUrl from '../assets/uni-bonn-logo.png'
+import logoUrl from '../assets/UNI_Bonn_Logo_Standard.svg'
 import BonnSectionNav from './BonnSectionNav.vue'
 </script>
 

@@ -80,12 +80,35 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import { createClient } from "@supabase/supabase-js";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  Timestamp,
+} from "firebase/firestore";
 
-const SUPABASE_URL = "https://ldefkkjnobeldsuanntt.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_3NhvSYwNzFAVlfPwjIAnJA_pdrWSXSP";
+// Public web config for the grl-understandingpulse Firebase project.
+// Like the old Supabase anon key, this is meant to be public: it only
+// identifies the project to the client SDK. Access control lives in
+// Firestore security rules (see firestore.rules), not in this key.
+const firebaseConfig = {
+  apiKey: "AIzaSyCuXvAVanclrCfUNjUQChKQ6GRgNZpTvcY",
+  authDomain: "grl-understandingpulse.firebaseapp.com",
+  projectId: "grl-understandingpulse",
+  storageBucket: "grl-understandingpulse.firebasestorage.app",
+  messagingSenderId: "550821538031",
+  appId: "1:550821538031:web:961522579cbeed9554131a",
+};
+
 const CLIENT_ID_STORAGE_KEY = "understanding-pulse-client-id";
-const TABLE_NAME = "understanding_responses";
+const RESPONSES_COLLECTION = "understanding_responses";
+const POINTS_SUBCOLLECTION = "points";
 
 const WIDTH = 500;
 const HEIGHT = 150;
@@ -133,21 +156,24 @@ const props = defineProps({
   },
 });
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Reuse a single Firebase app instance across mounts (Slidev can mount this
+// component more than once in the same page session).
+const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
 const points = ref([]);
 const now = ref(Date.now());
 
 let clientId = "";
 let fadeInterval = null;
-let loadInterval = null;
-let channel = null;
+let unsubscribe = null;
 
 const lineWidth = computed(() => WIDTH - LEFT_MARGIN - RIGHT_MARGIN);
 
 const visiblePoints = computed(() => {
   return points.value
     .map((point) => {
-      const age = now.value - new Date(point.created_at).getTime();
+      const age = now.value - point.created_at;
       const opacity = clamp(1 - age / props.fadeMs, 0, 1);
       return { ...point, opacity };
     })
@@ -218,43 +244,23 @@ function getClientId() {
   }
 }
 
-async function loadPoints() {
-  const since = new Date(Date.now() - props.fadeMs).toISOString();
-  try {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select("id, value, created_at, client_id")
-      .eq("session_id", props.sessionId)
-      .eq("poll_id", props.pollId)
-      .gte("created_at", since)
-      .order("created_at", { ascending: true });
-
-    if (error) {
-      console.error("UnderstandingPulse load failed", error);
-      return;
-    }
-
-    points.value = data || [];
-  } catch (error) {
-    console.error("UnderstandingPulse load failed", error);
-  }
+function pointsCollectionRef() {
+  // One Firestore doc per (sessionId, pollId) pair, with the individual
+  // votes as a subcollection underneath it. This mirrors the old
+  // `session_id`/`poll_id` filter on the Supabase table without needing a
+  // composite index: the path itself does the filtering, and the
+  // remaining `created_at` range + order is a single-field query.
+  const docId = `${props.sessionId}__${props.pollId}`;
+  return collection(db, RESPONSES_COLLECTION, docId, POINTS_SUBCOLLECTION);
 }
 
 async function insertPoint(value) {
   try {
-    const { error } = await supabase.from(TABLE_NAME).insert({
-      session_id: props.sessionId,
-      poll_id: props.pollId,
+    await addDoc(pointsCollectionRef(), {
       client_id: clientId,
       value,
+      created_at: serverTimestamp(),
     });
-
-    if (error) {
-      console.error("UnderstandingPulse insert failed", error);
-      return;
-    }
-
-    loadPoints();
   } catch (error) {
     console.error("UnderstandingPulse insert failed", error);
   }
@@ -271,47 +277,50 @@ function handlePointerDown(event) {
   insertPoint(xToValue(x));
 }
 
-function startRealtime() {
-  channel = supabase
-    .channel(`understanding-pulse-${props.pollId}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: TABLE_NAME,
-        filter: `poll_id=eq.${props.pollId}`,
-      },
-      (payload) => {
-        if (payload.new && payload.new.session_id === props.sessionId && payload.new.poll_id === props.pollId) {
-          loadPoints();
-        }
-      },
-    )
-    .subscribe((status, error) => {
-      if (error) {
-        console.error("UnderstandingPulse realtime failed", error);
-      }
-    });
+function startListening() {
+  const since = Timestamp.fromMillis(Date.now() - props.fadeMs);
+  const pointsQuery = query(
+    pointsCollectionRef(),
+    where("created_at", ">=", since),
+    orderBy("created_at", "asc"),
+  );
+
+  unsubscribe = onSnapshot(
+    pointsQuery,
+    (snapshot) => {
+      points.value = snapshot.docs.map((docSnap) => {
+        // "estimate" fills in a local timestamp for a write that hasn't
+        // been confirmed by the server yet, so a point you just placed
+        // shows up immediately instead of waiting for a round trip.
+        const data = docSnap.data({ serverTimestamps: "estimate" });
+        const createdAt = data.created_at ? data.created_at.toMillis() : Date.now();
+        return {
+          id: docSnap.id,
+          value: data.value,
+          client_id: data.client_id,
+          created_at: createdAt,
+        };
+      });
+    },
+    (error) => {
+      console.error("UnderstandingPulse realtime failed", error);
+    },
+  );
 }
 
 onMounted(() => {
   clientId = getClientId();
-  loadPoints();
-  startRealtime();
+  startListening();
 
   fadeInterval = window.setInterval(() => {
     now.value = Date.now();
-    points.value = points.value.filter((point) => now.value - new Date(point.created_at).getTime() < props.fadeMs);
+    points.value = points.value.filter((point) => now.value - point.created_at < props.fadeMs);
   }, 100);
-
-  loadInterval = window.setInterval(loadPoints, 1000);
 });
 
 onUnmounted(() => {
   if (fadeInterval) window.clearInterval(fadeInterval);
-  if (loadInterval) window.clearInterval(loadInterval);
-  if (channel) supabase.removeChannel(channel);
+  if (unsubscribe) unsubscribe();
 });
 </script>
 
