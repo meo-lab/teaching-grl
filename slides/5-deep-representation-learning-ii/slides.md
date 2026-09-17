@@ -553,6 +553,367 @@ section: modern-generalization
   </ul>
 </div>
 
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: beyond-interpolation
+sectionTitle: Beyond the Interpolation Threshold
+---
+
+# Block 3 — Beyond the Interpolation Threshold
+
+<div class="text-[.88rem] text-gray-200 mt-4">
+Modern overparameterized networks can fit training data perfectly and still generalize. Why?
+</div>
+
+<!--
+Block 3: moves from the classical capacity story into the modern overparameterized regime.
+Key thread: which function does learning select, and why does that selection generalize?
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Beyond the Interpolation Threshold
+
+<div class="grid grid-cols-[1.3fr_1fr] gap-8 mt-5 items-start">
+  <div>
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Recall from Block 1</div>
+    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-[.75rem] text-gray-500 text-center leading-7">
+      Overparameterized polynomial placeholder —<br>wiggly curve interpolating all training points perfectly
+    </div>
+    <div class="mt-3 text-[.72rem] text-gray-500 text-center">A high-degree polynomial that perfectly fits the training set can behave pathologically between samples.</div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[.75rem] text-gray-700">
+      <strong>Interpolation threshold</strong> — the model capacity at which training loss can reach zero.
+    </div>
+    <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-800 font-medium leading-snug">
+      Why don't overparameterized neural networks necessarily behave like pathological high-degree polynomials?
+    </div>
+  </div>
+</div>
+
+<!--
+Opening question for Block 3. Reconnect to the overfitting intuition from Block 1 and set up the modern puzzle.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# The Classical Prediction Breaks Down
+
+<div class="mt-5 flex flex-col gap-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Classical expectation</div>
+    <ul class="text-[.78rem] leading-8 text-gray-700">
+      <li>Increasing capacity reduces bias</li>
+      <li>After some point, variance increases</li>
+      <li>The test-error curve has a U-shape</li>
+      <li>Beyond the apparent optimum, generalization deteriorates</li>
+    </ul>
+  </div>
+  <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-gray-300 text-[.68rem]">
+    U-shaped test-error curve placeholder (classical regime only)
+  </div>
+</div>
+
+<div class="mt-4 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800 text-center">
+  But is this what we actually observe in modern deep learning?
+</div>
+
+<!--
+Recap the classical story from Block 1 before overturning it.
+End on an open question to motivate the next slide.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Double Descent
+
+<div class="grid grid-cols-[1.4fr_1fr] gap-8 mt-5 items-start">
+  <div>
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Conceptual error curve</div>
+    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-gray-300 text-[.68rem] leading-7">
+      train error + test error vs. model capacity<br>
+      mark interpolation threshold<br>
+      test error rises near threshold, then falls again<br>
+      (double descent curve placeholder)
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[.75rem] text-gray-700">Train error reaches zero at the interpolation threshold.</div>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[.75rem] text-amber-800">Test error peaks near the threshold.</div>
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[.75rem] text-emerald-800">Then test error decreases again in the overparameterized regime.</div>
+    <div class="mt-1 text-[.7rem] text-gray-500">The classical U-shaped curve can be incomplete.</div>
+  </div>
+</div>
+
+<!--
+Introduce double descent at a conceptual level. Do not explain why yet — that comes in the following slides.
+Belkin et al. 2019 is the key reference to add later.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Many Functions Can Fit the Training Data
+
+<div class="mt-5 flex flex-col gap-5">
+  <div class="text-[.78rem] text-gray-600 text-center">
+    Once the model is large enough to interpolate, many different functions all achieve zero training loss.
+  </div>
+  <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-gray-300 text-[.68rem] leading-7">
+    placeholder: several very different curves, all passing exactly through the same training points
+  </div>
+  <div class="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-[.8rem] text-blue-900 text-center font-mono">
+    { f ∈ ℋ : L<sub>train</sub>(f) = 0 }
+  </div>
+</div>
+
+<div class="mt-4 rounded-lg bg-gray-100 px-4 py-3 text-[.78rem] text-gray-700 text-center">
+  If many functions fit the data perfectly, which one does learning select?
+</div>
+
+<!--
+Shift the question from capacity to function selection. The set of interpolating solutions is large — what determines which one gradient descent finds?
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Parameter Space Is Not Function Space
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-start">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 flex flex-col items-center gap-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500">Parameter space</div>
+    <div class="text-[1rem] font-mono text-gray-700">θ ∈ ℝ<sup>P</sup></div>
+    <div class="text-[.7rem] text-gray-400 text-center">Many distinct weight vectors</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 flex flex-col items-center gap-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700">Function space</div>
+    <div class="text-[1rem] font-mono text-blue-800">f<sub>θ</sub>(x)</div>
+    <div class="text-[.7rem] text-blue-700 text-center">The input–output mapping induced by θ</div>
+  </div>
+</div>
+
+<div class="mt-5 text-[.78rem] text-gray-600 text-center">
+  Many different θ may produce the same or very similar function. The mapping θ → f<sub>θ</sub> is not one-to-one.
+</div>
+
+<div class="mt-3 rounded-lg bg-gray-100 px-4 py-3 text-[.78rem] text-gray-700 text-center">
+  A large parameter space does not imply that every function is equally likely.
+</div>
+
+<!--
+Distinguish weight space from function space. This is the conceptual foundation for simplicity bias and inductive bias arguments.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Overparameterization Does Not Mean Random Functions
+
+<div class="mt-5 flex flex-col gap-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Intuition</div>
+    <ul class="text-[.78rem] leading-8 text-gray-700">
+      <li>An enormous parameter space maps very unevenly into function space</li>
+      <li>Some functions correspond to many different parameter configurations</li>
+      <li>Simple or structured functions may be easier to reach from typical initializations</li>
+    </ul>
+  </div>
+  <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-gray-300 text-[.68rem]">
+    conceptual: many θ → one simple function vs. few θ → one complex function (placeholder)
+  </div>
+</div>
+
+<div class="mt-3 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800 text-center">
+  More parameters increase what the model can represent, but do not imply uniform sampling over functions.
+</div>
+
+<!--
+Simplicity bias — keep intuitive. The formal version involves measure theory and is not needed here.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Inductive Bias Selects Among Interpolating Solutions
+
+<div class="mt-5 flex flex-col gap-4">
+  <div class="text-[.78rem] text-gray-600 text-center mb-2">
+    The hypothesis space may be huge, but learning has preferences.
+  </div>
+  <div class="grid grid-cols-3 gap-4">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
+      <div class="font-semibold mb-1">Architecture</div>
+      <div class="text-gray-400">convolutional, recurrent, equivariant</div>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
+      <div class="font-semibold mb-1">Equivariances</div>
+      <div class="text-gray-400">translation, rotation, scale</div>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
+      <div class="font-semibold mb-1">Optimization</div>
+      <div class="text-gray-400">SGD, Adam, learning rate schedule</div>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
+      <div class="font-semibold mb-1">Initialization</div>
+      <div class="text-gray-400">affects which minimum is found</div>
+    </div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
+      <div class="font-semibold mb-1">Regularization</div>
+      <div class="text-gray-400">explicit and implicit</div>
+    </div>
+    <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-[.7rem] text-gray-300 text-center">
+      …
+    </div>
+  </div>
+</div>
+
+<!--
+No single mechanism fully explains modern generalization — several interact.
+This slide is deliberately non-committal to reflect genuine scientific uncertainty.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Similarity and Smoothness in Learned Representations
+
+<div class="grid grid-cols-2 gap-8 mt-5 items-start">
+  <div>
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">What the network learns</div>
+    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-gray-300 text-[.68rem] leading-7">
+      input space → representation space placeholder<br>
+      similar inputs cluster together
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <ul class="text-[.78rem] leading-8 text-gray-700">
+      <li>Inputs are mapped to a learned representation</li>
+      <li>Nearby representations can lead to similar predictions</li>
+      <li>The learned similarity structure shapes generalization</li>
+    </ul>
+    <div class="rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800">
+      Generalization depends not only on fitting the samples, but on the geometry of the learned representation.
+    </div>
+  </div>
+</div>
+
+<div class="mt-4 text-[.7rem] text-gray-400 text-center">
+  This prepares the transition to location encodings and continuous spatial functions (Lecture 6).
+</div>
+
+<!--
+Connect representation learning to generalization geometry. Sets up coordinate networks, location encodings, and the spatial interpolation framing of Lecture 6.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# Grokking: Fitting Comes Before Generalizing
+
+<div class="grid grid-cols-[1.4fr_1fr] gap-8 mt-5 items-start">
+  <div>
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Empirical observation</div>
+    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-gray-300 text-[.68rem] leading-7">
+      train accuracy vs. test accuracy over training steps placeholder —<br>train reaches ~100% early; test lags, then sharply improves much later
+    </div>
+  </div>
+  <div class="flex flex-col gap-4">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[.75rem] text-gray-700">Training accuracy → near-perfect quickly</div>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[.75rem] text-amber-800">Test accuracy remains poor for much longer</div>
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[.75rem] text-emerald-800">Then test accuracy improves sharply</div>
+  </div>
+</div>
+
+<div class="mt-4 rounded-lg bg-gray-100 px-4 py-3 text-[.78rem] text-gray-700 text-center">
+  Memorization and discovering a reusable rule are not the same event.
+</div>
+
+<!--
+Keep compact. Power et al. 2022 (Grokking) is the reference to add later.
+The takeaway is empirical: fitting and generalizing can decouple over training time.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# What Do We Actually Know?
+
+<div class="mt-5 flex flex-col gap-4">
+  <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[.78rem] text-amber-800 leading-snug">
+    There is no single complete, universally accepted explanation for why highly overparameterized deep networks generalize so well.
+  </div>
+  <div class="text-[.72rem] font-bold uppercase tracking-wide text-gray-500 mt-1 mb-1">Current useful perspectives</div>
+  <div class="grid grid-cols-3 gap-3">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Simplicity bias</div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Architectural inductive bias</div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Optimization bias</div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Representation geometry</div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Data scale</div>
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Explicit &amp; implicit regularization</div>
+  </div>
+</div>
+
+<div class="mt-4 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800 text-center font-medium">
+  Modern generalization remains an active research topic.
+</div>
+
+<!--
+Epistemic honesty slide. Do not claim a single clean answer — the field does not have one.
+-->
+
+---
+section: beyond-interpolation
+---
+
+# From Generalization to Learned Spatial Functions
+
+<div class="grid grid-cols-[1fr_1.2fr] gap-8 mt-5 items-start">
+  <div class="flex flex-col gap-4">
+    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+      <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Generic learned function</div>
+      <div class="font-mono text-[.9rem] text-gray-700">f<sub>θ</sub>(x)</div>
+    </div>
+    <div class="text-[1.2rem] text-gray-300 text-center">↓</div>
+    <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+      <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-1">Location-dependent function</div>
+      <div class="font-mono text-[.9rem] text-blue-800">f<sub>θ</sub>(location)</div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-3">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Topics in Lecture 6</div>
+    <ul class="text-[.75rem] leading-8 text-gray-700">
+      <li>Location encodings</li>
+      <li>Coordinate networks</li>
+      <li>Interpolation between spatial observations</li>
+      <li>Learned geospatial signals</li>
+    </ul>
+    <div class="mt-2 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800">
+      What function does a neural network learn between observed locations?
+    </div>
+  </div>
+</div>
+
+<!--
+Final slide of Block 3. Transition from generalization theory to spatial/geospatial representation learning.
+The move from f(x) to f(location) is the conceptual bridge to Lecture 6.
+-->
+
 <!-- ============================================================
      LEGACY SLIDES — retained from previous Lecture 5 draft
      Preserved unchanged for later reuse or reference.
