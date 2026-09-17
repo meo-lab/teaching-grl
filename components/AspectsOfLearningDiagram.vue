@@ -4,8 +4,8 @@
 <template>
   <div class="aol">
     <div class="aol-grid">
-      <!-- Experiences (left) -->
-      <div class="aol-node aol-node-experiences" v-click="2">
+      <!-- Experiences / Data (left) -->
+      <div class="aol-node aol-node-experiences" v-click="3">
         <svg class="aol-icon" viewBox="0 0 64 64" fill="none">
           <rect x="4" y="8" width="20" height="16" rx="3" stroke="currentColor" stroke-width="2.5"/>
           <path d="M8 20l4-5 3 3 5-6 4 8" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
@@ -17,11 +17,11 @@
         </svg>
         <h3>Experiences</h3>
         <p>Examples from the environment</p>
-        <span class="aol-chip aol-chip-muted">Lecture 2 &middot; Data</span>
+        <span class="aol-chip aol-chip-l5">Lecture 5 &middot; Data</span>
       </div>
 
       <!-- connector: experiences -> model -->
-      <svg class="aol-connector aol-connector-muted" v-click="2" viewBox="0 0 64 24" preserveAspectRatio="none">
+      <svg class="aol-connector aol-connector-muted" v-click="3" viewBox="0 0 64 24" preserveAspectRatio="none">
         <line x1="2" y1="12" x2="52" y2="12" stroke="currentColor" stroke-width="2.5"/>
         <polygon points="52,5 62,12 52,19" fill="currentColor"/>
       </svg>
@@ -64,17 +64,17 @@
         </svg>
         <h3>Generalization</h3>
         <p>Performs well in new, unseen situations</p>
-        <span class="aol-chip aol-chip-outline">Lecture 5 &middot; Deep Representation Learning II</span>
+        <span class="aol-chip aol-chip-l5-outline">Lecture 5 &middot; Deep Representation Learning II</span>
       </div>
 
       <!-- Learning algorithm loop (beneath model) -->
-      <svg class="aol-loop" v-click="3" viewBox="0 0 80 56" fill="none">
+      <svg class="aol-loop" v-click="2" viewBox="0 0 80 56" fill="none">
         <path d="M14 8C14 8 14 30 40 30C66 30 66 8 66 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
         <polygon points="8,10 18,4 18,16" fill="currentColor"/>
         <polygon points="72,10 62,4 62,16" fill="currentColor"/>
       </svg>
 
-      <div class="aol-node aol-node-algorithm" v-click="3">
+      <div class="aol-node aol-node-algorithm" v-click="2">
         <svg class="aol-icon" viewBox="0 0 64 64" fill="none">
           <path d="M32 12a20 20 0 1 1-14.1 5.9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
           <polygon points="10,10 18,10 14,20" fill="currentColor"/>
@@ -96,6 +96,11 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* Lecture 4 uses the standard Bonn blue; Lecture 5 gets its own green accent
+     so the two lecture groups are distinguishable at a glance, not just by label. */
+  --aol-l5: #0f7d5c;
+  --aol-l5-tint: #eaf5f1;
+  --aol-l5-dark: #0b5c44;
 }
 
 .aol-grid {
@@ -159,25 +164,25 @@
 .aol-node-experiences {
   grid-column: 1;
   grid-row: 1;
-  background: #f3f4f5;
-  border: 1px solid var(--bonn-rule);
-  color: var(--bonn-muted);
+  background: var(--aol-l5-tint);
+  border: 1px solid var(--aol-l5);
+  color: var(--aol-l5-dark);
 }
 
 .aol-node-experiences h3 {
-  color: #45484a;
+  color: var(--aol-l5-dark);
 }
 
 .aol-node-generalization {
   grid-column: 5;
   grid-row: 1;
   padding: .5rem .65rem;
-  border: 1.5px dashed #5b9bd5;
-  color: #2b6199;
+  border: 1.5px dashed var(--aol-l5);
+  color: var(--aol-l5-dark);
 }
 
 .aol-node-generalization h3 {
-  color: #1c4c78;
+  color: var(--aol-l5-dark);
 }
 
 .aol-node-algorithm {
@@ -231,11 +236,6 @@
   letter-spacing: .01em;
 }
 
-.aol-chip-muted {
-  background: rgba(0, 0, 0, .06);
-  color: #6b6e6d;
-}
-
 .aol-chip-strong {
   background: rgba(255, 255, 255, .18);
   color: #ffffff;
@@ -246,9 +246,14 @@
   color: #ffffff;
 }
 
-.aol-chip-outline {
-  border: 1px solid #5b9bd5;
-  color: #2b6199;
+.aol-chip-l5 {
+  background: var(--aol-l5);
+  color: #ffffff;
+}
+
+.aol-chip-l5-outline {
+  border: 1px solid var(--aol-l5);
+  color: var(--aol-l5-dark);
   background: transparent;
 }
 
@@ -271,7 +276,7 @@
 
 .aol-legend-criterion {
   grid-column: 5;
-  border-top-color: #5b9bd5;
-  color: #2b6199;
+  border-top-color: var(--aol-l5);
+  color: var(--aol-l5-dark);
 }
 </style>

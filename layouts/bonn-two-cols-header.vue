@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import logoUrl from '../assets/UNI_Bonn_Logo_Standard.svg'
+import logoUrl from '../assets/uni-bonn-logo.svg'
 import BonnSectionNav from './BonnSectionNav.vue'
 
 const props = defineProps<{
@@ -26,6 +26,9 @@ const style = computed(() => ({
           <slot name="right" />
         </section>
       </div>
+      <footer v-if="$slots.bottom" class="bonn-two-cols-footer">
+        <slot name="bottom" />
+      </footer>
     </main>
     <BonnSectionNav />
     <img class="bonn-logo" :src="logoUrl" alt="University of Bonn" />
@@ -51,7 +54,7 @@ const style = computed(() => ({
   grid-template-columns: var(--bonn-two-cols-template);
   gap: 1.5rem;
   min-height: 0;
-  margin-top: .45rem;
+  margin-top: 1.1rem;
 }
 
 .bonn-two-cols-column {
@@ -63,6 +66,15 @@ const style = computed(() => ({
 }
 
 .bonn-two-cols-column > :last-child {
+  margin-bottom: 0;
+}
+
+.bonn-two-cols-footer {
+  flex: 0 0 auto;
+  margin-top: .9rem;
+}
+
+.bonn-two-cols-footer > :last-child {
   margin-bottom: 0;
 }
 </style>

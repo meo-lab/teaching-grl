@@ -643,8 +643,7 @@ section: multilayer-perceptrons
 # More layers → more complex transformations
 
 <img
-  src="./assets/transformations_in_an_MLP.png
-"
+  src="./assets/transformations_in_an_MLP.png"
   class="w-full h-[360px] object-contain"
 />
 

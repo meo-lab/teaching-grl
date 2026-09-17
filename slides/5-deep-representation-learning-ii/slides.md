@@ -8,6 +8,12 @@ subhead: Lecture 5
 home: ../
 ---
 
+<script setup>
+import OverfittingDemo from './components/OverfittingDemo.vue'
+import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
+</script>
+
+
 # Deep Representation Learning II
 
 ## How Can a Model Generalize?
@@ -42,113 +48,224 @@ Outcome 1 sets up the core concept; Outcome 2 is the classical story; Outcome 3 
 -->
 
 ---
-
-# We Know How to Minimize a Loss
-
-<div class="grid grid-cols-2 gap-8 mt-6">
-  <div>
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-3">What we have from Lecture 4</div>
-    <ul class="text-[.8rem] leading-8">
-      <li>Forward pass</li>
-      <li>Loss computation</li>
-      <li>Backpropagation</li>
-      <li>Gradient-based parameter updates</li>
-    </ul>
-  </div>
-  <div class="flex flex-col justify-center">
-    <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-      <div class="text-[.9rem] font-semibold text-blue-900 leading-snug">We now know how to minimize training loss.</div>
-    </div>
-    <div class="mt-4 text-[.75rem] text-gray-500">But is minimizing training loss the same as learning?</div>
-  </div>
-</div>
-
-<!--
-Short recap of Lecture 4. The key statement — "we now know how to minimize training loss" — sets up the central question of this lecture.
-Do not expand on the mechanics here; that was Lecture 4.
--->
-
+section: approximation
+layout: bonn-two-cols-header
 ---
 
-# Is Imitation the Same as Learning?
+# Recap Lecture 4 Deep Learning I
+ 
+::left::
 
-<div class="flex flex-col items-center justify-center h-[78%] gap-6">
+## Deep Model Architectures
+
+<img
+        src="./assets/model.svg"
+        class="w-full h-[150px] object-contain"
+        alt="A deep learning model transforms an input tensor through layers into an output tensor"
+      />
+
+::right::
+
+## Parameter Optimization
+
+<img
+        src="./assets/grad_descent_image.png"
+        class="w-full h-[150px] object-contain"
+        alt="Gradient descent iteratively updates parameters to reduce the training loss"
+      />
+
+::bottom::
+
+<div v-click class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">Takeaway: We can now approximate any function with a neural network.</div>
+</div>
+
+<div v-click class="mt-3 text-[.78rem] text-gray-500">But is function approximation enough?</div>
+
+---
+section: approximation
+layout: bonn-two-cols-header
+---
+
+::left:: 
+
+# What is wrong here?
+
+<div v-click class="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">🧑‍🍳 Takeaway: The Pizza Baker Apprentice does not need to hold 📦 boxes to pick up a 🍕 pizza.</div>
+</div>
+
+::right::
+
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
   <video
     src="./assets/pizza.mp4"
     controls
-    class="rounded-xl shadow-lg max-h-[300px]"
-    style="max-width: 560px;"
+    class="rounded-xl shadow-lg max-h-[400px]"
+    style="max-width: 230px;"
   ></video>
-  <div class="text-[1.1rem] font-semibold text-gray-800 mt-2">What is wrong here?</div>
-  <div class="text-[.8rem] text-gray-500">Is this person learning — or only copying?</div>
 </div>
-
-<!--
-Interactive discussion starter. Play the video and ask students to discuss in pairs before revealing the answer on the next slide.
-The pizza maker perfectly reproduces the demonstrated motions but fails when the situation changes — an analogy for a model that has memorized training examples but cannot generalize.
-Do not explain the answer here; let the next slide resolve it.
--->
 
 ---
-
-# The Missing Ingredient: Generalization
-
-<div class="mt-6 flex flex-col gap-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.75rem] font-semibold text-gray-500 uppercase tracking-wide mb-2">What we have</div>
-    <div class="text-[.9rem]">A model that fits the training examples — low training loss.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.75rem] font-semibold text-blue-700 uppercase tracking-wide mb-2">What we need</div>
-    <div class="text-[.9rem] font-semibold text-blue-900">A model that performs well on situations it has not seen during training.</div>
-  </div>
-</div>
-
-<div class="mt-6 text-[.82rem] text-gray-600">
-  Fitting observed examples is not the same as learning something that transfers to new situations.<br>
-  <strong>Generalization</strong> is the missing ingredient.
-</div>
-
-<!--
-Resolve the pizza discussion. The conceptual message is simple: low training loss is necessary but not sufficient.
-Keep this slide minimal — one contrast, one key word: generalization.
--->
-
+section: approximation
+layout: bonn-two-cols-header
 ---
 
-# What Does a Learning System Need?
+# Approximation vs Generalization
 
-<div class="grid grid-cols-4 gap-4 mt-6">
-  <div class="rounded-xl border-2 border-gray-200 p-4 text-center">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-400 mb-2">Lecture 4</div>
-    <div class="text-[.88rem] font-semibold text-gray-800">Model</div>
-    <div class="text-[.68rem] text-gray-500 mt-2 leading-snug">architectures, parameters, activations</div>
-  </div>
-  <div class="rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-center">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Lecture 5 ↓</div>
-    <div class="text-[.88rem] font-semibold text-blue-900">Data &amp; Experience</div>
-    <div class="text-[.68rem] text-blue-700 mt-2 leading-snug">finite samples from a distribution</div>
-  </div>
-  <div class="rounded-xl border-2 border-gray-200 p-4 text-center">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-400 mb-2">Lecture 4</div>
-    <div class="text-[.88rem] font-semibold text-gray-800">Learning Algorithm</div>
-    <div class="text-[.68rem] text-gray-500 mt-2 leading-snug">loss, gradients, backprop, updates</div>
-  </div>
-  <div class="rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-center">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Lecture 5 ↓</div>
-    <div class="text-[.88rem] font-semibold text-blue-900">Generalization</div>
-    <div class="text-[.68rem] text-blue-700 mt-2 leading-snug">performance on unseen situations</div>
-  </div>
+::left::
+
+## Approximation
+
+When training, we minimize the empirical risk
+
+$$
+\widehat{\mathcal{R}}(\theta)
+= \frac{1}{N}\sum_{i=1}^{N}
+\mathcal{L}\bigl(f_{\theta}(\mathbf{x}_i), \mathbf{y}_i\bigr)
+$$
+
+## Generalization
+
+But in practice, we want the population (test) risk to be small
+
+$$
+\mathcal{R}(\theta)
+= \mathbb{E}_{(\mathbf{x},\mathbf{y}) \sim \mathcal{P}}
+\mathcal{L}\bigl(f_\theta(\mathbf{x}),\mathbf{y}\bigr)
+$$
+
+::right::
+
+<div class="flex flex-col justify-center">
+    <OverfittingDemo />
 </div>
 
-<div class="mt-5 text-[.75rem] text-gray-600 text-center">
-  Lecture 4 covered the <strong>model</strong> and the <strong>learning algorithm</strong>. Lecture 5 focuses on <strong>data</strong> and <strong>generalization</strong>.
+---
+section: approximation
+---
+
+# What is needed for a system to learn?
+
+<AspectsOfLearningDiagram/>
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: data
+sectionTitle: Data
+---
+
+# Data Samples and Distributions
+
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <img
+    src="./assets/window.jpg"
+  ></img>
 </div>
 
-<!--
-Conceptual map for the whole lecture. Use this to orient students before diving into Block 1.
-The four boxes mirror the AspectsOfLearning framework from earlier in the course.
--->
+---
+section: data
+---
+
+# Reality → Distribution → Dataset
+
+<img src="./assets/data_1.svg">
+
+---
+section: data
+---
+
+# Reality → Distribution: Generative Perspective
+
+<img src="./assets/data_2.svg">
+
+---
+section: data
+---
+
+# Reality → Distribution: Discriminative Perspective
+
+<img src="./assets/data_3.svg">
+
+---
+section: data
+---
+
+# Data as Samples from a Distribution
+
+<img src="./assets/data_4.svg">
+
+---
+section: data
+---
+
+# Distribution → Dataset: I.I.D Assumption
+
+<img src="./assets/data_5.svg">
+
+---
+section: data
+---
+
+# Distribution → Dataset: In-Distribution Generalization
+
+<img src="./assets/data_6.svg">
+
+---
+section: data
+---
+
+# In Practice: Training, Validation, Test Data
+
+<img src="./assets/data_7.svg">
+
+---
+section: data
+---
+
+# Distribution → Dataset: Random Sampling
+
+<img src="./assets/data_8.svg">
+
+---
+section: data
+---
+
+# Real-World Models need to generalize Out-of-Distribution
+
+<img src="./assets/data_9.svg">
+
+---
+section: data
+---
+
+# Chanes between Development and Deployment
+
+<img src="./assets/data_10.svg">
+
+---
+section: data
+---
+
+# Geospatial Models Need to Generalize Out-of-Distribution
+
+<img src="./assets/data_11.svg">
+
+---
+section: data
+layout: bonn-image-right
+image: ./assets/window.jpg
+---
+
+# Takeaway: Data
+
+* We model our world as distributions from which we sample (i.e., collect) datasets
+* We use training data to train model weights, validation data for experimentation, and test data for final evaluation
+* Random sampling of train, val, test data measures in-distribution accuracy and is sufficient for model comparisons
+* Real-world deployments must consider distribution shifts 𝑃(𝑋│𝑌)≠𝑄(𝑋│𝑌) and assessing out-of-distribution accuracy on separately collected test data
+
+
 
 ---
 layout: bonn-section
@@ -157,15 +274,22 @@ section: classical-generalization
 sectionTitle: Classical Generalization
 ---
 
-# Block 1 — Classical Generalization
+# Classical Generalization
 
-<div class="text-[.88rem] text-gray-200 mt-4">
-From finite training sets to expected loss — the classical view of generalization.
-</div>
+
+<img src="./assets/bias_variance_belkin.svg" />
 
 <!--
 Block 1 placeholder. Topics to develop: finite datasets vs. underlying distribution, training vs. population loss, train/val/test splits, generalization gap, model capacity, underfitting/overfitting, bias–variance trade-off, regularization.
 -->
+
+
+---
+section: classical-generalization
+---
+
+# The Hypothesis Space \mathcal H
+
 
 ---
 section: classical-generalization
