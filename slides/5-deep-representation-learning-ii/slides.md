@@ -13,6 +13,7 @@ import OverfittingDemo from './components/OverfittingDemo.vue'
 import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
 import LinearHypothesisDemo from './components/LinearHypothesisDemo.vue'
 import BiasVarianceDemo from './components/BiasVarianceDemo.vue'
+import PolynomialBiasVarianceDemo from './components/PolynomialBiasVarianceDemo.vue'
 </script>
 
 
@@ -311,6 +312,16 @@ section: classical-generalization
 
 <div style="height: 74%">
   <BiasVarianceDemo />
+</div>
+
+---
+section: classical-generalization
+---
+
+# Increasing the Hypothesis Space
+
+<div style="height: 74%">
+  <PolynomialBiasVarianceDemo />
 </div>
 
 ---
