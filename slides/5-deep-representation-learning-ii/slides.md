@@ -11,6 +11,8 @@ home: ../
 <script setup>
 import OverfittingDemo from './components/OverfittingDemo.vue'
 import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
+import LinearHypothesisDemo from './components/LinearHypothesisDemo.vue'
+import BiasVarianceDemo from './components/BiasVarianceDemo.vue'
 </script>
 
 
@@ -288,8 +290,28 @@ Block 1 placeholder. Topics to develop: finite datasets vs. underlying distribut
 section: classical-generalization
 ---
 
-# The Hypothesis Space \mathcal H
+# The Hypothesis Space $\mathcal H$
 
+
+---
+section: classical-generalization
+---
+
+# Demo: Exploring $\mathcal H_{\text{linear}} = \{h_{w,b}(x) = wx+b : (w,b) \in \mathbb{R}^2\}$
+
+<div style="height: 74%">
+  <LinearHypothesisDemo />
+</div>
+
+---
+section: classical-generalization
+---
+
+# Demo: Different Datasets, Different Fitted Hypotheses
+
+<div style="height: 74%">
+  <BiasVarianceDemo />
+</div>
 
 ---
 section: classical-generalization
