@@ -587,24 +587,6 @@ Keep this conceptual and practical; transformers are intentionally deferred to L
 -->
 
 ---
-layout: bonn-section
-sectionColor: "#00457c"
-section: loss-surfaces-and-regularization
-sectionTitle: Loss Surfaces and Regularization
----
-
-# Loss Surfaces and Regularization
-
-<div class="text-[.9rem] text-gray-700 mt-4">
-Why the shape of the loss landscape matters, and how regularization keeps models from overfitting it.
-</div>
-
----
-layout: iframe
-url: https://1drv.ms/p/c/8b5d216883cce16e/IQQNXkVvl-n0QJo9UPt7idSOAZrvayDlhdhwKcyHrndyLNU?em=2&wdAr=1.7777777777777777
----
-
----
 section: models-and-representations
 ---
 
