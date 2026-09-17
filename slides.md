@@ -108,17 +108,17 @@ After completing the course, you will be able to:
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 1</div>
-<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 6;">Lectures & Labs</div>
+<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 8;">Lectures & Labs</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 2</div>
-<div class="course-gantt-bar phase-2" style="grid-column: 8 / span 3;">Paper Analysis</div>
+<div class="course-gantt-bar phase-2" style="grid-column: 6 / span 5;">Paper Analysis</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 3</div>
-<div class="course-gantt-bar phase-3" style="grid-column: 11 / span 5;">Group Projects</div>
+<div class="course-gantt-bar phase-3" style="grid-column: 12 / span 4;">Group Projects</div>
 
 </div>
 
@@ -134,11 +134,11 @@ Lecture period Oct 12, 2026 - Feb 05, 2027 · First-semester welcome Oct 8 · Op
 <div class="course-gantt-exams">
   <div class="course-gantt-exam phase-1">
     <strong>Phase 1 Written exam</strong>
-    <span>Date: TBD</span>
+    <span>Dec 18, 2026</span>
   </div>
   <div class="course-gantt-exam phase-2">
     <strong>Phase 2 Presentation pass/fail</strong>
-    <span>Date: TBD</span>
+    <span>Dec 11, 2026</span>
   </div>
   <div class="course-gantt-exam phase-3">
     <strong>Phase 3 report deadline</strong>
