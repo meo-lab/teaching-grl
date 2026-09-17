@@ -227,11 +227,6 @@ Self-Supervised Deep Learning<br><span class="text-sm text-gray-600">Learning re
 Geospatial Embeddings<br><span class="text-sm text-gray-600">Representing places and the Earth</span>
 </a>
 
-<a href="./9-synthesis-choosing-the-right-representation/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 9</h3>
-Synthesis<br><span class="text-sm text-gray-600">Choosing the right representation</span>
-</a>
-
 <div class="phase-content-tile phase-content-exam">
 <h3>Written Examination</h3>
 Phase 1 content
