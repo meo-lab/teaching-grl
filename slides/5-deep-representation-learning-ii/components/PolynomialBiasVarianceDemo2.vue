@@ -3,11 +3,11 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { setupHiDPICanvas, getLogicalSize, watchHiDPIResize } from './canvasHiDpi.js'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const N_PTS  = 10
+const N_PTS  = 20
 const NOISE  = 0.45
 const xMin   = -Math.PI
 const xMax   = Math.PI
-const INTERP = 9    // d+1 = N_PTS → exact interpolation of noise-free targets
+const INTERP = N_PTS - 1   // d+1 = N_PTS → exact interpolation of noise-free targets
 
 // y-axis range is recomputed every draw() so wildly oscillating high-degree
 // fits (Runge's phenomenon) stay fully visible instead of getting clipped.
@@ -15,10 +15,11 @@ let yMin = -2.8
 let yMax = 2.8
 
 // ── Vue state ─────────────────────────────────────────────────────────────────
-const degree     = ref(3)
-const mainCanvas = ref(null)
-const trainMSE   = ref(0)
-const testMSE    = ref(0)
+const degree      = ref(3)
+const mainCanvas  = ref(null)
+const curveCanvas = ref(null)
+const trainMSE    = ref(0)
+const testMSE     = ref(0)
 
 // ── Plain data (managed imperatively, canvas redrawn on change) ───────────────
 let xs = [], ys = []
@@ -26,6 +27,16 @@ let coeffs    = null
 let prevCoefs = null
 let animProg  = 1
 let animRaf   = null
+
+// Train/test MSE for every degree 1..MAX_DEGREE on the CURRENT dataset —
+// recomputed once per dataset (not per slider move) and drawn as the capacity
+// curve on the right-hand panel, recreating the classic bias/variance
+// risk-vs-capacity shape (./assets/bias_variance_belkin.svg) from real fits.
+// Capped at the interpolation threshold on purpose — going past it (d+1 > n)
+// is covered later in the lecture, not in this demo.
+const MAX_DEGREE = INTERP
+let curveTrain = []
+let curveTest  = []
 
 // ── RNG (mulberry32) ──────────────────────────────────────────────────────────
 function mkRng(seed) {
@@ -64,17 +75,58 @@ function gaussSolve(A, b) {
   return x
 }
 
+// ── Householder QR least squares ──────────────────────────────────────────────
+// Solves min ||A c - b||. Used instead of normal equations (A^T A c = A^T y)
+// for the overdetermined case: squaring A into A^T A also squares its condition
+// number, which is catastrophic for near-Vandermonde polynomial bases once the
+// degree approaches n − 1 (exactly the range this demo pushes up to, right at
+// the interpolation threshold) — QR keeps the condition number at O(cond(A))
+// instead of O(cond(A)^2), so train MSE correctly bottoms out near 0 there.
+function qrLeastSquares(A, b) {
+  const n = A.length, m = A[0].length
+  const R = A.map(row => row.slice())
+  const r = b.slice()
+  for (let k = 0; k < m; k++) {
+    let normX = 0
+    for (let i = k; i < n; i++) normX += R[i][k] * R[i][k]
+    normX = Math.sqrt(normX)
+    if (normX < 1e-300) continue
+    const alpha = R[k][k] >= 0 ? -normX : normX
+    const v = new Array(n).fill(0)
+    for (let i = k; i < n; i++) v[i] = R[i][k]
+    v[k] -= alpha
+    let vNorm = 0
+    for (let i = k; i < n; i++) vNorm += v[i] * v[i]
+    vNorm = Math.sqrt(vNorm)
+    if (vNorm < 1e-300) continue
+    for (let i = k; i < n; i++) v[i] /= vNorm
+    for (let j = k; j < m; j++) {
+      let dot = 0
+      for (let i = k; i < n; i++) dot += v[i] * R[i][j]
+      for (let i = k; i < n; i++) R[i][j] -= 2 * dot * v[i]
+    }
+    let dotB = 0
+    for (let i = k; i < n; i++) dotB += v[i] * r[i]
+    for (let i = k; i < n; i++) r[i] -= 2 * dotB * v[i]
+  }
+  const c = new Array(m).fill(0)
+  for (let i = m - 1; i >= 0; i--) {
+    let s = r[i]
+    for (let j = i + 1; j < m; j++) s -= R[i][j] * c[j]
+    c[i] = Math.abs(R[i][i]) > 1e-300 ? s / R[i][i] : 0
+  }
+  return c
+}
+
 // ── Polynomial least squares (x normalized to [-1,1] for stability) ───────────
-// overdetermined  (d+1 ≤ n): normal equations  A^T A c = A^T y
+// overdetermined  (d+1 ≤ n): Householder QR least squares (see above)
 // underdetermined (d+1 > n): min-norm          A A^T α = y, c = A^T α
 function polyFit(xArr, yArr, d) {
   const n = xArr.length, m = d + 1
   const xn = xArr.map(x => x / Math.PI)
   const A  = xn.map(x => { const row = [1]; for (let j = 1; j < m; j++) row.push(row[j-1]*x); return row })
   if (m <= n) {
-    const AtA = Array.from({length: m}, (_, i) => Array.from({length: m}, (_, j) => A.reduce((s, r) => s + r[i]*r[j], 0)))
-    const Aty = Array.from({length: m}, (_, i) => A.reduce((s, r, k) => s + r[i]*yArr[k], 0))
-    return gaussSolve(AtA, Aty)
+    return qrLeastSquares(A, yArr)
   } else {
     const AAt = Array.from({length: n}, (_, i) => Array.from({length: n}, (_, j) => A[i].reduce((s, v, k) => s + v*A[j][k], 0)))
     const al  = gaussSolve(AAt, yArr.slice())
@@ -157,7 +209,19 @@ function generateDataset() {
     xs.push(x)
     ys.push(Math.sin(x) + NOISE * (rng() * 2 - 1))
   }
+  computeCapacityCurve()
   refit(false)
+}
+
+// Fit every degree 1..MAX_DEGREE once on the current dataset and record its
+// train/test MSE — this is what the right-hand capacity-curve panel plots.
+function computeCapacityCurve() {
+  curveTrain = []; curveTest = []
+  for (let d = 1; d <= MAX_DEGREE; d++) {
+    const c = polyFit(xs, ys, d)
+    curveTrain.push(computeMSE(c, xs, ys))
+    curveTest.push(computeTrueMSE(c))
+  }
 }
 
 // ── Refit with optional transition animation ───────────────────────────────────
@@ -180,6 +244,9 @@ function refit(animate = true) {
   } else {
     coeffs = newC; animProg = 1; prevCoefs = null; draw()
   }
+  // Curve DATA only depends on the dataset (recomputed in generateDataset),
+  // not on the selected degree — just redraw to move the "current d" marker.
+  drawCurve()
 }
 
 watch(degree, () => refit(true))
@@ -286,6 +353,90 @@ function draw() {
   testMSE.value  = computeTrueMSE(coeffs)
 }
 
+// ── Capacity-curve panel: train/test MSE vs. polynomial degree ────────────────
+// MSE spans many orders of magnitude (≈0 once d+1 ≥ n, up to Runge's-phenomenon
+// blow-ups for wild high-degree fits), so the y-axis is log-scaled — the same
+// reason ./assets/bias_variance_belkin.svg's risk axis needs a wide dynamic range.
+const MSE_FLOOR = 1e-3
+function logClamp(v) { return Math.log10(Math.max(v, MSE_FLOOR)) }
+
+function drawCurve() {
+  const canvas = curveCanvas.value
+  if (!canvas || curveTrain.length === 0) return
+  const ctx = canvas.getContext('2d')
+  const { width: W, height: H } = getLogicalSize(canvas)
+
+  const vals = [...curveTrain, ...curveTest].map(logClamp)
+  let loLog = Math.floor(Math.min(...vals))
+  let hiLog = Math.ceil(Math.max(...vals))
+  if (hiLog <= loLog) hiLog = loLog + 1
+
+  const M = { left: Math.max(26, Math.round(W * 0.09)), right: 6, top: 8, bottom: 16 }
+  const plotW = W - M.left - M.right
+  const plotH = H - M.top - M.bottom
+  const xAt = d => M.left + (d - 1) / (MAX_DEGREE - 1) * plotW
+  const yAt = v => M.top + (hiLog - logClamp(v)) / (hiLog - loLog) * plotH
+
+  ctx.clearRect(0, 0, W, H)
+  ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, W, H)
+
+  // Horizontal log-scale grid + tick labels
+  const tfs = Math.max(7, Math.round(Math.min(W, H) * 0.06))
+  ctx.font = `${tfs}px monospace`
+  for (let e = loLog; e <= hiLog; e++) {
+    const y = yAt(10 ** e)
+    ctx.strokeStyle = 'rgba(200,200,200,0.6)'; ctx.lineWidth = 0.5
+    ctx.beginPath(); ctx.moveTo(M.left, y); ctx.lineTo(W - M.right, y); ctx.stroke()
+    ctx.fillStyle = 'rgba(80,80,80,0.7)'; ctx.textAlign = 'right'
+    ctx.fillText(e === 0 ? '1' : `1e${e}`, M.left - 4, y + tfs * 0.32)
+  }
+
+  // Interpolation-threshold marker (d+1 = n): amber dashed, mirroring the
+  // under-/over-fitting divider in bias_variance_belkin.svg. This demo's
+  // degree range stops exactly at the threshold (MAX_DEGREE = INTERP), so the
+  // marker sits at the right edge — label right-aligned to stay in view.
+  const threshX = xAt(INTERP)
+  ctx.save()
+  ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 2])
+  ctx.beginPath(); ctx.moveTo(threshX, M.top); ctx.lineTo(threshX, H - M.bottom); ctx.stroke()
+  ctx.restore()
+  ctx.fillStyle = '#b45309'; ctx.font = `${Math.max(7, tfs - 1)}px sans-serif`
+  ctx.textAlign = 'right'
+  ctx.fillText('interpolation', threshX - 2, M.top + tfs * 0.8)
+
+  // x-axis (degree) ticks
+  ctx.fillStyle = 'rgba(80,80,80,0.7)'; ctx.font = `${tfs}px monospace`; ctx.textAlign = 'center'
+  ;[1, 5, 10, 15, INTERP].forEach(d => ctx.fillText(String(d), xAt(d), H - 3))
+
+  // Curves: test (green) drawn first, train (red) on top — matches the HTML
+  // MSE-readout colors on the left panel
+  const plot = (series, color, lw) => {
+    ctx.strokeStyle = color; ctx.lineWidth = lw
+    ctx.beginPath()
+    series.forEach((v, i) => {
+      const px = xAt(i + 1), py = yAt(v)
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)
+    })
+    ctx.stroke()
+    series.forEach((v, i) => {
+      ctx.beginPath(); ctx.arc(xAt(i + 1), yAt(v), 2, 0, Math.PI * 2)
+      ctx.fillStyle = color; ctx.fill()
+    })
+  }
+  plot(curveTest, '#059669', 2)
+  plot(curveTrain, '#dc2626', 2)
+
+  // Marker for the currently selected degree (ties this panel to the left one)
+  const curX = xAt(degree.value)
+  ctx.strokeStyle = 'rgba(37,99,235,0.55)'; ctx.lineWidth = 1.2
+  ctx.beginPath(); ctx.moveTo(curX, M.top); ctx.lineTo(curX, H - M.bottom); ctx.stroke()
+  ;[curveTrain[degree.value - 1], curveTest[degree.value - 1]].forEach(v => {
+    ctx.beginPath(); ctx.arc(curX, yAt(v), 3.5, 0, Math.PI * 2)
+    ctx.fillStyle = '#2563eb'; ctx.fill()
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke()
+  })
+}
+
 // ── Qualitative labels ────────────────────────────────────────────────────────
 const biasLabel = computed(() => {
   const d = degree.value
@@ -297,7 +448,7 @@ const varLabel = computed(() => {
 })
 const biasColor   = computed(() => degree.value <= 2 ? '#b45309' : degree.value <= 5 ? '#d97706' : '#059669')
 const varColor    = computed(() => degree.value <= 2 ? '#059669' : degree.value <= 5 ? '#d97706' : '#dc2626')
-const threshFrac  = (INTERP - 1) / (12 - 1)   // ≈ 0.727
+const threshFrac  = (INTERP - 1) / (MAX_DEGREE - 1)   // = 1 (this demo stops at the threshold)
 
 const trainMSELabel = computed(() => trainMSE.value < 5e-4 ? '≈ 0' : trainMSE.value.toFixed(3))
 const testMSELabel  = computed(() => testMSE.value  < 5e-4 ? '≈ 0' : testMSE.value.toFixed(3))
@@ -308,12 +459,16 @@ let stopResizeWatch = null
 onMounted(async () => {
   await nextTick()
   setupHiDPICanvas(mainCanvas.value)
+  setupHiDPICanvas(curveCanvas.value)
   generateDataset()
 
-  // Re-fit the backing buffer whenever the window resizes (covers windowed,
+  // Re-fit the backing buffers whenever the window resizes (covers windowed,
   // presenter, and fullscreen mode — Slidev's presentation scale changes with
   // each), then redraw at the new resolution.
-  stopResizeWatch = watchHiDPIResize([() => mainCanvas.value], () => { if (coeffs) draw() })
+  stopResizeWatch = watchHiDPIResize(
+    [() => mainCanvas.value, () => curveCanvas.value],
+    () => { if (coeffs) draw(); drawCurve() }
+  )
 })
 
 onBeforeUnmount(() => {
@@ -323,64 +478,86 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full gap-1.5 select-none">
+  <div class="flex gap-3 h-full select-none">
 
-    <!-- Controls -->
-    <div class="flex items-center gap-4 flex-wrap">
+    <!-- Left: polynomial regression demo (unchanged from PolynomialBiasVarianceDemo) -->
+    <div class="flex-1 flex flex-col gap-1.5 min-w-0">
 
-      <!-- Degree slider -->
-      <div class="flex flex-col gap-0.5 flex-1 min-w-[220px]">
-        <div class="flex items-center gap-2">
-          <span class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">
-            Polynomial degree
-          </span>
-          <span class="text-[.7rem] font-mono font-semibold text-blue-700">d = {{ degree }}</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="text-[.58rem] font-mono text-gray-400">1</span>
-          <div class="relative flex-1">
-            <input
-              type="range" v-model.number="degree" min="1" max="12" step="1"
-              class="w-full h-2 cursor-pointer accent-blue-600"
-            />
+      <!-- Controls -->
+      <div class="flex items-center gap-4 flex-wrap shrink-0">
+
+        <!-- Degree slider -->
+        <div class="flex flex-col gap-0.5 flex-1 min-w-[220px]">
+          <div class="flex items-center gap-2">
+            <span class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">
+              Polynomial degree
+            </span>
+            <span class="text-[.7rem] font-mono font-semibold text-blue-700">d = {{ degree }}</span>
           </div>
-          <span class="text-[.58rem] font-mono text-gray-400">12</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[.58rem] font-mono text-gray-400">1</span>
+            <div class="relative flex-1">
+              <input
+                type="range" v-model.number="degree" min="1" :max="MAX_DEGREE" step="1"
+                class="w-full h-2 cursor-pointer accent-blue-600"
+              />
+            </div>
+            <span class="text-[.58rem] font-mono text-gray-400">{{ MAX_DEGREE }}</span>
+          </div>
         </div>
+
+        <!-- Draw button -->
+        <button
+          @click="generateDataset"
+          class="px-3 py-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-[.64rem] font-semibold rounded-md transition-colors shrink-0"
+        >
+          Draw new dataset
+        </button>
       </div>
 
-      <!-- Draw button -->
-      <button
-        @click="generateDataset"
-        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-[.64rem] font-semibold rounded-md transition-colors shrink-0"
-      >
-        Draw new dataset
-      </button>
+      <!-- Main plot -->
+      <div class="flex-1 min-h-0 relative border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <canvas ref="mainCanvas" class="block w-full h-full" />
+
+        <!-- Legend (top-left) — HTML for crisp text, unlike canvas-drawn labels -->
+        <div class="absolute top-1.5 left-2 flex flex-col gap-0.5 text-[.62rem] font-sans leading-tight pointer-events-none">
+          <div class="flex items-center gap-1.5">
+            <span class="inline-block w-3.5 h-[2.5px] rounded-full" style="background:#111827"></span>
+            <span class="text-gray-700">f*(x) = sin(x)</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="inline-block w-3.5 h-[2.5px] rounded-full" style="background:#dc2626"></span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="inline-block w-2 h-2 rounded-full border border-white" style="background:#2563eb"></span>
+            <span class="text-gray-700">training data (n = {{ N_PTS }})</span>
+          </div>
+        </div>
+
+        <!-- MSE readout (top-right) — HTML for crisp text -->
+        <div class="absolute top-1.5 right-2 flex flex-col items-end gap-0.5 text-[.68rem] font-mono font-semibold leading-tight pointer-events-none">
+          <span style="color:#dc2626">train MSE = {{ trainMSELabel }}</span>
+          <span style="color:#059669">test MSE (vs f*) = {{ testMSELabel }}</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Main plot -->
-    <div class="flex-1 relative border border-gray-200 rounded-lg overflow-hidden bg-white">
-      <canvas ref="mainCanvas" class="block w-full h-full" />
+    <!-- Right: train/test MSE vs. hypothesis-space capacity (polynomial degree) —
+         recreates the shape of ./assets/bias_variance_belkin.svg from real fits -->
+    <div class="flex-1 flex flex-col gap-1.5 min-w-0">
+      <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400 shrink-0">
+        Train / test error vs. hypothesis-space capacity
+      </div>
+      <div class="flex-1 min-h-0 relative border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <canvas ref="curveCanvas" class="block w-full h-full" />
 
-      <!-- Legend (top-left) — HTML for crisp text, unlike canvas-drawn labels -->
-      <div class="absolute top-1.5 left-2 flex flex-col gap-0.5 text-[.62rem] font-sans leading-tight pointer-events-none">
-        <div class="flex items-center gap-1.5">
-          <span class="inline-block w-3.5 h-[2.5px] rounded-full" style="background:#111827"></span>
-          <span class="text-gray-700">f*(x) = sin(x)</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="inline-block w-3.5 h-[2.5px] rounded-full" style="background:#dc2626"></span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="inline-block w-2 h-2 rounded-full border border-white" style="background:#2563eb"></span>
-          <span class="text-gray-700">training data (n = 10)</span>
+        <!-- Legend (top-left, clear of the y-axis tick margin) — HTML for crisp text -->
+        <div class="absolute top-1 left-9 flex flex-col gap-0.5 text-[.58rem] font-sans leading-tight pointer-events-none">
+          <span style="color:#dc2626">— train MSE</span>
+          <span style="color:#059669">— test MSE</span>
         </div>
       </div>
-
-      <!-- MSE readout (top-right) — HTML for crisp text -->
-      <div class="absolute top-1.5 right-2 flex flex-col items-end gap-0.5 text-[.68rem] font-mono font-semibold leading-tight pointer-events-none">
-        <span style="color:#dc2626">train MSE = {{ trainMSELabel }}</span>
-        <span style="color:#059669">test MSE (vs f*) = {{ testMSELabel }}</span>
-      </div>
+      <div class="text-[.5rem] text-gray-400 text-center shrink-0">degree d (hypothesis-space capacity) →</div>
     </div>
   </div>
 </template>

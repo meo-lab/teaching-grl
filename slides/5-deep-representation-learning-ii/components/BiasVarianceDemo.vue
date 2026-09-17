@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { setupHiDPICanvas, getLogicalSize, watchHiDPIResize } from './canvasHiDpi.js'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const xMin = -Math.PI, xMax = Math.PI
@@ -59,10 +60,11 @@ function reset() {
 watch(N, () => { datasets.value = []; draw() })
 
 // ── Canvas utilities ──────────────────────────────────────────────────────────
-function toCanvas(canvas, dx, dy, xRange, yRange) {
+// W/H here are always the logical (unscaled) canvas size — see canvasHiDpi.js.
+function toCanvas(W, H, dx, dy, xRange, yRange) {
   return {
-    px: (dx - xRange[0]) / (xRange[1] - xRange[0]) * canvas.width,
-    py: (1 - (dy - yRange[0]) / (yRange[1] - yRange[0])) * canvas.height
+    px: (dx - xRange[0]) / (xRange[1] - xRange[0]) * W,
+    py: (1 - (dy - yRange[0]) / (yRange[1] - yRange[0])) * H
   }
 }
 
@@ -84,9 +86,9 @@ function drawLeft() {
   const canvas = leftCanvas.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width, H = canvas.height
+  const { width: W, height: H } = getLogicalSize(canvas)
   const bRange = [bMin, bMax], wRange = [wMin, wMax]
-  const p = (b, w) => toCanvas(canvas, b, w, bRange, wRange)
+  const p = (b, w) => toCanvas(W, H, b, w, bRange, wRange)
 
   ctx.clearRect(0, 0, W, H)
   ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, W, H)
@@ -148,7 +150,7 @@ function drawLeft() {
   // Star label
   ctx.font = `bold ${Math.max(9, Math.round(W * 0.038))}px sans-serif`
   ctx.fillStyle = '#1d4ed8'; ctx.textAlign = 'left'
-  ctx.fillText('★ h* (population optimum)', spx + 11, spy + 4)
+  // ctx.fillText('★ h* (population optimum)', spx + 11, spy + 4)
 }
 
 // ── Right panel: function view ────────────────────────────────────────────────
@@ -156,9 +158,9 @@ function drawRight() {
   const canvas = rightCanvas.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width, H = canvas.height
+  const { width: W, height: H } = getLogicalSize(canvas)
   const xRange = [xMin, xMax], yRange = [-1.85, 1.85]
-  const p = (x, y) => toCanvas(canvas, x, y, xRange, yRange)
+  const p = (x, y) => toCanvas(W, H, x, y, xRange, yRange)
 
   ctx.clearRect(0, 0, W, H)
   ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, W, H)
@@ -212,10 +214,10 @@ function drawRight() {
   const fs = Math.max(9, Math.round(W * 0.040))
   ctx.font = `${fs}px sans-serif`
   const items = [
-    { color: '#111827', label: 'f*(x) = sin(x)', lw: 2.5 },
+    //{ color: '#111827', label: 'f*(x) = sin(x)', lw: 2.5 },
     { color: '#1d4ed8', label: 'h*(x) = population-optimal linear', lw: 2.2 },
     { color: 'rgba(130,130,130,0.7)', label: 'fitted lines (each dataset)', lw: 1.5 },
-    { color: '#dc2626', label: 'running average h̄ₘ(x)', lw: 2.5 }
+    //{ color: '#dc2626', label: 'running average h̄ₘ(x)', lw: 2.5 }
   ]
   items.forEach(({ color, label, lw }, i) => {
     const lx = 7, ly = 12 + i * (fs + 5)
@@ -229,18 +231,27 @@ function drawRight() {
 function draw() { drawLeft(); drawRight() }
 
 function initCanvases() {
-  ;[leftCanvas.value, rightCanvas.value].forEach(c => {
-    if (!c) return
-    const r = c.parentElement.getBoundingClientRect()
-    c.width = Math.round(r.width) || 320
-    c.height = Math.round(r.height) || 300
-  })
+  ;[leftCanvas.value, rightCanvas.value].forEach(c => { if (c) setupHiDPICanvas(c) })
 }
+
+let stopResizeWatch = null
 
 onMounted(async () => {
   await nextTick()
   initCanvases()
   draw()
+
+  // Re-fit the backing buffers whenever the window resizes (covers windowed,
+  // presenter, and fullscreen mode — Slidev's presentation scale changes with
+  // each), then redraw at the new resolution.
+  stopResizeWatch = watchHiDPIResize(
+    [() => leftCanvas.value, () => rightCanvas.value],
+    draw
+  )
+})
+
+onBeforeUnmount(() => {
+  if (stopResizeWatch) stopResizeWatch()
 })
 </script>
 
@@ -257,7 +268,7 @@ onMounted(async () => {
       </div>
       <!-- Right: function view -->
       <div class="flex-1 flex flex-col gap-1 min-w-0">
-        <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">Hypothesis space (functions)</div>
+        <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">X-Y plane showing Hypotheses Functions</div>
         <div class="flex-1 relative border border-gray-200 rounded-lg overflow-hidden bg-white">
           <canvas ref="rightCanvas" class="block w-full h-full" />
         </div>
@@ -287,13 +298,6 @@ onMounted(async () => {
         <span class="font-mono w-5 text-right">{{ N }}</span>
       </div>
       <span class="text-[.62rem] font-mono text-gray-500 ml-auto">M = {{ count }}</span>
-    </div>
-
-    <!-- Takeaway -->
-    <div class="rounded-lg bg-gray-100 px-3 py-1.5 text-[.66rem] text-gray-700 text-center leading-snug">
-      The spread of fitted lines around their average = <strong>variance</strong>. &nbsp;
-      The systematic gap between the average and sin(x) = <strong>bias</strong>. &nbsp;
-      Increasing N reduces variance but not bias.
     </div>
   </div>
 </template>

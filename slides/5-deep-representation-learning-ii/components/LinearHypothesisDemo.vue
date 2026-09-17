@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { setupHiDPICanvas, getLogicalSize, toLogicalPoint, watchHiDPIResize } from './canvasHiDpi.js'
 
 // ── Data generation ──────────────────────────────────────────────────────────
 const N = 12
@@ -58,16 +59,17 @@ const wMin = -2.5, wMax = 2.5, bMin = -1.5, bMax = 1.5
 
 // ── Canvas utilities ──────────────────────────────────────────────────────────
 // Convert data coords to canvas pixels. For left panel: x=b, y=w (y-axis inverted).
-function toCanvas(canvas, dx, dy, xRange, yRange) {
+// W/H here are always the logical (unscaled) canvas size — see canvasHiDpi.js.
+function toCanvas(W, H, dx, dy, xRange, yRange) {
   return {
-    px: (dx - xRange[0]) / (xRange[1] - xRange[0]) * canvas.width,
-    py: (1 - (dy - yRange[0]) / (yRange[1] - yRange[0])) * canvas.height
+    px: (dx - xRange[0]) / (xRange[1] - xRange[0]) * W,
+    py: (1 - (dy - yRange[0]) / (yRange[1] - yRange[0])) * H
   }
 }
-function fromCanvas(canvas, px, py, xRange, yRange) {
+function fromCanvas(W, H, px, py, xRange, yRange) {
   return {
-    x: px / canvas.width * (xRange[1] - xRange[0]) + xRange[0],
-    y: (1 - py / canvas.height) * (yRange[1] - yRange[0]) + yRange[0]
+    x: px / W * (xRange[1] - xRange[0]) + xRange[0],
+    y: (1 - py / H) * (yRange[1] - yRange[0]) + yRange[0]
   }
 }
 
@@ -93,10 +95,10 @@ function buildHeatmap(canvas) {
   for (let i = 0; i < GW * GH; i++) {
     const t = Math.min(Math.max((vals[i] - mseMin) / (mseVis - mseMin), 0), 1)
     // white → yellow → red colormap
-    data[i * 4]     = 255
-    data[i * 4 + 1] = Math.round(255 * (1 - t) ** 0.6)
-    data[i * 4 + 2] = Math.round(220 * (1 - t) ** 2)
-    data[i * 4 + 3] = 255
+    //data[i * 4]     = 255
+    //data[i * 4 + 1] = Math.round(255 * (1 - t) ** 0.6)
+    //data[i * 4 + 2] = Math.round(220 * (1 - t) ** 2)
+    //data[i * 4 + 3] = 255
   }
   const tmp = document.createElement('canvas')
   tmp.width = GW; tmp.height = GH
@@ -122,9 +124,9 @@ function drawLeft() {
   const canvas = leftCanvas.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width, H = canvas.height
+  const { width: W, height: H } = getLogicalSize(canvas)
   const bRange = [bMin, bMax], wRange = [wMin, wMax]
-  const p = (b, w) => toCanvas(canvas, b, w, bRange, wRange)
+  const p = (b, w) => toCanvas(W, H, b, w, bRange, wRange)
 
   ctx.clearRect(0, 0, W, H)
   if (heatmapImg) ctx.drawImage(heatmapImg, 0, 0, W, H)
@@ -136,12 +138,12 @@ function drawLeft() {
   ctx.beginPath(); ctx.moveTo(0, w0y); ctx.lineTo(W, w0y); ctx.stroke()
 
   // Axis labels + ticks
-  const fs = Math.max(10, Math.round(W * 0.046))
+  const fs = Math.max(9, Math.round(Math.min(W, H) * 0.052))
   ctx.font = `${fs}px sans-serif`; ctx.fillStyle = 'rgba(50,50,50,0.85)'
   ctx.textAlign = 'left';  ctx.fillText('w', 4, fs + 2)
   ctx.textAlign = 'right'; ctx.fillText('b', W - 2, H - 4)
 
-  ctx.font = `${Math.max(9, fs - 2)}px monospace`
+  ctx.font = `${Math.max(8, fs - 2)}px monospace`
   ctx.fillStyle = 'rgba(60,60,60,0.75)'
   ctx.textAlign = 'center'
   ;[-1, 0, 1].forEach(v => {
@@ -167,9 +169,9 @@ function drawRight() {
   const canvas = rightCanvas.value
   if (!canvas) return
   const ctx = canvas.getContext('2d')
-  const W = canvas.width, H = canvas.height
+  const { width: W, height: H } = getLogicalSize(canvas)
   const xRange = [xMin, xMax], yRange = [-1.85, 1.85]
-  const p = (x, y) => toCanvas(canvas, x, y, xRange, yRange)
+  const p = (x, y) => toCanvas(W, H, x, y, xRange, yRange)
 
   ctx.clearRect(0, 0, W, H)
   ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, W, H)
@@ -217,25 +219,26 @@ function drawRight() {
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke()
   })
 
-  // Legend
-  const fs = Math.max(9, Math.round(W * 0.041))
+  // Legend — sized off panel height too, since these panels are now short and
+  // wide (stacked in a single narrow column) rather than roughly square.
+  const fs = Math.max(7, Math.round(Math.min(W * 0.032, H * 0.11)))
   const items = [
     { color: '#374151', label: 'f*(x) = sin(x)', line: true, lw: 2 },
     { color: '#dc2626', label: `h(x) = ${wVal.value.toFixed(2)}x + (${bVal.value.toFixed(2)})`, line: true, lw: 2.5 },
-    { color: '#2563eb', label: 'Training data', dot: true }
+    { color: '#2563eb', label: 'Data', dot: true }
   ]
   ctx.font = `${fs}px sans-serif`
   items.forEach(({ color, label, line, dot, lw }, i) => {
-    const lx = 8, ly = 11 + i * (fs + 5)
+    const lx = 6, ly = fs + 1 + i * (fs + 3)
     if (line) {
       ctx.strokeStyle = color; ctx.lineWidth = lw
-      ctx.beginPath(); ctx.moveTo(lx, ly - 2); ctx.lineTo(lx + 15, ly - 2); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(lx, ly - 2); ctx.lineTo(lx + 12, ly - 2); ctx.stroke()
     } else if (dot) {
       ctx.fillStyle = color
-      ctx.beginPath(); ctx.arc(lx + 7, ly - 3, 3.5, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.arc(lx + 6, ly - 3, 3, 0, Math.PI * 2); ctx.fill()
     }
     ctx.fillStyle = '#374151'; ctx.font = `${fs}px sans-serif`
-    ctx.textAlign = 'left'; ctx.fillText(label, lx + 20, ly)
+    ctx.textAlign = 'left'; ctx.fillText(label, lx + 16, ly)
   })
 }
 
@@ -246,16 +249,16 @@ watch([wVal, bVal], draw)
 let isDragging = false
 
 function getPos(e) {
-  const c = leftCanvas.value, r = c.getBoundingClientRect()
-  return {
-    px: (e.clientX - r.left) * c.width / r.width,
-    py: (e.clientY - r.top) * c.height / r.height
-  }
+  // Convert on-screen (post-Slidev-scale) client coordinates into the canvas's
+  // logical drawing space — not its high-DPI backing-buffer pixel space.
+  const { x, y } = toLogicalPoint(leftCanvas.value, e.clientX, e.clientY)
+  return { px: x, py: y }
 }
 function applyDrag(e) {
   if (!isDragging || animating.value) return
   const { px, py } = getPos(e)
-  const d = fromCanvas(leftCanvas.value, px, py, [bMin, bMax], [wMin, wMax])
+  const { width, height } = getLogicalSize(leftCanvas.value)
+  const d = fromCanvas(width, height, px, py, [bMin, bMax], [wMin, wMax])
   bVal.value = Math.max(bMin, Math.min(bMax, d.x))
   wVal.value = Math.max(wMin, Math.min(wMax, d.y))
 }
@@ -280,67 +283,70 @@ function fitBestLine() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
+let stopResizeWatch = null
+
 onMounted(async () => {
   await nextTick()
-  ;[leftCanvas.value, rightCanvas.value].forEach(c => {
-    if (!c) return
-    const r = c.parentElement.getBoundingClientRect()
-    c.width = Math.round(r.width) || 320
-    c.height = Math.round(r.height) || 300
-  })
+  ;[leftCanvas.value, rightCanvas.value].forEach(c => { if (c) setupHiDPICanvas(c) })
   buildHeatmap(leftCanvas.value)
   draw()
+
+  // Re-fit the backing buffers whenever the window resizes (covers windowed,
+  // presenter, and fullscreen mode — Slidev's presentation scale changes with
+  // each), then redraw at the new resolution. The heatmap raster itself is
+  // resolution-independent (drawn scaled-to-fit), so it doesn't need rebuilding.
+  stopResizeWatch = watchHiDPIResize(
+    [() => leftCanvas.value, () => rightCanvas.value],
+    draw
+  )
+})
+
+onBeforeUnmount(() => {
+  if (stopResizeWatch) stopResizeWatch()
 })
 </script>
 
 <template>
-  <div class="flex flex-col h-full gap-2 select-none">
-    <!-- Panels -->
-    <div class="flex gap-3 flex-1 min-h-0">
-      <!-- Left: parameter space -->
-      <div class="flex-1 flex flex-col gap-1 min-w-0">
-        <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">
-          Parameter space &nbsp;(drag to explore)
+  <div class="flex flex-col h-full gap-1.5 select-none">
+    <!-- Row 1: parameter space kept SQUARE (b/w axes need equal pixel-per-unit
+         scaling to look undistorted) + stats/controls filling the freed width -->
+    <div class="flex gap-2.5 flex-1 min-h-0">
+      <div class="flex flex-col gap-0.5 h-full" style="aspect-ratio: 1 / 1">
+        <div class="text-[.46rem] font-bold uppercase tracking-wide text-gray-400 shrink-0">
+          Parameter space
         </div>
         <div
-          class="flex-1 relative border border-gray-200 rounded-lg overflow-hidden cursor-crosshair bg-white"
+          class="flex-1 min-h-0 relative border border-gray-200 rounded-lg overflow-hidden cursor-crosshair bg-white"
           @mousedown="startDrag" @mousemove="applyDrag" @mouseup="endDrag" @mouseleave="endDrag"
         >
           <canvas ref="leftCanvas" class="block w-full h-full" style="touch-action:none" />
         </div>
-        <div class="flex gap-4 text-[.6rem] font-mono">
-          <span class="text-gray-600">w = {{ wVal.toFixed(3) }}</span>
-          <span class="text-gray-600">b = {{ bVal.toFixed(3) }}</span>
+      </div>
+      <div class="flex-1 flex flex-col justify-center gap-1.5 min-w-0">
+        <div class="text-[.46rem] text-gray-400">Drag the point to explore</div>
+        <div class="flex flex-col gap-1 text-[.56rem] font-mono">
+          <span class="text-gray-600">w = {{ wVal.toFixed(2) }}</span>
+          <span class="text-gray-600">b = {{ bVal.toFixed(2) }}</span>
           <span class="text-red-600 font-semibold">MSE = {{ curMSE.toFixed(3) }}</span>
           <span class="text-blue-700">min MSE = {{ mseOpt.toFixed(3) }}</span>
         </div>
-      </div>
-      <!-- Right: hypothesis -->
-      <div class="flex-1 flex flex-col gap-1 min-w-0">
-        <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">
-          Selected hypothesis &nbsp;h<sub>w,b</sub>(x) = wx + b
-        </div>
-        <div class="flex-1 relative border border-gray-200 rounded-lg overflow-hidden bg-white">
-          <canvas ref="rightCanvas" class="block w-full h-full" />
-        </div>
+        <button
+          @click="fitBestLine" :disabled="animating"
+          class="mt-0.5 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-[.56rem] font-semibold rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed self-start"
+        >
+          Fit best line
+        </button>
       </div>
     </div>
 
-    <!-- Controls -->
-    <div class="flex items-center gap-4">
-      <button
-        @click="fitBestLine" :disabled="animating"
-        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-[.65rem] font-semibold rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        Fit best line
-      </button>
-      <span class="text-[.6rem] text-gray-400">Color: training MSE ·  ⭐ = empirical optimum (w&#x0302;, b&#x0302;)</span>
-    </div>
-
-    <!-- Takeaway -->
-    <div class="rounded-lg bg-gray-100 px-3 py-1.5 text-[.66rem] text-gray-700 text-center leading-snug">
-      Training searches the hypothesis space for the hypothesis with the lowest empirical risk.
-      Even the best-fitting line cannot reproduce sin(x) — the linear hypothesis space is too restrictive.
+    <!-- Row 2: hypothesis (function) plot, full width -->
+    <div class="flex-1 flex flex-col gap-0.5 min-h-0">
+      <div class="text-[.46rem] font-bold uppercase tracking-wide text-gray-400 shrink-0">
+        Selected hypothesis
+      </div>
+      <div class="flex-1 relative border border-gray-200 rounded-lg overflow-hidden bg-white">
+        <canvas ref="rightCanvas" class="block w-full h-full" />
+      </div>
     </div>
   </div>
 </template>

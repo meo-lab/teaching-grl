@@ -52,13 +52,21 @@ const style = computed(() => ({
 .bonn-two-cols {
   display: grid;
   grid-template-columns: var(--bonn-two-cols-template);
+  /* A fixed 1fr row (rather than the default auto-sized row) keeps the row's
+     height equal to the space actually available in the slide, so a tall
+     column can't inflate the whole grid past the slide's bounds — content
+     that needs "fill available height" (e.g. h-full/flex-1 demos) gets a
+     genuinely definite height to resolve against instead of an indeterminate one. */
+  grid-template-rows: minmax(0, 1fr);
   gap: 1.5rem;
+  flex: 1;
   min-height: 0;
   margin-top: 1.1rem;
 }
 
 .bonn-two-cols-column {
   min-width: 0;
+  min-height: 0;
 }
 
 .bonn-two-cols-column > :first-child {
