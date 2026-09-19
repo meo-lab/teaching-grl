@@ -619,6 +619,85 @@ layout: bonn-two-cols-header
 
 ---
 section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Vapnik-Chervonenkis (VC) Dimension 
+
+## How to measure the Capacity of H
+
+::left::
+
+<div class="flex flex-col h-full gap-2">
+
+<div class="compact-math text-[0.72rem] leading-snug shrink-0" style="line-height: 1.3;">
+
+A set of $n$ points is **shattered** by $\mathcal H$ if classifiers in $\mathcal H$ can realize all $2^n$ possible binary labelings. The **VC dimension** is the largest number of points that $\mathcal H$ can shatter:
+
+$$
+\operatorname{VCdim}(\mathcal H)
+=
+\max\left\{
+n:\text{some }n\text{ points are shattered by }\mathcal H
+\right\}.
+$$
+
+</div>
+
+<div class="flex-1 min-h-0 flex flex-col items-center justify-center gap-1">
+  <img src="./assets/shattered.png" class="max-w-full max-h-full object-contain" />
+  <div class="text-[0.6rem] text-gray-500 text-center">
+    Image: <a href="https://en.wikipedia.org/wiki/Vapnik%E2%80%93Chervonenkis_dimension" target="_blank" rel="noopener noreferrer">Wikipedia</a>, CC BY-SA 3.0
+  </div>
+</div>
+
+</div>
+
+::right::
+
+<img width=300px src="./assets/vc-dimension.svg">
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Worst-Case Generalization Gap
+
+For a bounded loss, ignoring constants and logarithmic terms:
+
+$$
+\left|R(h)-\widehat R_D(h)\right|
+\lesssim
+\sqrt{\frac{d}{n}}
+$$
+
+with VC dimension $d$ and sample size $n$
+
+::left::
+
+- A larger VC dimension gives a weaker guarantee for the same sample size.
+- More training data reduces the worst-case gap approximately as $1/\sqrt n$.
+- For a target gap $\varepsilon$, the required sample size scales approximately as
+
+  $$
+  n \propto \frac{d}{\varepsilon^2}.
+  $$
+
+- The guarantee is useful only when $d\ll n$. When $d\approx n$, the bound becomes uninformative.
+
+::right::
+
+<img width="80%" src="./assets/generalization_gap.svg">
+
+<div v-click class="mt-4 text-center">
+
+**VC bounds are distribution-free and robust, but often pessimistic.**
+
+</div>
+
+---
+section: classical-generalization
 ---
 
 # Example Polynomial Regression: 
@@ -649,20 +728,20 @@ layout: bonn-two-cols-header
 <img width=300px src="./assets/bias_variance_belkin.svg">
 
 ---
-layout: bonn-section
+layout: bonn-section-image-right
 sectionColor: "#00457c"
 section: modern-generalization
 sectionTitle: Modern Generalization
+image: ./assets/sailor.jpg
 ---
 
 # Generalization beyond the Interpolation Threshold
 
-<img src="./assets/interpolation_regime_belkin.svg" />
-
-
-<!--
-Block 2 placeholder. Topics to develop: interpolation threshold, double descent, grokking, implicit regularization, overparameterization, scaling laws, connection to foundation models.
--->
+<div class="bonn-section-citation">
+<a href="https://www.pexels.com/@ludvighedenborg/" target="_blank" rel="noopener noreferrer">
+Photo by Ludvig Hedenborg, Pexels License
+</a>
+</div>
 
 ---
 section: modern-generalization
@@ -678,457 +757,512 @@ section: modern-generalization
 section: modern-generalization
 ---
 
-# Block 2 — Coming Soon
+# Polynomial Regression in Interpolation Regime
 
-<div class="text-[.85rem] text-gray-500 mt-6">
-  Placeholder — content will be developed here.
+<div class="grid grid-cols-3 gap-6 mt-4 text-center">
+
+<div>
+
+Underfitting — Degree 3
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d3.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
 </div>
 
-<div class="mt-8 text-[.75rem] text-gray-400 leading-7">
-  Planned topics:
-  <ul class="mt-2">
-    <li>Interpolation threshold</li>
-    <li>Double descent</li>
-    <li>Grokking</li>
-    <li>Implicit regularization</li>
-    <li>Overparameterization</li>
-    <li>Scaling model capacity and data</li>
-    <li>Connection to foundation models</li>
-  </ul>
+</div>
+
+<div>
+
+Overfitting — Degree 20
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d20.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
+
+</div>
+
+<div v-click>
+
+Interpolating — Degree 1000
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d1000.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
+
+</div>
+
+</div>
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Credit: Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+---
+section: modern-generalization
+---
+
+# Double Descent Phenomenon
+
+## Overparamterized Models Improve Again after Overfitting
+
+<div class="flex items-center justify-center">
+<img width=80% src="./assets/interpolation_regime_belkin.svg">
+</div>
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Credit: Belkin et al., 2019. <a href="https://arxiv.org/abs/1812.11118">Reconciling modern machine learning practice and the bias-variance trade-off</a>
+</div>
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# The Simple + Spiky Hypothesis
+
+::left::
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d1000.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
+
+::right::
+
+$$
+\boxed{
+\text{learned model}
+=
+\underbrace{\text{“simple”}}_{\text{predictive component}}
++
+\underbrace{\text{“spiky”}}_{\text{overfitting / memorization component}}
+}
+$$
+
+<div class="mt-4 text-[0.65rem] text-gray-500">
+Belkin, Rakhlin &amp; Tsybakov, 2018. <a href="https://arxiv.org/abs/1806.09471" target="_blank" rel="noopener noreferrer">Does data interpolation contradict statistical optimality?</a>
+</div>
+
+::bottom::
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Credit: Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# Neural Networks Interpolate and Generalize
+
+## The same hypothesis class can memorize noise and learn structure
+
+::left::
+
+## The experiment
+
+**Inception on CIFAR-10**
+
+| Training labels | Train accuracy | Test accuracy |
+|---|---:|---:|
+| **True labels** | 100% | 85.75% |
+| **Random labels** | 100% | 9.78% |
+
+::right::
+
+<div class="text-center mt-5 mb-5">
+  <img width="180px" src="./assets/cifar-10.png" class="mx-auto">
+</div>
+
+## The VC bound becomes vacuous and does not explain Deep Networks' generalization
+
+* **No contradiction:** The VC bound remains valid, but it is too pessimistic to distinguish the two learned solutions.
+
+
+::bottom::
+
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Zhang et al. (2017). <em>Understanding Deep Learning Requires Rethinking Generalization.</em> ICLR. <a href="https://arxiv.org/abs/1611.03530">arXiv:1611.03530</a>
+</div>
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# How to measure the Model Complexity now??
+
+::left::
+
+## By the number of distinct functions the model can represent? (VC-dimension)
+
+→ **No.** Not helpful — the generalization bound is too pessimistic. Following classical theory, neural networks should not generalize.
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Slide from Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+
+<div v-click=2 class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">Why parameter count alone doesn't determine generalization for deep learning is still an open question.</div>
+</div>
+
+::right::
+
+## By the number of parameters in a neural network?
+
+<div v-click=1 class="flex flex-col gap-1 text-[0.78rem] leading-snug">
+
+
+<img src="./assets/two_nns.png" class="object-contain mx-auto" style="max-width: 100%; max-height: 200px;" />
+
+Consider $h(x) = 10^{-100} f(x) + (1 - 10^{-100}) g(x)$. How many parameters does it have? Does it matter? **Not really.**
+
+</div>
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# "Effective" Model Capacity
+
+<div class="flex items-center justify-center">
+<img width=80% src="./assets/interpolation_regime_belkin_modified.svg">
+</div>
+
+<div v-click class="mt-4 rounded-lg bg-gray-100 px-5 py-3 text-center">
+<b>“Capacity” is intentionally abstract.</b> Parameter count may indicate when interpolation becomes possible, but it does not determine the complexity of the learned solution or its test performance.
+</div>
+
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# Recap So Far
+
+::left::
+
+<div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">What we observed</div>
+
+<div class="mt-1 text-[0.66rem] leading-tight space-y-1">
+
+**Deep networks generalize.**  
+They make accurate predictions on inputs that were not part of the training data.
+
+**Deep networks also interpolate.**  
+The same architectures can perfectly fit true labels and random labels.
+
+**Training fit alone cannot explain generalization.**  
+Zero training error does not distinguish learning useful structure from memorizing the sample.
+
+</div>
+
+::right::
+
+<div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">What this implies</div>
+
+<div class="mt-1 text-[0.66rem] leading-tight space-y-1">
+
+**Generalization requires inductive bias.**  
+Training must favor some interpolating solutions over many others that fit the data equally well.
+
+**Worst-case capacity is insufficient.**  
+Parameter count and VC dimension describe the entire hypothesis space, but their bounds become vacuous for highly expressive neural networks.
+
+**The selected solution matters.**  
+Architecture, optimization, regularization, and data properties all influence which solution training finds.
+
+</div>
+
+::bottom::
+
+<div class="mt-1 rounded-lg bg-gray-100 px-5 py-1.5 text-center">
+
+**Next question:** Which inductive biases make interpolating neural networks generalize?
+
+</div>
+
+<div class="mt-1 text-[0.6rem] text-gray-500 text-center">
+Slide from Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# Version Space
+
+::left::
+
+The **version space** contains all hypotheses that fit the training data perfectly:
+
+$$
+\mathcal V_{\mathcal H}(D)
+=
+\left\{
+h\in\mathcal H:
+\widehat R_D(h)=0
+\right\}.
+$$
+
+- In overparameterized models, many hypotheses belong to this set.
+- Some generalize to unseen data, while others merely memorize.
+- Training error cannot distinguish between them.
+
+<div class="mt-5 rounded-lg bg-gray-100 px-4 py-3 text-center">
+
+**Deep models do generalize. Therefore, the training system must favor generalizing hypotheses within the version space.**
+
+</div>
+
+::right::
+
+<img width=100% src="./assets/version_space.svg">
+
+<!--
+---
+section: modern-generalization
+---
+
+# Phillip Isola - MIT Lecture Generalization (2024)
+
+<div class="flex flex-col h-full gap-1">
+
+<div class="flex-1 min-h-0">
+  <iframe width="100%" height="100%" src="https://www.youtube.com/embed/EiO8BBa-xdc?si=VBaY9A3PfJe9_F2x&amp;start=3911&amp;end=3971" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
+<div class="text-[0.6rem] text-gray-500 text-center shrink-0">
+Excerpt from &ldquo;Lec 06: Generalization Theory,&rdquo; Philip Isola, MIT 6.7960 Deep Learning, Fall 2024. MIT OpenCourseWare. Licensed under CC BY-NC-SA 4.0. <a href="https://www.youtube.com/watch?v=EiO8BBa-xdc&t=3651s" target="_blank" rel="noopener noreferrer">Source</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">License</a>
+</div>
+
+</div>
+-->
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# Inductive Biases Select Interpolating Solutions
+
+::left::
+
+## Sources of inductive bias
+
+- **Architecture:** locality, parameter sharing, recurrence, and equivariance
+- **Parameterization:** makes some functions easier to represent and reach
+- **Initialization:** influences the path taken through parameter space
+- **Optimization and loss:** SGD, batch size, learning rate, and loss function
+- **Explicit regularization:** weight decay, dropout, and early stopping
+- **Data and augmentation:** encode structure, invariances, and prior knowledge
+
+::right::
+
+## What does “simpler” mean?
+
+<div class="mt-3 rounded-lg bg-gray-100 px-4 py-3">
+
+<strong>Not necessarily fewer parameters.</strong>
+
+Depending on the setting, training may favor solutions with:
+
+- low norm or large margin
+- smoothness or invariance
+- compressible representations
+
+</div>
+
+There is no single universal measure of the effective complexity of a deep network.
+
+::bottom::
+
+<div class="mt-3 text-[0.62rem] text-gray-500 text-center">
+For concrete proposed theories, check Phillip Isola.
+<a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_mp4/" target="_blank">
+<em>Lecture 6: Generalization Theory</em>
+</a>.
+MIT 6.7960 Deep Learning, Fall 2024.
 </div>
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: beyond-interpolation
-sectionTitle: Beyond the Interpolation Threshold
+section: ai-acceleration
+sectionTitle: Modern AI Acceleration
 ---
 
-# Block 3 — Beyond the Interpolation Threshold
+# The Modern AI Acceleration
 
-<div class="text-[.88rem] text-gray-200 mt-4">
-Modern overparameterized networks can fit training data perfectly and still generalize. Why?
+
+---
+section: ai-acceleration
+layout: bonn-two-cols-header
+---
+
+# Scaling Laws for Transformers
+
+## Held-out loss follows power laws of compute, data, and model size
+
+<div class="mt-1 text-center">
+  <img width="94%" class="mx-auto" src="./assets/kaplan_scaling_laws.svg">
 </div>
 
-<!--
-Block 3: moves from the classical capacity story into the modern overparameterized regime.
-Key thread: which function does learning select, and why does that selection generalize?
--->
+<div class="grid grid-cols-3 gap-6 text-center">
 
----
-section: beyond-interpolation
----
+<div>
 
-# Beyond the Interpolation Threshold
+**Compute**
 
-<div class="grid grid-cols-[1.3fr_1fr] gap-8 mt-5 items-start">
-  <div>
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Recall from Block 1</div>
-    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-[.75rem] text-gray-500 text-center leading-7">
-      Overparameterized polynomial placeholder —<br>wiggly curve interpolating all training points perfectly
-    </div>
-    <div class="mt-3 text-[.72rem] text-gray-500 text-center">A high-degree polynomial that perfectly fits the training set can behave pathologically between samples.</div>
-  </div>
-  <div class="flex flex-col gap-4">
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[.75rem] text-gray-700">
-      <strong>Interpolation threshold</strong> — the model capacity at which training loss can reach zero.
-    </div>
-    <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-800 font-medium leading-snug">
-      Why don't overparameterized neural networks necessarily behave like pathological high-degree polynomials?
-    </div>
-  </div>
+$$
+L(C_{\min})
+=
+\left(
+\frac{C_{\min}}{2.3\times10^{8}}
+\right)^{-0.050}
+$$
+
 </div>
 
-<!--
-Opening question for Block 3. Reconnect to the overfitting intuition from Block 1 and set up the modern puzzle.
--->
+<div>
 
----
-section: beyond-interpolation
----
+**Training data**
 
-# The Classical Prediction Breaks Down
+$$
+L(D)
+=
+\left(
+\frac{D}{5.4\times10^{13}}
+\right)^{-0.095}
+$$
 
-<div class="mt-5 flex flex-col gap-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Classical expectation</div>
-    <ul class="text-[.78rem] leading-8 text-gray-700">
-      <li>Increasing capacity reduces bias</li>
-      <li>After some point, variance increases</li>
-      <li>The test-error curve has a U-shape</li>
-      <li>Beyond the apparent optimum, generalization deteriorates</li>
-    </ul>
-  </div>
-  <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-gray-300 text-[.68rem]">
-    U-shaped test-error curve placeholder (classical regime only)
-  </div>
 </div>
 
-<div class="mt-4 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800 text-center">
-  But is this what we actually observe in modern deep learning?
+<div>
+
+**Model size**
+
+$$
+L(N)
+=
+\left(
+\frac{N}{8.8\times10^{13}}
+\right)^{-0.076}
+$$
+
 </div>
 
-<!--
-Recap the classical story from Block 1 before overturning it.
-End on an open question to motivate the next slide.
--->
-
----
-section: beyond-interpolation
----
-
-# Double Descent
-
-<div class="grid grid-cols-[1.4fr_1fr] gap-8 mt-5 items-start">
-  <div>
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Conceptual error curve</div>
-    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-gray-300 text-[.68rem] leading-7">
-      train error + test error vs. model capacity<br>
-      mark interpolation threshold<br>
-      test error rises near threshold, then falls again<br>
-      (double descent curve placeholder)
-    </div>
-  </div>
-  <div class="flex flex-col gap-4">
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[.75rem] text-gray-700">Train error reaches zero at the interpolation threshold.</div>
-    <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[.75rem] text-amber-800">Test error peaks near the threshold.</div>
-    <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[.75rem] text-emerald-800">Then test error decreases again in the overparameterized regime.</div>
-    <div class="mt-1 text-[.7rem] text-gray-500">The classical U-shaped curve can be incomplete.</div>
-  </div>
 </div>
 
-<!--
-Introduce double descent at a conceptual level. Do not explain why yet — that comes in the following slides.
-Belkin et al. 2019 is the key reference to add later.
--->
+::bottom::
 
----
-section: beyond-interpolation
----
-
-# Many Functions Can Fit the Training Data
-
-<div class="mt-5 flex flex-col gap-5">
-  <div class="text-[.78rem] text-gray-600 text-center">
-    Once the model is large enough to interpolate, many different functions all achieve zero training loss.
-  </div>
-  <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-gray-300 text-[.68rem] leading-7">
-    placeholder: several very different curves, all passing exactly through the same training points
-  </div>
-  <div class="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-[.8rem] text-blue-900 text-center font-mono">
-    { f ∈ ℋ : L<sub>train</sub>(f) = 0 }
-  </div>
+<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
+Kaplan et al. (2020).
+<a href="https://arxiv.org/abs/2001.08361">
+<em>Scaling Laws for Neural Language Models.</em>
+</a>
 </div>
 
-<div class="mt-4 rounded-lg bg-gray-100 px-4 py-3 text-[.78rem] text-gray-700 text-center">
-  If many functions fit the data perfectly, which one does learning select?
-</div>
-
-<!--
-Shift the question from capacity to function selection. The set of interpolating solutions is large — what determines which one gradient descent finds?
--->
 
 ---
-section: beyond-interpolation
+section: ai-acceleration
+layout: bonn-two-cols-header
 ---
 
-# Parameter Space Is Not Function Space
+# Modern AI Acceleration
 
-<div class="grid grid-cols-2 gap-8 mt-6 items-start">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 flex flex-col items-center gap-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500">Parameter space</div>
-    <div class="text-[1rem] font-mono text-gray-700">θ ∈ ℝ<sup>P</sup></div>
-    <div class="text-[.7rem] text-gray-400 text-center">Many distinct weight vectors</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 flex flex-col items-center gap-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700">Function space</div>
-    <div class="text-[1rem] font-mono text-blue-800">f<sub>θ</sub>(x)</div>
-    <div class="text-[.7rem] text-blue-700 text-center">The input–output mapping induced by θ</div>
-  </div>
-</div>
+<img width="100%" src="./assets/20260918-epoch-ml-trends-2.svg">
 
-<div class="mt-5 text-[.78rem] text-gray-600 text-center">
-  Many different θ may produce the same or very similar function. The mapping θ → f<sub>θ</sub> is not one-to-one.
-</div>
-
-<div class="mt-3 rounded-lg bg-gray-100 px-4 py-3 text-[.78rem] text-gray-700 text-center">
-  A large parameter space does not imply that every function is equally likely.
-</div>
-
-<!--
-Distinguish weight space from function space. This is the conceptual foundation for simplicity bias and inductive bias arguments.
--->
-
----
-section: beyond-interpolation
----
-
-# Overparameterization Does Not Mean Random Functions
-
-<div class="mt-5 flex flex-col gap-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Intuition</div>
-    <ul class="text-[.78rem] leading-8 text-gray-700">
-      <li>An enormous parameter space maps very unevenly into function space</li>
-      <li>Some functions correspond to many different parameter configurations</li>
-      <li>Simple or structured functions may be easier to reach from typical initializations</li>
-    </ul>
-  </div>
-  <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-gray-300 text-[.68rem]">
-    conceptual: many θ → one simple function vs. few θ → one complex function (placeholder)
-  </div>
-</div>
-
-<div class="mt-3 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800 text-center">
-  More parameters increase what the model can represent, but do not imply uniform sampling over functions.
-</div>
-
-<!--
-Simplicity bias — keep intuitive. The formal version involves measure theory and is not needed here.
--->
-
----
-section: beyond-interpolation
----
-
-# Inductive Bias Selects Among Interpolating Solutions
-
-<div class="mt-5 flex flex-col gap-4">
-  <div class="text-[.78rem] text-gray-600 text-center mb-2">
-    The hypothesis space may be huge, but learning has preferences.
-  </div>
-  <div class="grid grid-cols-3 gap-4">
-    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
-      <div class="font-semibold mb-1">Architecture</div>
-      <div class="text-gray-400">convolutional, recurrent, equivariant</div>
-    </div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
-      <div class="font-semibold mb-1">Equivariances</div>
-      <div class="text-gray-400">translation, rotation, scale</div>
-    </div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
-      <div class="font-semibold mb-1">Optimization</div>
-      <div class="text-gray-400">SGD, Adam, learning rate schedule</div>
-    </div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
-      <div class="font-semibold mb-1">Initialization</div>
-      <div class="text-gray-400">affects which minimum is found</div>
-    </div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-[.72rem] text-gray-700 text-center">
-      <div class="font-semibold mb-1">Regularization</div>
-      <div class="text-gray-400">explicit and implicit</div>
-    </div>
-    <div class="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-[.7rem] text-gray-300 text-center">
-      …
-    </div>
-  </div>
-</div>
-
-<!--
-No single mechanism fully explains modern generalization — several interact.
-This slide is deliberately non-committal to reflect genuine scientific uncertainty.
--->
-
----
-section: beyond-interpolation
----
-
-# Similarity and Smoothness in Learned Representations
-
-<div class="grid grid-cols-2 gap-8 mt-5 items-start">
-  <div>
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">What the network learns</div>
-    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 text-center text-gray-300 text-[.68rem] leading-7">
-      input space → representation space placeholder<br>
-      similar inputs cluster together
-    </div>
-  </div>
-  <div class="flex flex-col gap-4">
-    <ul class="text-[.78rem] leading-8 text-gray-700">
-      <li>Inputs are mapped to a learned representation</li>
-      <li>Nearby representations can lead to similar predictions</li>
-      <li>The learned similarity structure shapes generalization</li>
-    </ul>
-    <div class="rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800">
-      Generalization depends not only on fitting the samples, but on the geometry of the learned representation.
-    </div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.7rem] text-gray-400 text-center">
-  This prepares the transition to location encodings and continuous spatial functions (Lecture 6).
-</div>
-
-<!--
-Connect representation learning to generalization geometry. Sets up coordinate networks, location encodings, and the spatial interpolation framing of Lecture 6.
--->
-
----
-section: beyond-interpolation
----
-
-# Grokking: Fitting Comes Before Generalizing
-
-<div class="grid grid-cols-[1.4fr_1fr] gap-8 mt-5 items-start">
-  <div>
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Empirical observation</div>
-    <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-gray-300 text-[.68rem] leading-7">
-      train accuracy vs. test accuracy over training steps placeholder —<br>train reaches ~100% early; test lags, then sharply improves much later
-    </div>
-  </div>
-  <div class="flex flex-col gap-4">
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-[.75rem] text-gray-700">Training accuracy → near-perfect quickly</div>
-    <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[.75rem] text-amber-800">Test accuracy remains poor for much longer</div>
-    <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-[.75rem] text-emerald-800">Then test accuracy improves sharply</div>
-  </div>
-</div>
-
-<div class="mt-4 rounded-lg bg-gray-100 px-4 py-3 text-[.78rem] text-gray-700 text-center">
-  Memorization and discovering a reusable rule are not the same event.
-</div>
-
-<!--
-Keep compact. Power et al. 2022 (Grokking) is the reference to add later.
-The takeaway is empirical: fitting and generalizing can decouple over training time.
--->
-
----
-section: beyond-interpolation
----
-
-# What Do We Actually Know?
-
-<div class="mt-5 flex flex-col gap-4">
-  <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-[.78rem] text-amber-800 leading-snug">
-    There is no single complete, universally accepted explanation for why highly overparameterized deep networks generalize so well.
-  </div>
-  <div class="text-[.72rem] font-bold uppercase tracking-wide text-gray-500 mt-1 mb-1">Current useful perspectives</div>
-  <div class="grid grid-cols-3 gap-3">
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Simplicity bias</div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Architectural inductive bias</div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Optimization bias</div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Representation geometry</div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Data scale</div>
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.7rem] text-gray-700 text-center">Explicit &amp; implicit regularization</div>
-  </div>
-</div>
-
-<div class="mt-4 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800 text-center font-medium">
-  Modern generalization remains an active research topic.
-</div>
-
-<!--
-Epistemic honesty slide. Do not claim a single clean answer — the field does not have one.
--->
-
----
-section: beyond-interpolation
----
-
-# From Generalization to Learned Spatial Functions
-
-<div class="grid grid-cols-[1fr_1.2fr] gap-8 mt-5 items-start">
-  <div class="flex flex-col gap-4">
-    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
-      <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Generic learned function</div>
-      <div class="font-mono text-[.9rem] text-gray-700">f<sub>θ</sub>(x)</div>
-    </div>
-    <div class="text-[1.2rem] text-gray-300 text-center">↓</div>
-    <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-      <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-1">Location-dependent function</div>
-      <div class="font-mono text-[.9rem] text-blue-800">f<sub>θ</sub>(location)</div>
-    </div>
-  </div>
-  <div class="flex flex-col gap-3">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Topics in Lecture 6</div>
-    <ul class="text-[.75rem] leading-8 text-gray-700">
-      <li>Location encodings</li>
-      <li>Coordinate networks</li>
-      <li>Interpolation between spatial observations</li>
-      <li>Learned geospatial signals</li>
-    </ul>
-    <div class="mt-2 rounded-lg bg-blue-50 border border-blue-100 px-4 py-3 text-[.78rem] text-blue-800">
-      What function does a neural network learn between observed locations?
-    </div>
-  </div>
-</div>
-
-<!--
-Final slide of Block 3. Transition from generalization theory to spatial/geospatial representation learning.
-The move from f(x) to f(location) is the conceptual bridge to Lecture 6.
--->
-
-<!-- ============================================================
-     LEGACY SLIDES — retained from previous Lecture 5 draft
-     Preserved unchanged for later reuse or reference.
-     ============================================================ -->
-
----
-layout: bonn-cover
-subhead: Lecture 5 (legacy)
-home: ../
----
-
-# Deep Representation Learning II
-
-## Learning beyond Memorization
-
-<!--
-Legacy cover — original Lecture 5 draft. Retained for reference.
--->
-
----
-
-# In this lecture (legacy)
-
-- Neural networks and learned representations
-- Supervised training and optimization
-- Learning useful intermediate features directly from data
-- Convolutional neural networks
-- Geospatial and remote-sensing examples
-
-<!--
-Keep this conceptual and practical; transformers are intentionally deferred to Lecture 7.
--->
-
----
-section: models-and-representations
----
-
-# Data and Experience
-
-<figure class="bonn-section-image" style="display: flex; flex-direction: column; align-items: center; justify-self: center; width: calc(100% - 80px); max-height: 500px; margin: 0;">
-  <img
-    src="./assets/window.jpg"
-    style="width: auto; height: 380px; max-height: 380px; object-fit: contain; opacity: 1;"
-    alt="A sunlit window overlooking a city with cushions on the window seat"
-  />
-  <figcaption style="max-width: 440px; margin-top: 10px; color: var(--bonn-text); font-size: .68rem; line-height: 1.3; text-align: center;">
-    Data is the window through which a learner experiences the world.
-    <span style="display: block; margin-top: 4px; color: var(--bonn-muted); font-size: .48rem;">
-      Shalev-Shwartz, S., &amp; Ben-David, S. (2014). <em>Understanding Machine Learning: From Theory to Algorithms</em>.
-    </span>
-  </figcaption>
-</figure>
-
-<div class="bonn-section-citation">
-  Photo by <a href="https://www.pexels.com/@d-ng-nhan-324384/" target="_blank" rel="noopener noreferrer">Dương Nhân</a> on <a href="https://www.pexels.com/photo/a-pillows-on-the-couch-near-the-glass-window-with-a-city-view-4389953/" target="_blank" rel="noopener noreferrer">Pexels</a>
+<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
+Epoch AI Database provided with CC-BY License
+<a href="https://epoch.ai/data/ai-models">
+</a>
 </div>
 
 ---
-section: models-and-representations
+section: ai-acceleration
+layout: bonn-two-cols-header
 ---
 
-# Data as blocks of numbers - E.g., Tensors
+# Larger Datasets and More Parameters
 
-<img
-  src="./assets/tensors.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Scalars, vectors, matrices, images, and image time series represented as tensors with zero to four dimensions"
-/>
+<img width="100%" src="./assets/20260918-epoch-ml-trends.svg">
+
+<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
+Epoch AI Database provided with CC-BY License
+<a href="https://epoch.ai/data/ai-models">
+</a>
+</div>
 
 ---
-section: models-and-representations
+section: ai-acceleration
+layout: bonn-two-cols-header
 ---
 
-# Data samples from a distribution
+# LLMs and Next Token Prediction
+
+::left::
+
+Recap - LLMs are Transformers trained with ordinary cross entropy to predict the next token.
+
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+<img width=100% src="./assets/Transformers.svg">
+</div>
+
+::right::
+
+<div v-click class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <video
+    src="./assets/sutskever_detective.mp4"
+    controls
+    class="rounded-xl shadow-lg max-h-[400px]"
+    style="max-width: 150px;"
+  ></video>
+</div>
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Copyright NVIDIA: <a href="https://resources.nvidia.com/en-us-summer-of-learning-for-students/gtcspring23-s52092" rel="noopener noreferrer">NVIDIA Fireside Chat with Ilya Sutskever</a>
+</div>
+
+
+---
+section: ai-acceleration
+layout: bonn-two-cols-header
+---
+
+# ... and the murderer is ___!
+
+## Prediction requires more than memorization
+
+::left::
+
+Modern AI models **approximate** large corpora of training data while also **generalizing** by combining learned patterns into simple, plausible solutions for new inputs.
+
+<div class="mt-2 text-center">
+<img width="200" class="mx-auto" src="./assets/polyreg_d1000.png">
+</div>
+
+<strong v-click>Outlook: Lecture 6 will focus on self-supervised training objectives for modern AI models.</strong>
+
+::right::
+
+
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <video
+    src="./assets/sutskever2.mp4"
+    controls
+    class="rounded-xl shadow-lg max-h-[400px]"
+    style="max-width: 250px;"
+  ></video>
+</div>
+
+
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Copyright NVIDIA: <a href="https://resources.nvidia.com/en-us-summer-of-learning-for-students/gtcspring23-s52092" rel="noopener noreferrer">NVIDIA Fireside Chat with Ilya Sutskever</a>
+</div>

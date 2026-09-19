@@ -3,11 +3,12 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { setupHiDPICanvas, getLogicalSize, watchHiDPIResize } from './canvasHiDpi.js'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
-const N_PTS  = 20
 const NOISE  = 0.45
 const xMin   = -Math.PI
 const xMax   = Math.PI
-const INTERP = N_PTS - 1   // d+1 = N_PTS → exact interpolation of noise-free targets
+const N_PTS_MIN = 4
+const N_PTS_MAX = 40
+const MAX_DEGREE = 20   // fixed — independent of the sample-count slider
 
 // y-axis range is recomputed every draw() so wildly oscillating high-degree
 // fits (Runge's phenomenon) stay fully visible instead of getting clipped.
@@ -15,6 +16,7 @@ let yMin = -2.8
 let yMax = 2.8
 
 // ── Vue state ─────────────────────────────────────────────────────────────────
+const nPts        = ref(20)   // number of training samples — adjustable, default 20
 const degree      = ref(3)
 const mainCanvas  = ref(null)
 const curveCanvas = ref(null)
@@ -32,9 +34,9 @@ let animRaf   = null
 // recomputed once per dataset (not per slider move) and drawn as the capacity
 // curve on the right-hand panel, recreating the classic bias/variance
 // risk-vs-capacity shape (./assets/bias_variance_belkin.svg) from real fits.
-// Capped at the interpolation threshold on purpose — going past it (d+1 > n)
-// is covered later in the lecture, not in this demo.
-const MAX_DEGREE = INTERP
+// The degree range is fixed regardless of sample count, so once d+1 > n the
+// fit is underdetermined (min-norm solution, handled by polyFit below) — the
+// interpolation-threshold marker shows exactly where that crossover happens.
 let curveTrain = []
 let curveTest  = []
 
@@ -200,11 +202,20 @@ function formatTick(v) {
   return String(Math.round(v * 100) / 100)
 }
 
+// A handful of evenly spread degree ticks for the capacity-curve x-axis,
+// always including 1 and the max — the fixed [1,5,10,15,...] set only made
+// sense while the degree range was fixed to nPts = 20.
+function capacityTicks(max) {
+  if (max <= 4) return Array.from({ length: max }, (_, i) => i + 1)
+  const raw = [1, Math.round(max / 3), Math.round(2 * max / 3), max]
+  return [...new Set(raw)].sort((a, b) => a - b)
+}
+
 // ── Data generation ───────────────────────────────────────────────────────────
 function generateDataset() {
   const rng = mkRng(Date.now() ^ 0x9e3779b9)
   xs = []; ys = []
-  for (let i = 0; i < N_PTS; i++) {
+  for (let i = 0; i < nPts.value; i++) {
     const x = xMin + (xMax - xMin) * rng()
     xs.push(x)
     ys.push(Math.sin(x) + NOISE * (rng() * 2 - 1))
@@ -250,6 +261,10 @@ function refit(animate = true) {
 }
 
 watch(degree, () => refit(true))
+
+// The degree range is fixed, so changing the sample count only needs a fresh
+// dataset (+ refit) — no clamping of the selected degree required.
+watch(nPts, () => generateDataset())
 
 // ── Canvas helpers ────────────────────────────────────────────────────────────
 // W/H here are always the logical (unscaled) canvas size — see canvasHiDpi.js.
@@ -374,7 +389,7 @@ function drawCurve() {
   const M = { left: Math.max(26, Math.round(W * 0.09)), right: 6, top: 8, bottom: 16 }
   const plotW = W - M.left - M.right
   const plotH = H - M.top - M.bottom
-  const xAt = d => M.left + (d - 1) / (MAX_DEGREE - 1) * plotW
+  const xAt = d => M.left + (d - 1) / Math.max(MAX_DEGREE - 1, 1) * plotW
   const yAt = v => M.top + (hiLog - logClamp(v)) / (hiLog - loLog) * plotH
 
   ctx.clearRect(0, 0, W, H)
@@ -392,21 +407,26 @@ function drawCurve() {
   }
 
   // Interpolation-threshold marker (d+1 = n): amber dashed, mirroring the
-  // under-/over-fitting divider in bias_variance_belkin.svg. This demo's
-  // degree range stops exactly at the threshold (MAX_DEGREE = INTERP), so the
-  // marker sits at the right edge — label right-aligned to stay in view.
-  const threshX = xAt(INTERP)
-  ctx.save()
-  ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 2])
-  ctx.beginPath(); ctx.moveTo(threshX, M.top); ctx.lineTo(threshX, H - M.bottom); ctx.stroke()
-  ctx.restore()
-  ctx.fillStyle = '#b45309'; ctx.font = `${Math.max(7, tfs - 1)}px sans-serif`
-  ctx.textAlign = 'right'
-  ctx.fillText('interpolation', threshX - 2, M.top + tfs * 0.8)
+  // under-/over-fitting divider in bias_variance_belkin.svg. Unlike the fixed
+  // degree axis, this sits wherever nPts puts it — off-chart entirely once
+  // nPts - 1 exceeds MAX_DEGREE, in which case it's simply not drawn.
+  const threshDeg = nPts.value - 1
+  if (threshDeg >= 1 && threshDeg <= MAX_DEGREE) {
+    const threshX = xAt(threshDeg)
+    ctx.save()
+    ctx.strokeStyle = '#d97706'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 2])
+    ctx.beginPath(); ctx.moveTo(threshX, M.top); ctx.lineTo(threshX, H - M.bottom); ctx.stroke()
+    ctx.restore()
+    ctx.fillStyle = '#b45309'; ctx.font = `${Math.max(7, tfs - 1)}px sans-serif`
+    const nearRight = threshX > W - M.right - 40
+    const nearLeft = threshX < M.left + 40
+    ctx.textAlign = nearRight ? 'right' : nearLeft ? 'left' : 'center'
+    ctx.fillText('interpolation', nearRight ? W - M.right : nearLeft ? M.left : threshX, M.top + tfs * 0.8)
+  }
 
   // x-axis (degree) ticks
   ctx.fillStyle = 'rgba(80,80,80,0.7)'; ctx.font = `${tfs}px monospace`; ctx.textAlign = 'center'
-  ;[1, 5, 10, 15, INTERP].forEach(d => ctx.fillText(String(d), xAt(d), H - 3))
+  capacityTicks(MAX_DEGREE).forEach(d => ctx.fillText(String(d), xAt(d), H - 3))
 
   // Curves: test (green) drawn first, train (red) on top — matches the HTML
   // MSE-readout colors on the left panel
@@ -448,7 +468,6 @@ const varLabel = computed(() => {
 })
 const biasColor   = computed(() => degree.value <= 2 ? '#b45309' : degree.value <= 5 ? '#d97706' : '#059669')
 const varColor    = computed(() => degree.value <= 2 ? '#059669' : degree.value <= 5 ? '#d97706' : '#dc2626')
-const threshFrac  = (INTERP - 1) / (MAX_DEGREE - 1)   // = 1 (this demo stops at the threshold)
 
 const trainMSELabel = computed(() => trainMSE.value < 5e-4 ? '≈ 0' : trainMSE.value.toFixed(3))
 const testMSELabel  = computed(() => testMSE.value  < 5e-4 ? '≈ 0' : testMSE.value.toFixed(3))
@@ -485,6 +504,26 @@ onBeforeUnmount(() => {
 
       <!-- Controls -->
       <div class="flex items-center gap-4 flex-wrap shrink-0">
+
+        <!-- Sample count slider -->
+        <div class="flex flex-col gap-0.5 flex-1 min-w-[220px]">
+          <div class="flex items-center gap-2">
+            <span class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">
+              Number of samples
+            </span>
+            <span class="text-[.7rem] font-mono font-semibold text-blue-700">n = {{ nPts }}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[.58rem] font-mono text-gray-400">{{ N_PTS_MIN }}</span>
+            <div class="relative flex-1">
+              <input
+                type="range" v-model.number="nPts" :min="N_PTS_MIN" :max="N_PTS_MAX" step="1"
+                class="w-full h-2 cursor-pointer accent-blue-600"
+              />
+            </div>
+            <span class="text-[.58rem] font-mono text-gray-400">{{ N_PTS_MAX }}</span>
+          </div>
+        </div>
 
         <!-- Degree slider -->
         <div class="flex flex-col gap-0.5 flex-1 min-w-[220px]">
@@ -530,7 +569,7 @@ onBeforeUnmount(() => {
           </div>
           <div class="flex items-center gap-1.5">
             <span class="inline-block w-2 h-2 rounded-full border border-white" style="background:#2563eb"></span>
-            <span class="text-gray-700">training data (n = {{ N_PTS }})</span>
+            <span class="text-gray-700">training data (n = {{ nPts }})</span>
           </div>
         </div>
 
