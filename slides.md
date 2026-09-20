@@ -291,6 +291,8 @@ Please upload your labs here.
 
 # Phase 2: Paper Analysis
 
+<a href="./slides/paper-analysis/" class="text-sm text-blue-600 hover:underline">→ Paper Analysis deck</a>
+
 <div class="grid grid-cols-[1.25fr_0.75fr] gap-7 mt-5 items-start">
 
 <div>
