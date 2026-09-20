@@ -91,34 +91,34 @@ After completing the course, you will be able to:
 <div class="course-gantt-grid course-gantt-weeks">
 <div class="course-gantt-axis-label">Course week</div>
 <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div>
-<div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div>
+<div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-calendar">
 <div class="course-gantt-axis-label">Calendar week</div>
 <div>CW42</div><div>CW43</div><div>CW44</div><div>CW45</div><div>CW46</div><div>CW47</div><div>CW48</div>
-<div>CW49</div><div>CW50</div><div>CW51</div><div>CW02</div><div>CW03</div><div>CW04</div><div>CW05</div>
+<div>CW49</div><div>CW50</div><div>CW51</div><div>Break</div><div>CW02</div><div>CW03</div><div>CW04</div><div>CW05</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-calendar course-gantt-dates">
-<div class="course-gantt-axis-label">Week starts</div>
-<div>Oct 12</div><div>Oct 19</div><div>Oct 26</div><div>Nov 2</div><div>Nov 9</div><div>Nov 16</div><div>Nov 23</div>
-<div>Nov 30</div><div>Dec 7</div><div>Dec 14</div><div>Jan 11</div><div>Jan 18</div><div>Jan 25</div><div>Feb 1</div>
+<div class="course-gantt-axis-label">Event date</div>
+<div>Oct 16</div><div>Oct 23</div><div>Oct 30</div><div>Nov 6</div><div>Nov 13</div><div>Nov 20</div><div>Nov 27</div>
+<div>Dec 4</div><div>Dec 11</div><div>Dec 18</div><div class="course-gantt-break">Christmas<br>+ Jan 8</div><div>Jan 15</div><div>Jan 22</div><div>Jan 29</div><div>Feb 5</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 1</div>
-<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 10;">Lectures & Labs</div>
+<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 5;">Lectures & Labs</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 2</div>
-<div class="course-gantt-bar phase-2" style="grid-column: 12 / span 2;">Paper Analysis</div>
+<div class="course-gantt-bar phase-2" style="grid-column: 8 / span 4;">Paper Analysis</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 3</div>
-<div class="course-gantt-bar phase-3" style="grid-column: 14 / span 2;">Group Projects</div>
+<div class="course-gantt-bar phase-3" style="grid-column: 13 / span 4;">Group Projects</div>
 
 </div>
 
@@ -129,16 +129,16 @@ Lecture period Oct 12, 2026 - Feb 05, 2027 · First-semester welcome Oct 8 · Op
 
 <div class="course-section-spacer"></div>
 
-## Examination Events
+## Presence and Examination Events
 
 <div class="course-gantt-exams">
+  <div class="course-gantt-exam phase-2">
+    <strong>Paper Presentations pass/fail</strong>
+    <span>Nov 27th, Nov 4th, Nov 11th, Nov 18th</span>
+  </div>
   <div class="course-gantt-exam phase-1">
     <strong>Phase 1 Written exam</strong>
-    <span>Dec 18, 2026</span>
-  </div>
-  <div class="course-gantt-exam phase-2">
-    <strong>Phase 2 Presentation pass/fail</strong>
-    <span>Jan 15 & 22, 2027</span>
+    <span>February 5th, 2026</span>
   </div>
   <div class="course-gantt-exam phase-3">
     <strong>Phase 3 report deadline</strong>
@@ -167,92 +167,62 @@ They provide the shared conceptual foundation for the hands-on work.
 <div class="p-5 rounded-xl border">
 <h3>Labs</h3>
 
-**Remaining 1-3 hours**
+**Remaining 2 hours**
 
-Google Colab notebooks provide hands-on practice:
+Interactive activities reinforce the lecture through self-directed, collaborative, and hands-on learning:
 
-- Explore and process geospatial datasets
-- Implement selected machine learning workflows in Python
-- Work with embeddings, retrieval, and location-based representations
-- Connect concepts from the lecture to executable examples
+- Explore representations using PCA and t-SNE
+- Collect, clean, and combine geodata
+- Train and evaluate machine-learning models
+- Investigate model architectures and explain them through peer teaching
 </div>
 
 </div>
 
 ---
 
-# Phase 1: Lecture Overview
-
-Geospatial data becomes fixed representations for classical machine learning, then learned representations for deep learning.
+# Phase 1: Overview - Lectures & Labs
 
 <div class="phase-content-grid lecture-overview-grid">
 
 <a href="./1-why-geospatial-representation-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 1</h3>
-Representations<br><span class="text-sm text-gray-600">What is a representation?</span>
+<strong>Representations</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">What is a representation?</span>
 </a>
 
 <a href="./2-geospatial-data-images-maps-time-series/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 2</h3>
-Geospatial Data<br><span class="text-sm text-gray-600">What is geodata?</span>
+<strong>Geospatial Data</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">What is geodata?</span>
 </a>
 
 <a href="./3-machine-learning-on-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
-Machine Learning on Data Representations<br><span class="text-sm text-gray-600">Learning on fixed representations</span>
+<strong>Machine Learning on Data Representations</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning on fixed representations</span>
 </a>
 
 <a href="./4-deep-representation-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 4</h3>
-Deep Representation Learning I<br><span class="text-sm text-gray-600">Learning the representation itself</span>
+<strong>Deep Representation Learning I</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning the representation itself</span>
 </a>
 
 <a href="./5-deep-representation-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 5</h3>
-Deep Representation Learning II<br><span class="text-sm text-gray-600">Learning beyond memorization</span>
+<strong>Deep Representation Learning II</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning beyond memorization</span>
 </a>
-
-<a href="./6-location-encoders-and-spatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 6</h3>
-Location Encoders &amp; Spatial Embeddings<br><span class="text-sm text-gray-600">Representing space continuously</span>
-</a>
-
-<a href="./7-self-supervised-deep-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 7</h3>
-Self-Supervised Deep Learning<br><span class="text-sm text-gray-600">Learning representations without labels</span>
-</a>
-
-<a href="./8-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 8</h3>
-Geospatial Embeddings<br><span class="text-sm text-gray-600">Representing places and the Earth</span>
-</a>
-
-<div class="phase-content-tile phase-content-exam">
-<h3>Written Examination</h3>
-Phase 1 content
-</div>
-
-</div>
-
----
-
-# Phase 1: Lab Overview
-
-<div class="phase-content-grid">
 
 <a href="./labs/lab-1/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 1</h3>
-Practical: Why Geospatial Representation Learning?
+Visualizing high-dimensional representations with PCA and T-SNE
 </a>
 
 <a href="./labs/lab-2/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 2</h3>
-Practical: Geospatial Data - Sources, Modalities, and Applications
+Geodata Scavanger Hunt
 </a>
 
 <a href="./labs/lab-3/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 3</h3>
-Machine Learning on Data Representations<br><span class="text-sm text-gray-600">Classical models on fixed geospatial representations</span>
+Machine Learning on Geospatial Data.
 </a>
 
 <a href="./labs/lab-4/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
@@ -260,30 +230,6 @@ Machine Learning on Data Representations<br><span class="text-sm text-gray-600">
 Practical: Supervised Deep Learning
 </a>
 
-<a href="./labs/lab-5/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lab 5</h3>
-Practical: Location Encoders &amp; Spatial Embeddings
-</a>
-
-<a href="./labs/lab-6/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lab 6</h3>
-Practical: Self-Supervised Deep Learning
-</a>
-
-<a href="./labs/lab-7/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lab 7</h3>
-Practical: Geospatial Embeddings
-</a>
-
-<a href="./labs/lab-8/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lab 8</h3>
-Practical: Synthesis and Integration
-</a>
-
-<div class="phase-content-tile phase-content-exam">
-<h3>Lab Submission</h3>
-Please upload your labs here.
-</div>
 
 </div>
 
