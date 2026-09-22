@@ -86,6 +86,8 @@ After completing the course, you will be able to:
 
 # Timeline at a Glance
 
+<p class="course-meeting-times"><strong>Fridays:</strong> Lectures 10:00–12:00, labs 13:00–15:00.</p>
+
 <div class="course-gantt">
 
 <div class="course-gantt-grid course-gantt-weeks">
@@ -108,12 +110,12 @@ After completing the course, you will be able to:
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 1</div>
-<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 5;">Lectures & Labs</div>
+<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 7;">Lectures & Labs</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 2</div>
-<div class="course-gantt-bar phase-2" style="grid-column: 8 / span 4;">Paper Analysis</div>
+<div class="course-gantt-bar phase-2" style="grid-column: 9 / span 3;">Paper Analysis</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
@@ -210,9 +212,21 @@ Interactive activities reinforce the lecture through self-directed, collaborativ
 <strong>Deep Representation Learning II</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning beyond memorization</span>
 </a>
 
+<a href="./8-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 6</h3>
+<strong>Geospatial Embeddings</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Giving location a meaning</span>
+</a>
+
+
+</div>
+
+
+<div class="phase-content-grid lab-overview-grid">
+
+
 <a href="./labs/lab-1/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 1</h3>
-Visualizing high-dimensional representations with PCA and T-SNE
+Visualizing high-dimensional representations
 </a>
 
 <a href="./labs/lab-2/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
@@ -233,72 +247,51 @@ Practical: Supervised Deep Learning
 
 </div>
 
+
+
 ---
+layout: bonn-two-cols-header
+---
+
 
 # Phase 2: Paper Analysis
 
-<a href="./slides/paper-analysis/" class="text-sm text-blue-600 hover:underline">→ Paper Analysis deck</a>
+<div class="phase-content-grid paper-analysis-resources">
 
-<div class="grid grid-cols-[1.25fr_0.75fr] gap-7 mt-5 items-start">
+<a href="./slides/paper-analysis/" class="phase-content-tile paper-analysis-resource no-underline text-current hover:bg-gray-50">
+<carbon-presentation-file class="paper-analysis-resource-icon" aria-hidden="true" />
+<span><strong>Paper Analysis slides</strong><br><span class="paper-analysis-resource-detail">Open the session deck</span></span>
+</a>
 
-<div>
-
-## Author Roleplay
-
-
-<div class="grid grid-cols-5 gap-2 mt-4 text-xs">
-
-<div class="p-1.5 rounded-lg border border-sky-400 bg-sky-50 text-sky-950">
-<div class="text-center uppercase opacity-75 font-semibold">PhD1</div>
-<div class="i-carbon:user-avatar-filled-alt mx-auto mt-1 text-3xl opacity-75"></div>
-</div>
-
-<div class="p-1.5 rounded-lg border border-sky-400 bg-sky-50 text-sky-950">
-<div class="text-center uppercase opacity-75 font-semibold">PhD2</div>
-<div class="i-carbon:user-avatar-filled-alt mx-auto mt-1 text-3xl opacity-75"></div>
-</div>
-
-<div class="p-1.5 rounded-lg border border-amber-400 bg-amber-50 text-amber-950">
-<div class="text-center uppercase opacity-75 font-semibold">Prof1</div>
-<div class="i-carbon:user-avatar-filled-alt mx-auto mt-1 text-3xl opacity-75"></div>
-</div>
-
-<div class="p-1.5 rounded-lg border border-amber-400 bg-amber-50 text-amber-950">
-<div class="text-center uppercase opacity-75 font-semibold">Prof2</div>
-<div class="i-carbon:user-avatar-filled-alt mx-auto mt-1 text-3xl opacity-75"></div>
-</div>
-
-<div class="p-1.5 rounded-lg border border-amber-400 bg-amber-50 text-amber-950">
-<div class="text-center uppercase opacity-75 font-semibold">Prof3</div>
-<div class="i-carbon:user-avatar-filled-alt mx-auto mt-1 text-3xl opacity-75"></div>
+<div class="phase-content-tile paper-analysis-resource paper-analysis-resource-pending">
+<carbon-template class="paper-analysis-resource-icon" aria-hidden="true" />
+<span><strong>PowerPoint presentation template</strong><br><span class="paper-analysis-resource-detail">Coming soon</span></span>
 </div>
 
 </div>
 
+::left::
 
-Each group presents the paper as if they were the author team: two students own the technical details, while three students connect the work to the field and review other groups' papers.
+## Format
 
-<div class="course-section-spacer"></div>
+Each topical session introduces a new research area and assigns papers to the student groups.
 
-## Roles and Responsibilities
-
-- **PhD Candidate**: Own the paper to a level where you can answer detailed technical questions
-- **Professor**: Have an overivew over the paper and its impact in the field and serve as reviewer for other papers 
-
-<div class="course-section-spacer"></div>
+1. **Read:** Study the assigned paper between sessions.
+2. **Analyze:** Identify the problem, method, evidence, limitations, and impact.
+3. **Present:** Explain and discuss the paper in the following session.
 
 
 
-</div>
+::right::
 
-<div>
+## Four Topics
 
-<img src="./assets/paper.jpg" class="w-full max-h-[450px] object-contain rounded-lg border shadow-sm" />
-
-
-</div>
-
-</div>
+| Session | Topic |
+| --- | --- |
+| **1** | Implicit Neural Representations and Approximation |
+| **2** | Location Encoders |
+| **3** | Self-Supervised Representation Learning |
+| **4** | Geospatial Embeddings |
 
 ---
 
