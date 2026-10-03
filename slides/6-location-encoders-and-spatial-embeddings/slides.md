@@ -8,6 +8,1485 @@ subhead: Lecture 6
 home: ../
 ---
 
+# Geospatial Embeddings
+
+## Explicit and Implicit Representations of Geographic Space
+
+<!--
+This is the final taught lecture. It builds on Lectures 3–5 (data, deep learning, generalization) and asks:
+how can we learn representations that transfer beyond one supervised task?
+Two answers: explicit embeddings from observations (Block 1) and implicit embeddings from location (Block 2).
+-->
+
+---
+
+# Learning Outcomes
+
+<div class="mt-5 flex flex-col gap-4">
+  <div class="flex gap-4 items-start">
+    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">1</div>
+    <div class="text-[.82rem] leading-snug">Explain how <strong>self-supervised learning</strong> can produce reusable geospatial representations without task-specific labels.</div>
+  </div>
+  <div class="flex gap-4 items-start">
+    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">2</div>
+    <div class="text-[.82rem] leading-snug">Explain how <strong>geospatial foundation models</strong> produce explicit embeddings from observations such as images or time series.</div>
+  </div>
+  <div class="flex gap-4 items-start">
+    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">3</div>
+    <div class="text-[.82rem] leading-snug">Explain how <strong>geographic location itself</strong> can be mapped to an implicit embedding through coordinate-based neural models and location encoders.</div>
+  </div>
+</div>
+
+<!--
+Outcome 1 → Block 1 (SSL mechanics)
+Outcome 2 → Block 1 (foundation models / explicit embeddings)
+Outcome 3 → Block 2 (coordinate networks, INRs, location encoders)
+-->
+
+---
+section: opening
+---
+
+# Where We Are in the Course
+
+<div class="grid grid-cols-5 gap-3 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lectures 2–3</div>
+    <div class="text-[.72rem] font-semibold text-gray-800">Geospatial Data</div>
+    <div class="text-[.62rem] text-gray-500 mt-1">Images, maps, time series</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lecture 3</div>
+    <div class="text-[.72rem] font-semibold text-gray-800">Classical ML</div>
+    <div class="text-[.62rem] text-gray-500 mt-1">ML on representations</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lecture 4</div>
+    <div class="text-[.72rem] font-semibold text-gray-800">Deep Learning</div>
+    <div class="text-[.62rem] text-gray-500 mt-1">Models &amp; optimization</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
+    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lecture 5</div>
+    <div class="text-[.72rem] font-semibold text-gray-800">Generalization</div>
+    <div class="text-[.62rem] text-gray-500 mt-1">Beyond the training set</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-3">
+    <div class="text-[.58rem] font-bold uppercase tracking-wide text-blue-600 mb-1">Lecture 6 — today</div>
+    <div class="text-[.72rem] font-semibold text-blue-900">Reusable Embeddings</div>
+    <div class="text-[.62rem] text-blue-700 mt-1">Explicit &amp; implicit</div>
+  </div>
+</div>
+
+<div class="mt-6 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.82rem] text-blue-900 font-medium">
+  Main question: How can we learn representations that are useful beyond one specific supervised task?
+</div>
+
+---
+section: opening
+---
+
+# Two Ways to Obtain a Geospatial Embedding
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-4">Explicit Embedding</div>
+    <div class="flex items-center gap-3 font-mono text-[.78rem] mb-4">
+      <span class="rounded border border-gray-300 bg-white px-2 py-1">$x_{\text{observation}}$</span>
+      <span class="text-gray-400">→</span>
+      <span class="rounded border border-gray-300 bg-white px-2 py-1">$e_\theta(x)$</span>
+      <span class="text-gray-400">→</span>
+      <span class="rounded border border-blue-300 bg-blue-50 px-2 py-1">$z$</span>
+    </div>
+    <ul class="text-[.7rem] text-gray-600 space-y-1 list-disc pl-4 mb-3">
+      <li>satellite image</li>
+      <li>time series</li>
+      <li>multimodal observation</li>
+    </ul>
+    <div class="text-[.72rem] text-gray-700 font-medium">The representation is computed from an observation.</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-4">Implicit Embedding</div>
+    <div class="flex items-center gap-3 font-mono text-[.78rem] mb-4">
+      <span class="rounded border border-blue-300 bg-white px-2 py-1">$p_{\text{location}}$</span>
+      <span class="text-blue-400">→</span>
+      <span class="rounded border border-blue-300 bg-white px-2 py-1">$e_\theta(p)$</span>
+      <span class="text-blue-400">→</span>
+      <span class="rounded border border-blue-400 bg-blue-100 px-2 py-1">$z$</span>
+    </div>
+    <ul class="text-[.7rem] text-blue-700 space-y-1 list-disc pl-4 mb-3">
+      <li>geographic coordinates only</li>
+    </ul>
+    <div class="text-[.72rem] text-blue-900 font-medium">The representation is computed directly from geographic location.</div>
+  </div>
+</div>
+
+<div class="mt-4 text-[.72rem] text-gray-500 text-center">This distinction structures the entire lecture.</div>
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: explicit-embeddings
+sectionTitle: Explicit Geospatial Embeddings
+---
+
+# Explicit Geospatial Embeddings
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+  From Self-Supervised Learning to Foundation Models
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-4">
+  labels → self-supervision → representation learning → embeddings → pretrained encoders → foundation models
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# The Limitation of Supervised Learning
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+  <div>
+    <div class="text-[.78rem] text-gray-700 mb-4">
+      Supervised learning requires labeled data — but labels are:
+    </div>
+    <ul class="text-[.75rem] text-gray-600 space-y-2 list-disc pl-4 mb-5">
+      <li><strong>Expensive</strong> — manual annotation is slow and costly</li>
+      <li><strong>Task-specific</strong> — a land-cover label is useless for species prediction</li>
+      <li><strong>Specializing</strong> — supervised representations may only encode what was asked</li>
+    </ul>
+    <div class="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+      Can we learn useful representations from the data itself?
+    </div>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
+    <!-- TODO: add schematic: supervised pipeline (observation → label → model) vs. unlabeled data -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ supervised pipeline vs. unlabeled data ]</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Self-Supervised Learning
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  Create a learning signal from the <strong>structure of the data</strong> rather than from manually annotated labels.
+</div>
+
+<div class="flex items-center justify-center gap-5 my-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$x$</div>
+  <div class="text-gray-400 text-xl">→</div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.8rem]">self-supervised objective</div>
+  <div class="text-gray-400 text-xl">→</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$e_\theta(x)$</div>
+</div>
+
+<div class="text-[.75rem] text-gray-600">
+  The objective is constructed entirely from data — no human annotation needed. The network must learn meaningful internal structure to solve it.
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Pretext Tasks
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  A pretext task is designed so that solving it forces the model to learn useful internal representations.
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Predict missing content</div>
+    <div class="text-[.72rem] text-gray-600">Mask part of the input, predict the masked part</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Predict transformations</div>
+    <div class="text-[.72rem] text-gray-600">Predict rotation, colorization, jigsaw order</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Predict context</div>
+    <div class="text-[.72rem] text-gray-600">Predict spatial or temporal neighbours</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Distinguish pairs</div>
+    <div class="text-[.72rem] text-gray-600">Distinguish related from unrelated samples</div>
+  </div>
+</div>
+
+<div class="mt-5 text-[.74rem] text-gray-500">
+  The pretext task is discarded after training — only the learned encoder is kept.
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Contrastive Learning
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+  <div>
+    <div class="text-[.78rem] text-gray-700 mb-4">
+      Pull <strong>positive pairs</strong> together in embedding space; push <strong>negative pairs</strong> apart.
+    </div>
+    <div class="flex flex-col gap-3 mt-4">
+      <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[.74rem] text-green-900">
+        <strong>Positive pair:</strong> two views of the same instance
+      </div>
+      <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[.74rem] text-red-900">
+        <strong>Negative pair:</strong> views from different instances
+      </div>
+    </div>
+    <div class="mt-4 text-[.74rem] text-gray-600">
+      Similar observations → nearby embeddings; different observations → separated embeddings.
+    </div>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
+    <!-- TODO: add embedding-space illustration (clusters of similar, gaps between different) -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ contrastive embedding space illustration ]</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Learning Invariances
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
+  The augmentations and positive-pair definition determine what the embedding should <strong>ignore</strong> and what it should <strong>preserve</strong>.
+</div>
+
+<div class="grid grid-cols-2 gap-5 mt-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Generic augmentations</div>
+    <ul class="text-[.72rem] text-gray-600 space-y-1 list-disc pl-4">
+      <li>crop</li>
+      <li>color / spectral changes</li>
+      <li>rotation / flip</li>
+    </ul>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Geospatial-specific</div>
+    <ul class="text-[.72rem] text-blue-800 space-y-1 list-disc pl-4">
+      <li>temporal changes</li>
+      <li>sensor differences</li>
+      <li>seasonal variation</li>
+      <li>viewing angle</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+  Choosing the right positive-pair definition is a core design decision in SSL for Earth observation.
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Masked Prediction
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  A second major self-supervised paradigm: mask part of the input, predict the missing content.
+</div>
+
+<div class="flex items-center justify-center gap-5 my-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.8rem]">visible context</div>
+  <div class="text-gray-400 text-xl">→</div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.8rem]">predict missing information</div>
+</div>
+
+<div class="grid grid-cols-3 gap-4 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Images</div>
+    <div class="text-[.68rem] text-gray-500">masked image patches</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Tokens</div>
+    <div class="text-[.68rem] text-gray-500">masked feature tokens</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Time series</div>
+    <div class="text-[.68rem] text-gray-500">masked temporal observations</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Self-Supervision for Earth Observation
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div>
+    <div class="text-[.78rem] text-gray-700 mb-4">
+      Earth observation provides natural structure for self-supervised objectives:
+    </div>
+    <ul class="text-[.75rem] text-gray-600 space-y-2 list-disc pl-4">
+      <li>Multispectral observations across bands</li>
+      <li>Spatial context — neighbouring patches</li>
+      <li>Temporal observations — same place, different times</li>
+      <li>Multiple sensors observing the same area</li>
+      <li>Repeated coverage of the same location</li>
+    </ul>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
+    <!-- TODO: add illustration: same location, different time/sensor = positive pair -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ same location, different observation → positive pair ]</div>
+  </div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+  Main question: What should count as two views of the same place?
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# From Encoder to Embedding
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  After pretraining, the encoder maps any new observation to a reusable feature vector.
+</div>
+
+<div class="flex items-center justify-center gap-5 my-6 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$x$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$e_\theta(x)$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-400 bg-blue-100 px-4 py-3">$z$</span>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4 text-[.74rem]">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>$e_\theta$:</strong> the encoder, fixed after pretraining
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>$z$:</strong> the embedding — a compact learned representation
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# What Makes an Embedding Useful?
+
+<div class="grid grid-cols-3 gap-4 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Semantic similarity</div>
+    <div class="text-[.68rem] text-gray-500">Similar scenes → similar $z$</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Invariance</div>
+    <div class="text-[.68rem] text-gray-500">Robust to irrelevant variation</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Transferability</div>
+    <div class="text-[.68rem] text-gray-500">Useful across downstream tasks</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Compactness</div>
+    <div class="text-[.68rem] text-gray-500">High information density</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Linear separability</div>
+    <div class="text-[.68rem] text-gray-500">Simple probes work</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Multi-task utility</div>
+    <div class="text-[.68rem] text-gray-500">Useful for many downstream tasks</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Exploring an Embedding Space
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  Once computed, embedding spaces can be visualized, probed, and queried.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="flex flex-col gap-3">
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Nearby observations share visual or semantic properties</div>
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Clusters correspond to semantic categories</div>
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Trajectories trace temporal change</div>
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Nearest-neighbour retrieval finds similar observations</div>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
+    <!-- TODO: add PCA / UMAP / retrieval example from a geospatial SSL model -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ PCA / UMAP of geospatial embeddings ]</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# From Pretraining to Transfer
+
+<div class="flex items-center gap-4 font-mono text-[.78rem] mt-6 mb-6 flex-wrap">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">large unlabeled dataset</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">pretraining</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-300 bg-blue-100 px-3 py-2 font-semibold">$e_\theta$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">many downstream tasks</span>
+</div>
+
+<div class="grid grid-cols-3 gap-3">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Classification</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Regression</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Retrieval</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Segmentation</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Change detection</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Clustering</div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Scaling Up Representation Learning
+
+<div class="flex flex-col gap-4 mt-8">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 flex items-center gap-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 w-32 shrink-0">Small encoder</div>
+    <div class="text-[.74rem] text-gray-600">Pretrained on a limited dataset; transferable within domain</div>
+  </div>
+  <div class="text-gray-300 text-center text-sm">↓ more data, larger model, broader objective</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 flex items-center gap-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 w-32 shrink-0">Large encoder</div>
+    <div class="text-[.74rem] text-gray-600">Pretrained on many scenes and sensors; transfers broadly</div>
+  </div>
+  <div class="text-gray-300 text-center text-sm">↓ more data, larger model, broader objective</div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 flex items-center gap-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 w-32 shrink-0">Foundation model</div>
+    <div class="text-[.74rem] text-blue-800">Large pretrained model intended as a general-purpose geospatial encoder</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Geospatial Foundation Models
+
+<div class="mt-5 text-[.82rem] text-gray-700 mb-5">
+  Large pretrained models intended to provide reusable representations across datasets, regions, sensors, or tasks.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="flex flex-col gap-3">
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Pretrained on large-scale satellite or aerial data</div>
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Encoder output used directly as a feature</div>
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Fine-tuned on small labeled datasets for downstream tasks</div>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
+    <!-- TODO: insert selected model examples (SatMAE, Scale-MAE, Prithvi, GFM, etc.) -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ selected geospatial foundation model examples ]</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# What Does a Foundation Model Embedding Encode?
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  The embedding $z$ may contain much more information than the downstream task explicitly requests.
+</div>
+
+<div class="grid grid-cols-3 gap-3 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Land cover</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Scene structure</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Season</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Climate zone</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Geographic context</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Sensor characteristics</div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+  The representation may carry much more than the downstream task needs — or may omit what it needs.
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Explicit Geospatial Embeddings
+
+<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$x_{\text{observation}}$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$e_\theta(x)$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-400 bg-blue-100 px-4 py-3">$z$</span>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Image embedding:</strong> one satellite patch → one vector</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Patch embedding:</strong> sub-image patch → local descriptor</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Temporal embedding:</strong> time series → sequence representation</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Multimodal embedding:</strong> multiple sensors → joint representation</div>
+</div>
+
+<div class="mt-5 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-[.78rem] text-amber-900">
+  The observation must be available when the embedding is computed.
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Using Explicit Embeddings
+
+<div class="grid grid-cols-3 gap-4 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Classification</div>
+    <div class="text-[.68rem] text-gray-500">assign a category to each embedding</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Clustering</div>
+    <div class="text-[.68rem] text-gray-500">group similar scenes without labels</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Retrieval</div>
+    <div class="text-[.68rem] text-gray-500">find similar scenes in large archives</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Regression</div>
+    <div class="text-[.68rem] text-gray-500">estimate continuous quantities</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Change analysis</div>
+    <div class="text-[.68rem] text-gray-500">compare embeddings across time</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Diversity analysis</div>
+    <div class="text-[.68rem] text-gray-500">measure coverage and variety</div>
+  </div>
+</div>
+
+---
+section: explicit-embeddings
+---
+
+# Block 1 Takeaway
+
+<div class="mt-8 flex items-center justify-center mb-8">
+  <div class="rounded-xl border-2 border-blue-300 bg-blue-50 px-8 py-5 text-blue-900">
+
+$$\boxed{x_{\text{observation}} \rightarrow e_\theta(x) \rightarrow z}$$
+
+  </div>
+</div>
+
+<div class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[.82rem] text-blue-900">
+  <strong>Explicit geospatial embeddings</strong> summarize observed data into reusable learned representations. Self-supervised pretraining removes the need for labels; scaling up yields geospatial foundation models.
+</div>
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: implicit-embeddings
+sectionTitle: Implicit Geospatial Embeddings
+---
+
+# Implicit Geospatial Embeddings
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+  From Location Encoders to Generic Representations of Geographic Space
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-4">
+  location → continuous functions → coordinate networks → location encoders → implicit embeddings
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Must an Embedding Start From an Observation?
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Observation-based</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
+      <span>$x_{\text{image}}$</span>
+      <span class="text-gray-400">→</span>
+      <span>$z$</span>
+    </div>
+    <div class="text-[.72rem] text-gray-600">Requires an image or observation at query time.</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Location-based</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
+      <span>$p_{\text{location}}$</span>
+      <span class="text-blue-400">→</span>
+      <span>$z$</span>
+    </div>
+    <div class="text-[.72rem] text-blue-800">Requires only geographic coordinates.</div>
+  </div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.78rem] text-blue-900">
+  Can we learn a representation of a place without observing an image at query time?
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Discrete or Continuous Geographic Information?
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Discrete</div>
+    <ul class="text-[.72rem] text-gray-600 space-y-1 list-disc pl-4 mb-3">
+      <li>raster cells</li>
+      <li>vector geometries</li>
+      <li>point observations</li>
+    </ul>
+    <div class="text-[.68rem] text-gray-400">Store values at explicit spatial supports</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Continuous</div>
+    <div class="font-mono text-[.78rem] bg-white border border-blue-100 rounded px-3 py-2 mb-3">
+      $f : \mathcal{X} \rightarrow \mathcal{Y}$
+    </div>
+    <div class="text-[.72rem] text-blue-800">A continuous model stores parameters of a function instead of explicitly storing every spatial sample.</div>
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Functional Models of the Earth
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
+  Large-scale Earth fields have long been represented as continuous functions — not stored pixel by pixel.
+</div>
+
+<div class="grid grid-cols-3 gap-4 mt-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Gravity</div>
+    <div class="text-[.68rem] text-gray-500">EGM2008: degree 2190 spherical harmonic model</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Magnetic field</div>
+    <div class="text-[.68rem] text-gray-500">IGRF: global spherical harmonic coefficients</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Geoid</div>
+    <div class="text-[.68rem] text-gray-500">Physical sea-level surface as a functional model</div>
+  </div>
+</div>
+
+<div class="mt-5 text-[.74rem] text-gray-600">
+  The field is stored through <em>coefficients of a continuous function</em>, evaluated wherever needed.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Basis Functions
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
+  A general functional model represents a field as a linear combination of basis functions:
+</div>
+
+<div class="flex items-center justify-center my-5">
+  <div class="font-mono text-[.85rem] bg-gray-50 border border-gray-200 rounded px-6 py-4">
+    $$f(x) = \sum_k a_k \, \phi_k(x)$$
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4 text-[.74rem]">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>$\phi_k(x)$:</strong> basis functions — predefined shapes that span the function space
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>$a_k$:</strong> coefficients — the learned or fitted parameters. The coefficients <em>are</em> the representation.
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Fourier Features
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div>
+    <div class="text-[.78rem] text-gray-700 mb-4">
+      Sine and cosine are the simplest basis functions on a periodic domain:
+    </div>
+    <div class="font-mono text-[.78rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
+      $\phi_k(x) = \sin(kx),\;\cos(kx)$
+    </div>
+    <div class="flex flex-col gap-2 mt-4">
+      <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.72rem]">
+        <strong>Low $k$</strong> — broad spatial variation
+      </div>
+      <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.72rem]">
+        <strong>High $k$</strong> — fine spatial detail
+      </div>
+    </div>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <!-- TODO: add sinusoidal basis functions at several frequencies -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ sinusoidal basis functions at $k = 1, 2, 3, \ldots$ ]</div>
+  </div>
+</div>
+
+<div class="mt-4 text-[.7rem] text-blue-700">
+  → Connects directly to positional encoding in neural networks.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# From Fourier Modes to Spherical Harmonics
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div>
+    <div class="text-[.78rem] text-gray-700 mb-4">
+      Fourier functions work on periodic or Euclidean domains. The Earth is a sphere.
+    </div>
+    <div class="font-mono text-[.8rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4 text-center">
+      $\sin, \cos \;\xrightarrow{\text{sphere}}\; Y_{\ell m}(\theta, \lambda)$
+    </div>
+    <div class="text-[.74rem] text-gray-600">
+      Spherical harmonics are the natural generalization of sinusoidal basis functions to $S^2$.
+    </div>
+  </div>
+  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <!-- TODO: add circle → sphere transition figure -->
+    <div class="text-[.68rem] text-gray-400 text-center">[ circle → sphere transition ]</div>
+  </div>
+</div>
+
+<div class="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+  The geometry of the domain matters.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Geometry-Aware Basis Functions
+
+<div class="grid grid-cols-3 gap-4 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Line / Periodic</div>
+    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-2 py-1 mb-2">$\sin(kx),\,\cos(kx)$</div>
+    <div class="text-[.68rem] text-gray-500">Fourier modes</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Sphere $S^2$</div>
+    <div class="font-mono text-[.75rem] bg-white border border-blue-100 rounded px-2 py-1 mb-2">$Y_{\ell m}(\theta,\lambda)$</div>
+    <div class="text-[.68rem] text-blue-700">Spherical harmonics</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">General domain</div>
+    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-2 py-1 mb-2">$\Delta\phi_k = \lambda_k\phi_k$</div>
+    <div class="text-[.68rem] text-gray-500">Laplacian eigenfunctions</div>
+  </div>
+</div>
+
+<div class="mt-5 text-[.75rem] text-gray-600 text-center">
+  Each domain determines its own natural frequency basis through the geometry.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Neural Networks for Continuous Signal Modeling
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  Instead of fixed basis functions, a neural network can parameterize the continuous function directly.
+</div>
+
+<div class="flex items-center justify-center gap-5 my-6 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$p$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$f_\theta(p)$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$y$</span>
+</div>
+
+<div class="text-[.75rem] text-gray-600 text-center">
+  The network parameters $\theta$ <em>are</em> the representation of the continuous function.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Coordinate Networks
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  The simplest formulation: the input is the coordinate; the output is the signal at that coordinate.
+</div>
+
+<div class="flex items-center justify-center gap-5 my-6 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$\mathbf{x}$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$f_\theta(\mathbf{x})$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$\mathbf{y}$</span>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-3 text-[.74rem]">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>Input:</strong> spatial coordinate
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>Output:</strong> signal value at that coordinate
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# An Image as a Function
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Discrete: pixel grid</div>
+    <div class="text-center rounded bg-gray-100 px-4 py-6 text-[.68rem] text-gray-400">[ pixel grid ]</div>
+    <div class="text-[.72rem] text-gray-600 mt-2">Store $H \times W \times 3$ values explicitly</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Continuous: neural function</div>
+    <div class="font-mono text-[.8rem] bg-white border border-blue-100 rounded px-4 py-3 mb-2 text-center">
+      $f_\theta(x, y) \rightarrow \mathrm{RGB}$
+    </div>
+    <div class="text-[.72rem] text-blue-800 mt-2">Store network weights; evaluate at any $(x,y)$</div>
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Positional Encoding
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
+  Map coordinates to sinusoidal features before the MLP to represent fine spatial variation more easily.
+</div>
+
+<div class="flex items-center justify-center gap-4 my-6 font-mono text-[.8rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$p$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$\gamma(p)$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">MLP</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y$</span>
+</div>
+
+<div class="text-[.74rem] text-gray-600">
+  The encoding $\gamma(p) = [\sin(2\pi B p),\;\cos(2\pi B p)]$ injects multiple frequencies explicitly. The MLP only needs to combine them.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# SIREN
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Fourier features</div>
+    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-3 py-2 mb-2">$p \rightarrow \gamma(p) \rightarrow \mathrm{MLP}$</div>
+    <div class="text-[.72rem] text-gray-600">Sinusoids <em>before</em> the network</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">SIREN</div>
+    <div class="font-mono text-[.75rem] bg-white border border-blue-100 rounded px-3 py-2 mb-2">$\sigma(x) = \sin(\omega_0 x)$</div>
+    <div class="text-[.72rem] text-blue-800">Sinusoidal activations <em>inside</em> the network</div>
+  </div>
+</div>
+
+<div class="mt-5 text-[.74rem] text-gray-500">
+  Both address spectral bias; SIREN propagates sinusoidal structure through all layers.
+</div>
+
+<!-- TODO: cite Sitzmann et al. 2020 (SIREN) -->
+
+---
+section: implicit-embeddings
+---
+
+# Neural Fields Beyond Geography
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  Coordinate-based neural functions appear across many domains — not only geospatial.
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Images:</strong> $(x,y) \rightarrow$ RGB</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Signed-distance functions:</strong> $\mathbf{x} \rightarrow$ SDF (3D shape)</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Occupancy:</strong> $\mathbf{x} \rightarrow$ occupied / free</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Radiance fields (NeRF):</strong> $(\mathbf{x},\mathbf{d}) \rightarrow$ colour + density</div>
+</div>
+
+<div class="mt-5 text-[.72rem] text-gray-500">
+  The same pattern — coordinate in, signal out — recurs across domains.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# NeRF as an Example
+
+<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$(\mathbf{x},\mathbf{d})$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$f_\theta$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$(\sigma, \mathbf{c})$</span>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4 text-[.74rem]">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>$\mathbf{x}$:</strong> 3D position; <strong>$\mathbf{d}$:</strong> view direction
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+    <strong>$\sigma$:</strong> density; <strong>$\mathbf{c}$:</strong> colour
+  </div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+  Complex signals can be represented as continuous neural functions over coordinates.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Bring the Coordinate Network Back to Earth
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
+  Using coordinate networks for geographic space introduces domain-specific challenges.
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-4">
+  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
+    <strong>Longitude discontinuity:</strong> $-180°$ and $+180°$ are the same location
+  </div>
+  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
+    <strong>Poles:</strong> longitude becomes degenerate at $\pm 90°$ latitude
+  </div>
+  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
+    <strong>Spherical geometry:</strong> Euclidean distances are not geographic distances
+  </div>
+  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
+    <strong>Global scale:</strong> fine local and broad global structure must coexist
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Geographic Coordinate Encodings
+
+<div class="mt-4 text-[.78rem] text-gray-700 mb-4">
+  How we encode the location input matters.
+</div>
+
+<div class="flex flex-col gap-3 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>Raw $(\phi, \lambda)$:</strong> discontinuity at $\pm 180°$; poles degenerate</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>3D Cartesian $(x,y,z)$:</strong> continuous on the sphere; no discontinuity</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>Fourier features:</strong> $[\sin(k\phi),\cos(k\phi),\ldots]$ — injects frequency</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>Spherical harmonics:</strong> geometry-aware, no discontinuity</div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.72rem] text-blue-900"><strong>Geometry-aware spectral:</strong> designed for the sphere from the start</div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Spherical Harmonics + Neural Network
+
+<div class="flex items-center justify-center gap-4 my-8 font-mono text-[.8rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$p$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$Y_{\ell m}(p)$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">MLP</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y(p)$</span>
+</div>
+
+<div class="text-[.78rem] text-gray-700 mb-3">
+  The classical spherical harmonic basis becomes an input representation for a neural model.
+</div>
+<div class="text-[.74rem] text-gray-500">
+  The MLP learns nonlinear combinations of spherical harmonic features — more expressive than a purely linear model.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Spherical Harmonics + SIREN
+
+<div class="flex items-center justify-center gap-4 my-8 font-mono text-[.8rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$p$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$Y_{\ell m}(p)$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-300 bg-blue-100 px-3 py-2">$\mathrm{SIREN}_\theta$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y(p)$</span>
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-3 text-[.72rem]">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+    <strong>Spherical harmonics →</strong> geometry-aware input encoding
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+    <strong>SIREN →</strong> nonlinear high-frequency modeling
+  </div>
+</div>
+
+<!-- TODO: add citation for SH+SIREN paper from paper-analysis deck (Session 2) -->
+
+---
+section: implicit-embeddings
+---
+
+# Residual and Multi-Network Variants
+
+<div class="mt-5 grid grid-cols-2 gap-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Residual SIREN</div>
+    <div class="text-[.7rem] text-gray-600">Skip connections through sinusoidal layers; better gradient flow</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Multiple local MLPs</div>
+    <div class="text-[.7rem] text-gray-600">Different networks for different spatial regions</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Hierarchical models</div>
+    <div class="text-[.7rem] text-gray-600">Coarse-to-fine scale decomposition</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Mixture approaches</div>
+    <div class="text-[.7rem] text-gray-600">Soft partition of space into locally specialized experts</div>
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Geographic Neural Fields
+
+<div class="flex items-center justify-center gap-4 my-6 font-mono text-[.8rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$(p_i, y_i)$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$f_\theta(p)$</span>
+  <span class="text-gray-400">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y$</span>
+</div>
+
+<div class="text-[.78rem] text-gray-700 mb-4">Target signals over geographic coordinates:</div>
+
+<div class="grid grid-cols-3 gap-3">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Climate</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Elevation</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Land properties</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Population</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Biodiversity</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Vegetation</div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Species Observations as a Spatial Signal
+
+<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$p$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$P(\text{species} \mid p)$</span>
+</div>
+
+<div class="text-[.78rem] text-gray-700 mb-4">
+  Georeferenced occurrence records form a spatial signal — presence at location $p$.
+</div>
+
+<div class="text-[.74rem] text-gray-500">
+  A coordinate network can learn to predict species occurrence from location — effectively learning the spatial distribution of a taxon without explicit rasterization.
+</div>
+
+<!-- TODO: add species-distribution / spatial-INR paper example from Session 2 of paper-analysis deck -->
+
+---
+section: implicit-embeddings
+---
+
+# From Signal Prediction to Location Representation
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Signal model</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
+      <span>$p$</span>
+      <span class="text-gray-400">→</span>
+      <span>$y$</span>
+    </div>
+    <div class="text-[.72rem] text-gray-600">The output is a signal value.</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Representation model</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
+      <span>$p$</span>
+      <span class="text-blue-400">→</span>
+      <span class="underline">$e_\theta$</span>
+      <span class="text-blue-400">→</span>
+      <span class="text-blue-800">$z(p)$</span>
+      <span class="text-blue-400">→</span>
+      <span>$y$</span>
+    </div>
+    <div class="text-[.72rem] text-blue-800">The hidden representation itself is the object of interest.</div>
+  </div>
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Location Encoders
+
+<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">location</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-300 bg-blue-100 px-4 py-3 font-semibold">$e_\theta$</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-400 bg-blue-200 px-4 py-3">$\mathbb{R}^d$</span>
+</div>
+
+<div class="text-[.82rem] text-gray-700 text-center mb-4">
+  A location encoder maps geographic coordinates directly to a reusable $d$-dimensional embedding.
+</div>
+
+<div class="text-[.74rem] text-gray-500 text-center">
+  The embedding is implicit: spatial information is encoded in model parameters, not retrieved from local observations.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# What Can a Location Embedding Encode?
+
+<div class="grid grid-cols-3 gap-3 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Climate</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Ecosystems</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Land use</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Biogeography</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Human activity</div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Visual appearance</div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
+  The representation is <strong>implicit</strong>: information is encoded in model parameters, not retrieved from a local observation at query time.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# SatCLIP / GeoCLIP-Like Models
+
+<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
+  Train image and location encoders jointly so corresponding pairs become similar in embedding space.
+</div>
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Image branch</div>
+    <div class="font-mono text-[.78rem]">image $\rightarrow z_{\text{image}}$</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Location branch</div>
+    <div class="font-mono text-[.78rem]">location $\rightarrow z_{\text{location}}$</div>
+  </div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.74rem] text-blue-900">
+  Contrastive training aligns corresponding image–location pairs. The location encoder inherits visual semantics without needing an image at query time. Links to Block 1 contrastive learning.
+</div>
+
+<!-- TODO: link to SatCLIP / GeoCLIP papers in Session 4 of paper-analysis deck -->
+
+---
+section: implicit-embeddings
+---
+
+# The Two Blocks Meet
+
+<div class="grid grid-cols-2 gap-6 mt-5">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Explicit branch</div>
+    <div class="flex items-center gap-2 font-mono text-[.75rem] mb-3">
+      <span>$x(p)$</span>
+      <span class="text-gray-400">→</span>
+      <span>$e_{\text{obs}}$</span>
+      <span class="text-gray-400">→</span>
+      <span>$z_{\text{explicit}}$</span>
+    </div>
+    <div class="text-[.7rem] text-gray-600">From observing the place</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Implicit branch</div>
+    <div class="flex items-center gap-2 font-mono text-[.75rem] mb-3">
+      <span>$p$</span>
+      <span class="text-blue-400">→</span>
+      <span>$e_{\text{loc}}$</span>
+      <span class="text-blue-400">→</span>
+      <span>$z_{\text{implicit}}$</span>
+    </div>
+    <div class="text-[.7rem] text-blue-800">From knowing where the place is</div>
+  </div>
+</div>
+
+<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900 text-center">
+  Contrastive learning can align them: $z_{\text{explicit}} \leftrightarrow z_{\text{implicit}}$
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Explicit vs Implicit Geospatial Embeddings
+
+<table class="w-full text-[.72rem] mt-6 border-collapse">
+  <thead>
+    <tr class="bg-gray-100">
+      <th class="text-left px-3 py-2 border border-gray-200 text-gray-500 font-semibold uppercase text-[.6rem] tracking-wide"></th>
+      <th class="text-left px-3 py-2 border border-gray-200 text-gray-700">Explicit</th>
+      <th class="text-left px-3 py-2 border border-blue-200 bg-blue-50 text-blue-800">Implicit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Input</td>
+      <td class="px-3 py-2 border border-gray-200">observation ($x$)</td>
+      <td class="px-3 py-2 border border-blue-200 bg-blue-50">location ($p$)</td>
+    </tr>
+    <tr class="bg-gray-50">
+      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Encoder</td>
+      <td class="px-3 py-2 border border-gray-200 font-mono">$e(x)$</td>
+      <td class="px-3 py-2 border border-blue-200 bg-blue-50 font-mono">$e(p)$</td>
+    </tr>
+    <tr>
+      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Observation at query time</td>
+      <td class="px-3 py-2 border border-gray-200">required</td>
+      <td class="px-3 py-2 border border-blue-200 bg-blue-50">not required</td>
+    </tr>
+    <tr class="bg-gray-50">
+      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Information source</td>
+      <td class="px-3 py-2 border border-gray-200">local observation</td>
+      <td class="px-3 py-2 border border-blue-200 bg-blue-50">learned spatial associations</td>
+    </tr>
+    <tr>
+      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Output</td>
+      <td class="px-3 py-2 border border-gray-200 font-mono">$z$</td>
+      <td class="px-3 py-2 border border-blue-200 bg-blue-50 font-mono">$z$</td>
+    </tr>
+    <tr class="bg-gray-50">
+      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Example</td>
+      <td class="px-3 py-2 border border-gray-200">EO foundation-model embedding</td>
+      <td class="px-3 py-2 border border-blue-200 bg-blue-50">SatCLIP location encoder</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+section: implicit-embeddings
+---
+
+# Two Views of the Same Place
+
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-4">Observation → embedding</div>
+    <div class="font-mono text-[.85rem]">$x(p) \rightarrow z_{\text{explicit}}$</div>
+    <div class="text-[.7rem] text-gray-500 mt-3">Requires sensing the place</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-4">Location → embedding</div>
+    <div class="font-mono text-[.85rem]">$p \rightarrow z_{\text{implicit}}$</div>
+    <div class="text-[.7rem] text-blue-700 mt-3">Only requires coordinates</div>
+  </div>
+</div>
+
+<div class="mt-6 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.78rem] text-blue-900 text-center">
+  One embedding comes from observing the place; the other comes from knowing where it is.
+</div>
+
+---
+section: implicit-embeddings
+---
+
+# Block 2 Takeaway
+
+<div class="mt-8 flex items-center justify-center mb-8">
+  <div class="rounded-xl border-2 border-blue-300 bg-blue-50 px-8 py-5 text-blue-900">
+
+$$\boxed{p_{\text{location}} \rightarrow e_\theta(p) \rightarrow z}$$
+
+  </div>
+</div>
+
+<div class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[.82rem] text-blue-900">
+  <strong>Implicit geospatial embeddings</strong> generate representations directly from location using learned spatial structure. No observation is required at query time.
+</div>
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: synthesis
+sectionTitle: Course Synthesis
+---
+
+# Final Course Synthesis
+
+---
+section: synthesis
+---
+
+# What Can Be a Representation?
+
+<div class="flex flex-col gap-5 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Engineered representation</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-2">
+      <span>$x$</span>
+      <span class="text-gray-400">→</span>
+      <span>$\phi(x)$</span>
+    </div>
+    <div class="text-[.7rem] text-gray-500">Human design — hand-crafted features, spectral indices, kernels</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Explicit learned representation</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-2">
+      <span>$x$</span>
+      <span class="text-gray-400">→</span>
+      <span>$e_\theta(x)$</span>
+      <span class="text-gray-400">→</span>
+      <span>$z$</span>
+    </div>
+    <div class="text-[.7rem] text-gray-500">Learned from observations — deep learning, self-supervised, foundation models</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Implicit learned representation</div>
+    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-2">
+      <span>$p$</span>
+      <span class="text-blue-400">→</span>
+      <span>$e_\theta(p)$</span>
+      <span class="text-blue-400">→</span>
+      <span>$z$</span>
+    </div>
+    <div class="text-[.7rem] text-blue-700">Learned from spatial supervision — coordinate networks, location encoders</div>
+  </div>
+</div>
+
+---
+section: synthesis
+---
+
+# Where Does the Information Come From?
+
+<div class="grid grid-cols-3 gap-5 mt-6">
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Engineered</div>
+    <div class="text-[.75rem] text-gray-700 font-medium">Human design</div>
+    <div class="text-[.68rem] text-gray-500 mt-2">Domain knowledge drives feature construction</div>
+  </div>
+  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Explicit learned</div>
+    <div class="text-[.75rem] text-gray-700 font-medium">Observations + learning objective</div>
+    <div class="text-[.68rem] text-gray-500 mt-2">The data itself drives what is encoded</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 text-center">
+    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Implicit learned</div>
+    <div class="text-[.75rem] text-blue-900 font-medium">Spatial supervision + learned associations</div>
+    <div class="text-[.68rem] text-blue-700 mt-2">Spatial structure in data drives geographic embedding</div>
+  </div>
+</div>
+
+---
+section: synthesis
+---
+
+# Geospatial Representation Learning
+
+<div class="flex items-center justify-center gap-4 font-mono text-[.82rem] flex-wrap mt-8 mb-8">
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">data / location</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">learning</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-blue-300 bg-blue-100 px-4 py-3 font-semibold">representation</span>
+  <span class="text-gray-400 text-xl">→</span>
+  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">downstream task</span>
+</div>
+
+<div class="rounded-xl border border-blue-200 bg-blue-50 px-6 py-5 text-[.82rem] text-blue-900">
+  Geospatial representation learning is about deciding <strong>what information should be encoded</strong>, <strong>where that information comes from</strong>, and <strong>how reusable the resulting representation should be</strong>.
+</div>
+
+---
+section: synthesis
+---
+
+# Course Takeaway
+
+<div class="flex items-center justify-center h-[65%]">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 px-10 py-8 text-center max-w-xl">
+    <div class="text-[1rem] font-semibold text-blue-900 leading-relaxed">
+      Good representations turn complex geospatial information into forms that make useful tasks easier.
+    </div>
+  </div>
+</div>
+
+<!-- OLD LECTURE 6 CONTENT - PRESERVED FOR REFERENCE -->
+<!-- The slides below are the original Lecture 6 (Implicit Neural Representations). -->
+<!-- They are kept here for reference and may be partially reused in future lectures. -->
+
+---
+addons:
+  - "../"
+defaults:
+  layout: bonn-content
+layout: bonn-cover
+subhead: Lecture 6
+home: ../
+---
+
 # Implicit Neural Representations
 
 ## Representing geospatial information as a continuous learned function
