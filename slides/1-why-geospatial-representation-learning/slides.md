@@ -25,6 +25,38 @@ Welcome to the first lecture on geospatial representation learning.
 -->
 
 ---
+layout: learning-outcomes
+mode: before
+meeting: lecture-01
+---
+
+# Learning outcomes
+
+<LearningOutcome id="encoding-meaning">
+<strong>Explain</strong> the difference between encoding and meaning in representations.
+</LearningOutcome>
+
+<LearningOutcome id="representation-types">
+<strong>Compare</strong> biological, engineered, and learned representations.
+</LearningOutcome>
+
+<LearningOutcome id="learned-features">
+<strong>Explain</strong> how neural networks learn useful feature representations.
+</LearningOutcome>
+
+<LearningOutcome id="language-representations">
+<strong>Describe</strong> how tokenization, embeddings, and next-token prediction represent language.
+</LearningOutcome>
+
+<LearningOutcome id="place-representations">
+<strong>Compare</strong> coordinates, geodatabases, and learned embeddings as representations of places.
+</LearningOutcome>
+
+<LearningOutcome id="task-dependence">
+<strong>Justify</strong> why a representation’s usefulness depends on the task.
+</LearningOutcome>
+
+---
 layout: bonn-section
 sectionColor: "#00457c"
 section: representations
@@ -2299,6 +2331,14 @@ We train models to discover useful structure.
 <blockquote v-click="3" class="blockquote1 text-center">
 This course focuses on learning representations. 
 </blockquote>
+
+---
+layout: learning-outcomes
+mode: after
+meeting: lecture-01
+---
+
+# Revisit the learning outcomes
 
 ---
 layout: bonn-cover

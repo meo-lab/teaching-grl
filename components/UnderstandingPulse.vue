@@ -27,6 +27,8 @@
         {{ rightLabel }}
       </text>
 
+      <path v-if="comparisonPath" :d="comparisonPath" class="understanding-pulse__comparison" />
+
       <path
         v-if="densityPath"
         :d="densityPath"
@@ -118,6 +120,12 @@ const LINE_Y = 78;
 const SAMPLE_COUNT = 120;
 
 const props = defineProps({
+  comparisonPollId: {
+    type: String,
+    default: "",
+  },
+  comparisonStart: { type: Number, default: 0 },
+  comparisonEnd: { type: Number, default: 0 },
   sessionId: {
     type: String,
     required: true,
@@ -128,15 +136,15 @@ const props = defineProps({
   },
   leftLabel: {
     type: String,
-    default: "I am completely lost",
+    default: "Not comfortable",
   },
   rightLabel: {
     type: String,
-    default: "I fully understand",
+    default: "Very comfortable",
   },
   instruction: {
     type: String,
-    default: "Click on the line to vote.",
+    default: "Click to respond",
   },
   fadeMs: {
     type: Number,
@@ -162,11 +170,13 @@ const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 const points = ref([]);
+const comparisonPoints = ref([]);
 const now = ref(Date.now());
 
 let clientId = "";
 let fadeInterval = null;
 let unsubscribe = null;
+let unsubscribeComparison = null;
 
 const lineWidth = computed(() => WIDTH - LEFT_MARGIN - RIGHT_MARGIN);
 
@@ -180,8 +190,16 @@ const visiblePoints = computed(() => {
     .filter((point) => point.opacity > 0);
 });
 
-const densityPath = computed(() => {
-  if (!visiblePoints.value.length) return "";
+const densityPath = computed(() => buildDensityPath(visiblePoints.value));
+const comparisonPath = computed(() => {
+  // Average the historical distribution so class size cannot inflate it.
+  const samples = comparisonPoints.value;
+  const weight = Math.max(props.densityReferenceCount, 1) / Math.max(samples.length, 1);
+  return buildDensityPath(samples.map(point => ({ ...point, opacity: weight })), 24);
+});
+
+function buildDensityPath(samples, heightLimit = Infinity) {
+  if (!samples.length) return "";
 
   const upper = [];
   const lower = [];
@@ -194,14 +212,14 @@ const densityPath = computed(() => {
     const x = LEFT_MARGIN + t * lineWidth.value;
     let density = 0;
 
-    for (const point of visiblePoints.value) {
+    for (const point of samples) {
       const distance = x - valueToX(point.value);
       const scaledDistance = distance / bandwidth;
       density += Math.exp(-0.5 * scaledDistance * scaledDistance) * point.opacity;
     }
 
     const normalizedDensity = Math.min(density / referenceCount, 1);
-    const height = normalizedDensity * maxDensityHeight;
+    const height = Math.min(normalizedDensity * maxDensityHeight, heightLimit);
     upper.push([x, LINE_Y - height]);
     lower.push([x, LINE_Y + height]);
   }
@@ -212,7 +230,7 @@ const densityPath = computed(() => {
     .map(([x, y]) => `L ${x.toFixed(2)} ${y.toFixed(2)}`);
 
   return `${top.join(" ")} ${bottom.join(" ")} Z`;
-});
+}
 
 function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -244,13 +262,13 @@ function getClientId() {
   }
 }
 
-function pointsCollectionRef() {
+function pointsCollectionRef(pollId = props.pollId) {
   // One Firestore doc per (sessionId, pollId) pair, with the individual
   // votes as a subcollection underneath it. This mirrors the old
   // `session_id`/`poll_id` filter on the Supabase table without needing a
   // composite index: the path itself does the filtering, and the
   // remaining `created_at` range + order is a single-field query.
-  const docId = `${props.sessionId}__${props.pollId}`;
+  const docId = `${props.sessionId}__${pollId}`;
   return collection(db, RESPONSES_COLLECTION, docId, POINTS_SUBCOLLECTION);
 }
 
@@ -308,9 +326,29 @@ function startListening() {
   );
 }
 
+function startComparisonListening() {
+  if (!props.comparisonPollId) return;
+  const comparisonQuery = query(
+    pointsCollectionRef(props.comparisonPollId),
+    where("created_at", ">=", Timestamp.fromMillis(props.comparisonStart)),
+    where("created_at", "<", Timestamp.fromMillis(props.comparisonEnd)),
+    orderBy("created_at", "asc"),
+  );
+  unsubscribeComparison = onSnapshot(comparisonQuery, (snapshot) => {
+    const latest = new Map();
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      // Ascending timestamps mean the last click from each browser wins.
+      latest.set(data.client_id, { value: data.value, opacity: 1 });
+    }
+    comparisonPoints.value = [...latest.values()];
+  }, (error) => console.error("UnderstandingPulse comparison failed", error));
+}
+
 onMounted(() => {
   clientId = getClientId();
   startListening();
+  startComparisonListening();
 
   fadeInterval = window.setInterval(() => {
     now.value = Date.now();
@@ -321,6 +359,7 @@ onMounted(() => {
 onUnmounted(() => {
   if (fadeInterval) window.clearInterval(fadeInterval);
   if (unsubscribe) unsubscribe();
+  if (unsubscribeComparison) unsubscribeComparison();
 });
 </script>
 
@@ -345,9 +384,9 @@ onUnmounted(() => {
 }
 
 .understanding-pulse__instruction {
-  fill: #222;
+  fill: #888;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 13px;
+  font-size: 10px;
 }
 
 .understanding-pulse__line {
@@ -359,6 +398,12 @@ onUnmounted(() => {
   fill: rgba(0, 0, 0, 0.086);
   stroke: rgba(0, 0, 0, 0.24);
   stroke-width: 1;
+}
+
+.understanding-pulse__comparison {
+  fill: rgba(0, 0, 0, 0.06);
+  stroke: none;
+  pointer-events: none;
 }
 
 .understanding-pulse__hit-area {

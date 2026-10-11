@@ -45,15 +45,28 @@ A nonlinear embedding that preserves local neighborhoods.
 </div>
 
 ---
+layout: learning-outcomes
+mode: before
+meeting: lab-01
+---
 
 # Learning outcomes
 
-By the end of this lab, you will be able to:
+<LearningOutcome id="explain-methods">
+<strong>Explain</strong> the core intuition behind PCA and t-SNE
+</LearningOutcome>
 
-1. Explain the core intuition behind PCA and t-SNE
-2. Apply both methods to visualize high-dimensional embeddings
-3. Interpret the resulting plots and discuss each method’s limitations
-4. Teach your assigned method and develop two exam questions with proposed answers
+<LearningOutcome id="apply-methods">
+<strong>Apply</strong> both methods to visualize high-dimensional embeddings
+</LearningOutcome>
+
+<LearningOutcome id="interpret-plots">
+<strong>Interpret</strong> the resulting plots and discuss each method’s limitations
+</LearningOutcome>
+
+<LearningOutcome id="teach-method">
+<strong>Teach</strong> your assigned method and develop two exam questions with proposed answers
+</LearningOutcome>
 
 ---
 
@@ -234,3 +247,11 @@ The teacher asks selected exam questions from the group decks.
 **Use this discussion to clarify anything that remains unclear.**
 
 </div>
+
+---
+layout: learning-outcomes
+mode: after
+meeting: lab-01
+---
+
+# Revisit the learning outcomes

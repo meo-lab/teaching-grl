@@ -16,6 +16,9 @@ Winter Semester 2026/27
 Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 
 ---
+section: course-format
+sectionTitle: Course organization
+---
 
 # Course Learning Outcomes
 
@@ -94,12 +97,6 @@ After completing the course, you will be able to:
 <div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div>
 </div>
 
-<div class="course-gantt-grid course-gantt-calendar">
-<div class="course-gantt-axis-label">Calendar week</div>
-<div>CW42</div><div>CW43</div><div>CW44</div><div>CW45</div><div>CW46</div><div>CW47</div><div>CW48</div>
-<div>CW49</div><div>CW50</div><div>CW51</div><div>Break</div><div>CW02</div><div>CW03</div><div>CW04</div><div>CW05</div>
-</div>
-
 <div class="course-gantt-grid course-gantt-calendar course-gantt-dates">
 <div class="course-gantt-axis-label">Event date</div>
 <div>Oct 16</div><div>Oct 23</div><div>Oct 30</div><div>Nov 6</div><div>Nov 13</div><div>Nov 20</div><div>Nov 27</div>
@@ -107,24 +104,39 @@ After completing the course, you will be able to:
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
-<div class="course-gantt-label">Phase 1</div>
-<div class="course-gantt-bar phase-1" style="grid-column: 2 / span 7;">Lectures & Labs</div>
+<div class="course-gantt-label">Phase 1: Lectures</div>
+<div class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 2;" title="Course introduction">Intro</div>
+<a href="./1-why-geospatial-representation-learning/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lecture 1">L1</a>
+<a href="./2-geospatial-data-images-maps-time-series/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lecture 2">L2</a>
+<a href="./3-machine-learning-on-data-representations/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lecture 3">L3</a>
+<a href="./4-deep-representation-learning-i/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lecture 4">L4</a>
+<div class="course-gantt-cancelled" style="grid-column: 7;">No class</div>
+<a href="./5-deep-representation-learning-ii/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 8;" title="Lecture 5">L5</a>
+<a href="./8-geospatial-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 9;" title="Lecture 6">L6</a>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
-<div class="course-gantt-label">Phase 2</div>
-<div class="course-gantt-bar phase-2" style="grid-column: 9 / span 3;">Paper Analysis</div>
+<div class="course-gantt-label">Phase 1: Labs</div>
+<a href="./labs/lab-1/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lab 1">Lab 1</a>
+<a href="./labs/lab-2/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lab 2">Lab 2</a>
+<a href="./labs/lab-3/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lab 3">Lab 3</a>
+<a href="./labs/lab-4/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lab 4">Lab 4</a>
+<div class="course-gantt-cancelled" style="grid-column: 7;" aria-hidden="true"></div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
-<div class="course-gantt-label">Phase 3</div>
+<div class="course-gantt-label">Phase 2: Papers</div>
+<div class="course-gantt-cancelled" style="grid-column: 7;" aria-hidden="true"></div>
+<div class="course-gantt-bar course-gantt-event phase-2" style="grid-column: 8;" title="Paper analysis 1">P1</div>
+<div class="course-gantt-bar course-gantt-event phase-2" style="grid-column: 9;" title="Paper analysis 2">P2</div>
+<div class="course-gantt-bar course-gantt-event phase-2" style="grid-column: 10;" title="Paper analysis 3">P3</div>
+<div class="course-gantt-bar course-gantt-event phase-2" style="grid-column: 11;" title="Paper analysis 4">P4</div>
+</div>
+
+<div class="course-gantt-grid course-gantt-row">
+<div class="course-gantt-label">Phase 3: Projects</div>
+<div class="course-gantt-cancelled" style="grid-column: 7;" aria-hidden="true"></div>
 <div class="course-gantt-bar phase-3" style="grid-column: 13 / span 4;">Group Projects</div>
-
-</div>
-
-<div class="course-key-dates">
-<strong>University of Bonn academic calendar WS 2026/27:</strong>
-Lecture period Oct 12, 2026 - Feb 05, 2027 · First-semester welcome Oct 8 · Opening of the academic year Oct 19 · Dies Academicus Dec 2 · Christmas break Dec 24 - Jan 6
 </div>
 
 <div class="course-section-spacer"></div>
@@ -134,11 +146,11 @@ Lecture period Oct 12, 2026 - Feb 05, 2027 · First-semester welcome Oct 8 · Op
 <div class="course-gantt-exams">
   <div class="course-gantt-exam phase-2">
     <strong>Paper Presentations pass/fail</strong>
-    <span>Nov 27th, Nov 4th, Nov 11th, Nov 18th</span>
+    <span>Nov 27, Dec 4, 11 &amp; 18, 2026</span>
   </div>
   <div class="course-gantt-exam phase-1">
     <strong>Phase 1 Written exam</strong>
-    <span>February 5th, 2026</span>
+    <span>February 5th, 2027</span>
   </div>
   <div class="course-gantt-exam phase-3">
     <strong>Phase 3 report deadline</strong>
@@ -274,9 +286,9 @@ layout: bonn-two-cols-header
 
 Each topical session introduces a new research area and assigns papers to the student groups.
 
-1. **Read:** Study the assigned paper between sessions.
-2. **Analyze:** Identify the problem, method, evidence, limitations, and impact.
-3. **Present:** Explain and discuss the paper in the following session.
+1. **Read (between classes):** Study the assigned paper with your group.
+2. **Analyze (between classes):** Identify the problem, method, evidence, limitations, and impact, and prepare your presentation.
+3. **Present (in class):** Present your analysis, answer questions, and discuss the paper with the class.
 
 
 
@@ -380,3 +392,157 @@ This gives me feedback during class and also tracks the general understandabilit
   instruction="Are you ready to continue?"
 />
 -->
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: why-this-course
+sectionTitle: Why this course?
+---
+
+# Why this course?
+
+---
+class: course-intro
+---
+
+# The Earth faces global challenges
+
+<div class="intro-challenges">
+  <figure><img src="./assets/course-introduction/image3.gif" alt="Animated satellite time series of urban expansion" /><figcaption>Urbanization</figcaption></figure>
+  <img class="intro-earth" src="./assets/course-introduction/image5.png" alt="The Earth viewed from space" />
+  <figure><img src="./assets/course-introduction/image4.gif" alt="Animated satellite time series of deforestation" /><figcaption>Deforestation</figcaption></figure>
+</div>
+
+<div class="intro-message"><strong>We need to analyze geodata at large scale</strong><br />to inform policies on biodiversity, food security, human health, and livelihoods.</div>
+
+<div class="intro-credit">Images: Google Earth Engine Time Series Gallery · Adapted from the Open Earth Monitor talk, October 2026.</div>
+
+<!-- Source: why_need_representations.pptx, slide 1. Original GIFs retained. -->
+
+---
+class: course-intro
+---
+
+# Observing the Earth at unprecedented scales
+
+<div class="intro-satellite-archive">
+  <img src="./assets/course-introduction/image6.jpeg" alt="Timeline of Earth observation missions from ESA" />
+  <div class="intro-archive-caption">Sentinel-2 archive: <strong>45 petabytes</strong><br />Growing by <strong>4 PB per year</strong><small>Figures reported in the October 2026 talk</small></div>
+</div>
+
+<div class="intro-credit">Image: European Space Agency · Archive figures reproduced from the source talk.</div>
+
+<!-- Source: why_need_representations.pptx, slide 2. Figures are source-talk values, not a live estimate. -->
+
+---
+class: course-intro
+---
+
+# Pollution monitoring
+
+<div class="intro-two-images">
+  <figure><img src="./assets/course-introduction/image7.png" alt="Plastic litter at Cuttings Beach, Durban" /><figcaption>Cuttings Beach, Durban, South Africa<br />Image: Lisa Guastella</figcaption></figure>
+  <figure><img src="./assets/course-introduction/image8.png" alt="Examples of entangled plastics and free-floating plastics among water hyacinths" /></figure>
+</div>
+<div class="intro-person"><img src="./assets/course-introduction/image9.png" alt="Giel Hagenbeek" /><span>Giel Hagenbeek · Wageningen University &amp; Research</span></div>
+<div class="intro-credit">Hagenbeek, G. W., van Emmerik, et al., including Rußwurm, M. (2026). Exploring transferability of plastic-water hyacinth interaction and detection in rivers. <em>iScience</em>, 29(6).</div>
+
+<!-- Source: why_need_representations.pptx, slide 3. -->
+
+---
+class: course-intro
+---
+
+# Finding meteorites in Antarctic blue ice
+
+<div class="intro-antarctica">
+  <div><div class="intro-person"><img src="./assets/course-introduction/image12.png" alt="Veronica Tollenaar" /><span>Veronica Tollenaar<br />Vrije Universiteit Brussel</span></div><img class="intro-ice-detail" src="./assets/course-introduction/image11.png" alt="Blue-ice prediction, uncertainty, radar backscatter, and satellite imagery" /></div>
+  <img class="intro-ice-map" src="./assets/course-introduction/image10.png" alt="Antarctic blue-ice mapping results and regional detail maps" />
+</div>
+<div class="intro-credit">Tollenaar, V., Zekollari, H., Pattyn, F., Rußwurm, M., Kellenberger, B., Lhermitte, S., Izeboud, M., &amp; Tuia, D. (2024). Where the White Continent Is Blue: Deep Learning Locates Bare Ice in Antarctica. <em>Geophysical Research Letters</em>, 51(3), e2023GL106285. <a href="https://doi.org/10.1029/2023GL106285">doi:10.1029/2023GL106285</a></div>
+
+<!-- Source: why_need_representations.pptx, slide 4. -->
+
+---
+class: course-intro
+---
+
+# Detecting litter in open waters
+
+<div class="intro-marine">
+  <figure><img src="./assets/course-introduction/image7.png" alt="Marine litter washed ashore at Cuttings Beach" /><figcaption>Cuttings Beach, Durban · Image: Lisa Guastella</figcaption><div class="intro-satellite-label"><img src="./assets/course-introduction/image14.svg" alt="Satellite" />Sentinel-2 satellite</div></figure>
+  <video controls muted loop playsinline preload="none" poster="./assets/course-introduction/image13.png" aria-label="Marine debris detection demonstration"><source src="./assets/course-introduction/marine-debris.mp4" type="video/mp4" /></video>
+</div>
+<div class="intro-credit">Rußwurm, M., Venkatesa, S. J., &amp; Tuia, D. (2023). Large-scale detection of marine debris in coastal areas with Sentinel-2. <em>iScience</em>, 26(12). <a href="https://go.epfl.ch/marinedebrisdetector">Marine debris detector</a></div>
+
+<!-- Source: why_need_representations.pptx, slide 5. Original movie remuxed without re-encoding; controls allow deliberate playback. -->
+
+---
+class: course-intro
+---
+
+# Tracking litter patches across sensors
+
+<div class="intro-person intro-person-right"><img src="./assets/course-introduction/image17.png" alt="Gabrielė Tijūnaitytė" /><span>Gabrielė Tijūnaitytė · Wageningen, Bonn</span></div>
+<div class="intro-tracking"><img src="./assets/course-introduction/image16.png" alt="Marine litter patches observed in overlapping satellite acquisitions" /><img src="./assets/course-introduction/image15.png" alt="Dual-encoder model for matching patches across sensors" /></div>
+<div class="intro-credit">Tijūnaitytė, G., Dalsasso, E., &amp; Rußwurm, M. (2026). Cross-Sensor Matching of Marine Litter Patches in Satellite Double Acquisitions. ECCV Marine Vision Workshop (MaVi).</div>
+
+<!-- Source: why_need_representations.pptx, slide 6. -->
+
+---
+class: course-intro
+---
+
+# Text-based image retrieval on camera traps
+
+<div class="intro-retrieval">
+  <div><p>Trained on the Snapshot Serengeti camera-trap dataset (Swanson et al., 2015) with more than <strong>seven million images</strong>.</p><div class="intro-person"><img src="./assets/course-introduction/image19.jpg" alt="Valentin Gabeff" /><span>Valentin Gabeff · EPFL</span></div></div>
+  <img src="./assets/course-introduction/image18.png" alt="WildCLIP models connect camera-trap images with text descriptions for retrieval" />
+</div>
+<div class="intro-credit">Gabeff, V., Rußwurm, M., Tuia, D., &amp; Mathis, A. (2024). WildCLIP: Scene and animal attribute retrieval from camera trap data with domain-adapted vision-language models. <em>International Journal of Computer Vision</em>, 132(9), 3770–3786.</div>
+
+<!-- Source: why_need_representations.pptx, slide 7. -->
+
+---
+class: course-intro
+---
+
+# Tree species classification
+
+<div class="intro-person intro-person-right"><img src="./assets/course-introduction/image21.jpeg" alt="Takayuki Ishikawa" /><span>Takayuki Ishikawa · WUR MSc student</span></div>
+<div class="intro-trees"><img src="./assets/course-introduction/tree-species-chart.svg" alt="Comparison of tree-species classification results using deep embeddings" /><img src="./assets/course-introduction/image22.png" alt="Detailed tree-species map of a forest region" /><img src="./assets/course-introduction/image20.png" alt="Dutch Forest Inventory locations and the detailed study region" /></div>
+<div class="intro-credit">Ishikawa, T., Bonannella, C., Lerink, B. J. W., &amp; Rußwurm, M. (2026). Assessing the effectiveness of deep embeddings for tree species classification in the Dutch Forest Inventory. <em>Science of Remote Sensing</em>, 14, 100498. <a href="https://doi.org/10.1016/j.srs.2026.100498">doi:10.1016/j.srs.2026.100498</a></div>
+
+<!-- Source: why_need_representations.pptx, slide 8. Source chart recovered from the PDF embedded in image23.emf and converted to SVG; original EMF also retained. -->
+
+---
+class: course-intro
+---
+
+# Forest change in the Swiss Alps
+
+<div class="intro-forest">
+  <div><p>Historic aerial photos (1946–2020) reveal forest gains at high altitudes as the tree line advances upwards with a warming climate.</p><p class="intro-data">Data: 2,660 tiles of 1 km × 1 km, with 12–20 time steps.</p><img src="./assets/course-introduction/image26.png" alt="Locations of historic aerial-photo tiles in the Swiss Alps" /></div>
+  <img src="./assets/course-introduction/image25.png" alt="Forest gains across a sequence of aerial photographs from 1946 to 2020" />
+</div>
+<div class="intro-credit">Thien-Anh Nguyen · EPFL · Research example reproduced from the source talk, slide 9.</div>
+
+<!-- Source: why_need_representations.pptx, slide 9. -->
+
+---
+class: course-intro
+---
+
+# Effective representations of geodata
+
+<div class="intro-representation-flow">
+  <img class="intro-flow-earth" src="./assets/course-introduction/image5.png" alt="The Earth" />
+  <div class="intro-flow-arrow" aria-hidden="true"></div>
+  <div class="intro-geodata"><strong>Geodata</strong><div class="intro-stack"><img src="./assets/course-introduction/image28.png" alt="Geospatial image tile" /><img src="./assets/course-introduction/image29.png" alt="Additional geospatial observations" /><img src="./assets/course-introduction/image30.png" alt="Geospatial data layer" /><img src="./assets/course-introduction/image31.png" alt="Map data layer" /></div></div>
+  <div class="intro-embedding"><strong>Effective geospatial<br />representations</strong><img src="./assets/course-introduction/image33.gif" alt="Animated globe of geospatial representations" /></div>
+  <strong class="intro-decisions">Informed<br />decisions</strong>
+</div>
+<div class="intro-flow-captions"><span>Satellite and weather data<br />at enormous scale</span><span>Effective geospatial<br />data representations</span></div>
+
+<!-- Source: why_need_representations.pptx, slide 10. Original images and animated globe retained. Source data-store and arrow geometry reconstructed in editable HTML/CSS. Source describes thousands of petabytes; phrased qualitatively here without introducing a new estimate. -->
