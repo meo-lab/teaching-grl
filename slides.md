@@ -21,19 +21,17 @@ Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 
 After completing the course, you will be able to:
 
-1. **Explain** the main concepts of *geospatial representation learning*, including *explicit embeddings*, *embedding databases*, *location encoders*, and *implicit neural representations*.
+1. Explain the principles of geospatial representation learning, how geospatial embeddings are created, and their potential and limitations for different applications.
 
-2. **understand and compare** relevant *geospatial data sources*, including satellite imagery, time series, GIS layers, and multimodal Earth observation datasets.
+2. Compare geospatial data sources and create and curate datasets from satellite imagery, time series, GIS layers, and other environmental and socio-economic data.
 
-3. **Implement and evaluate** selected *machine learning workflows* for geospatial data on environmental and socio-ecological applications using *Python-based tools*.
+3. Implement Python-based machine-learning workflows using both fixed representations of existing geospatial data and representations learned through modern deep-learning methods.
 
-4. **Critically assess** recent *research papers* in geospatial AI, foundation models, and Earth embeddings.
+4. Evaluate and compare models and representations for environmental and socio-ecological applications, considering predictive performance, generalization, and suitability for the task.
 
-5. **Design and execute** a small *research-oriented geospatial analysis project* in a student group.
+5. Critically assess and discuss research papers on geospatial representation learning, foundation models, and Earth embeddings, examining their methods, evidence, and limitations.
 
-6. **Develop and evaluate** a *prototype AI agent* for geospatial data analysis.
-
-7. **Communicate** technical results through *written exercise reports*, *oral presentations*, and *scientific discussion*.
+6. Design and conduct a research-oriented geospatial analysis project in a student group, and communicate its methods, results, and limitations through scientific writing and oral presentations.
 
 ---
 
