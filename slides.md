@@ -439,6 +439,23 @@ class: course-intro
 class: course-intro
 ---
 
+# We need effective representations of heterogeneous geodata
+
+<div class="intro-representation-flow">
+  <img class="intro-flow-earth" src="./assets/course-introduction/image5.png" alt="The Earth" />
+  <div class="intro-flow-arrow" aria-hidden="true"></div>
+  <div class="intro-geodata"><strong>Geodata</strong><div class="intro-stack"><img src="./assets/course-introduction/image28.png" alt="Geospatial image tile" /><img src="./assets/course-introduction/image29.png" alt="Additional geospatial observations" /><img src="./assets/course-introduction/image30.png" alt="Geospatial data layer" /><img src="./assets/course-introduction/image31.png" alt="Map data layer" /></div></div>
+  <div class="intro-embedding"><strong>Effective geospatial<br />representations</strong><img src="./assets/course-introduction/image33.gif" alt="Animated globe of geospatial representations" /></div>
+  <strong class="intro-decisions">Informed<br />decisions</strong>
+</div>
+<div class="intro-flow-captions"><span>Geospatial data from ground, air, and space<br />at enormous scale</span><span>Modern <br>data representations learning</br> with deep neural networks</span> </div>
+
+<!-- Source: why_need_representations.pptx, slide 10. Original images and animated globe retained. Source data-store and arrow geometry reconstructed in editable HTML/CSS. Source describes thousands of petabytes; phrased qualitatively here without introducing a new estimate. -->
+
+---
+class: course-intro
+---
+
 # Pollution monitoring
 
 <div class="intro-two-images">
@@ -529,20 +546,3 @@ class: course-intro
 <div class="intro-credit">Thien-Anh Nguyen · EPFL · Research example reproduced from the source talk, slide 9.</div>
 
 <!-- Source: why_need_representations.pptx, slide 9. -->
-
----
-class: course-intro
----
-
-# Effective representations of geodata
-
-<div class="intro-representation-flow">
-  <img class="intro-flow-earth" src="./assets/course-introduction/image5.png" alt="The Earth" />
-  <div class="intro-flow-arrow" aria-hidden="true"></div>
-  <div class="intro-geodata"><strong>Geodata</strong><div class="intro-stack"><img src="./assets/course-introduction/image28.png" alt="Geospatial image tile" /><img src="./assets/course-introduction/image29.png" alt="Additional geospatial observations" /><img src="./assets/course-introduction/image30.png" alt="Geospatial data layer" /><img src="./assets/course-introduction/image31.png" alt="Map data layer" /></div></div>
-  <div class="intro-embedding"><strong>Effective geospatial<br />representations</strong><img src="./assets/course-introduction/image33.gif" alt="Animated globe of geospatial representations" /></div>
-  <strong class="intro-decisions">Informed<br />decisions</strong>
-</div>
-<div class="intro-flow-captions"><span>Satellite and weather data<br />at enormous scale</span><span>Effective geospatial<br />data representations</span></div>
-
-<!-- Source: why_need_representations.pptx, slide 10. Original images and animated globe retained. Source data-store and arrow geometry reconstructed in editable HTML/CSS. Source describes thousands of petabytes; phrased qualitatively here without introducing a new estimate. -->
