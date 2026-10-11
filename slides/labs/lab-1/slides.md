@@ -11,117 +11,226 @@ home: ../../
 # Geospatial Representation Learning
 
 <div class="mt-8 text-xl text-gray-600 font-semibold">
-Lab 1: Why Geospatial Representation Learning?
+Visualizing high-dimensional representation spaces
 </div>
 
 ---
 
-# Lab 1 Overview
+# Recap: Lecture 1
 
-**Learning Objectives**
+<script setup>
+import PcaEmbeddingDemo from '../../1-why-geospatial-representation-learning/components/PcaEmbeddingDemo.vue'
+import TsneEmbeddingDemo from '../../1-why-geospatial-representation-learning/components/TsneEmbeddingDemo.vue'
+</script>
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+<div>
+
+## PCA
+
+A linear projection that captures variance.
+
+<PcaEmbeddingDemo />
+
+</div>
+<div>
+
+## t-SNE
+
+A nonlinear embedding that preserves local neighborhoods.
+
+<TsneEmbeddingDemo />
+
+</div>
+</div>
+
+---
+
+# Learning outcomes
 
 By the end of this lab, you will be able to:
 
-1. Understand the mathematical intuition behind PCA and t-SNE
-2. Explain your assigned method to a peer who studied the other one
-3. Compare the two approaches and discuss when each is appropriate
+1. Explain the core intuition behind PCA and t-SNE
+2. Apply both methods to visualize high-dimensional embeddings
+3. Interpret the resulting plots and discuss each method’s limitations
+4. Teach your assigned method and develop two exam questions with proposed answers
 
 ---
 
 # Expert Group Activity
 
-This lab uses a **jigsaw learning** structure.
+Each group becomes an expert in **one method**, then teaches a group studying the other topic.
 
-<div class="grid grid-cols-2 gap-6 mt-6">
+<div class="grid grid-cols-2 gap-10 mt-6">
+<div>
 
-<div class="p-5 rounded-xl border border-blue-300 bg-blue-50">
-<h3 class="text-blue-800">Group A — PCA</h3>
+## PCA
 
-Study **Principal Component Analysis** as a way to reduce high-dimensional geospatial data to a 2D embedding.
+**Groups 1, 3, 5, 7, 9**
 
-→ You will teach Group B what PCA does and when to use it.
-</div>
-
-<div class="p-5 rounded-xl border border-purple-300 bg-purple-50">
-<h3 class="text-purple-800">Group B — t-SNE</h3>
-
-Study **t-distributed Stochastic Neighbor Embedding** as a way to visualize geospatial feature spaces.
-
-→ You will teach Group A what t-SNE does and when to use it.
-</div>
+Principal Component Analysis
 
 </div>
+<div>
 
----
+## t-SNE
 
-# Peer Teaching Session
+**Groups 2, 4, 6, 8, 10**
 
-After studying your method, form pairs with one person from Group A and one from Group B.
+t-distributed Stochastic Neighbor Embedding
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-
-<div class="p-4 rounded-xl border">
-<h3>Each person explains (~5 min):</h3>
-
-1. What your method does — in plain language
-2. The key mathematical idea behind it
-3. One strength and one limitation for geospatial use
+</div>
 </div>
 
-<div class="p-4 rounded-xl border">
-<h3>Together, discuss (~5 min):</h3>
+<div class="mt-8">
 
-- Which method produced cleaner clusters in the examples you studied?
-- Could you combine them? (e.g. PCA → t-SNE)
-- Which would you use for a downstream ML task — and why?
-</div>
+**Teaching pairs:** 1 & 2, 3 & 4, 5 & 6, 7 & 8, 9 & 10
 
 </div>
 
 ---
 
-# Submit Your Exam Questions
+# Lab schedule
 
-Based on what you learned and discussed, write **2 exam questions** — one on PCA and one on t-SNE.
+| Time | Activity | Result |
+|---|---|---|
+| **60 min** | Self-teaching in expert groups | Understand your method and prepare your group’s slides |
+| **45 min** | Teach the group studying the other method | Both methods, with time for questions and comparison |
+| **15 min** | Class-wise synthesis | Discuss exam questions selected by the teacher |
 
-<div class="grid grid-cols-2 gap-6 mt-6">
+<div class="mt-8">
 
-<div class="p-5 rounded-xl border border-blue-300 bg-blue-50">
-<h3 class="text-blue-800">PCA question</h3>
-
-Write a question that tests conceptual understanding — not just a definition.
-
-*Example style: "Under what conditions would PCA fail to separate two land-cover classes that t-SNE separates cleanly?"*
-</div>
-
-<div class="p-5 rounded-xl border border-purple-300 bg-purple-50">
-<h3 class="text-purple-800">t-SNE question</h3>
-
-Write a question that probes a common misconception or a key limitation.
-
-*Example style: "A student trains t-SNE on a dataset and wants to embed new satellite patches. What is the problem with this approach?"*
-</div>
+**Total: 120 minutes**
 
 </div>
-
-<div class="mt-6 text-sm text-gray-500">Submit via the course portal — best questions will appear in the quiz!</div>
 
 ---
 
-# Live Quiz
+# Expert group preparation
 
-<div class="mt-4 text-lg">
-We'll work through the best submitted questions together as a class.
+During the **60-minute preparation phase**, use the notebook and your group’s slide deck.
+
+- Explain your method’s core idea and how it constructs a low-dimensional representation
+- Explore the GloVe embeddings and include plots that support your explanation
+- Discuss what the plots reveal, the method’s limitations and when to use it
+- Develop **two exam questions with proposed answers** and add them to your deck
+
+<div class="mt-6">
+
+**The teacher will select questions from your decks for the final class discussion.**
+
+Share the teaching across your group. You have 45 minutes together with your partner group.
+
 </div>
 
-<div class="mt-6 grid grid-cols-1 gap-4">
+---
 
-<div class="p-4 rounded-xl border">
-<strong>Format:</strong> Question appears on screen → 60 seconds to think → discuss with your neighbour → class vote / discussion
+# Word embeddings with GloVe
+
+[Open the Google Colab notebook](https://colab.research.google.com/drive/1sQ6h_pFu_yGb-rksiR8LNGIHrcHSsE3m?usp=sharing) to **explore PCA and t-SNE in practice**.
+
+GloVe represents words as vectors. Here, both methods project **300-dimensional word embeddings into 2D**.
+
+<script setup>
+import PlotlyPlot from './assets/PlotlyPlot.vue'
+import pcaFigure from './assets/glove_pca.json'
+import tsneFigure from './assets/globe_tsne.json'
+</script>
+
+<div class="grid grid-cols-2 gap-6 mt-2">
+  <div class="min-w-0">
+    <h3 class="text-xl text-blue-800">Principal Component Analysis (PCA)</h3>
+    <PlotlyPlot :figure="pcaFigure" :height="240" label="Interactive PCA plot of word embeddings" />
+  </div>
+  <div class="min-w-0">
+    <h3 class="text-xl text-purple-800">t-distr. Stochastic Neighborhood Embedding</h3>
+    <PlotlyPlot :figure="tsneFigure" :height="240" label="Interactive t-SNE plot of word embeddings" />
+  </div>
 </div>
 
-<div class="p-4 rounded-xl border">
-<strong>Goal:</strong> Surface misconceptions and reinforce the key distinctions between PCA and t-SNE before the next lecture.
+---
+
+# Group slide decks
+
+Open your assigned deck and add your group’s explanations, plots and exam questions directly in Google Slides.
+
+[Shared Google Drive folder](https://drive.google.com/drive/folders/1cTFMCpW4UemNovjLg2S-lg0cWyIv_S6T?usp=sharing)
+
+| Group | Method | Slides | Group | Method | Slides |
+|---|---|---|---|---|---|
+| 1 | PCA | [Edit slides](https://docs.google.com/presentation/d/1baVgxHVeH84bjTQ5ZPwIXz3ZnUgb8ySSVZokca8atic/edit) | 2 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1fyb7l6_EnoHId_3HBeLJJmEYIxqo6axkTreFtKxU4UA/edit) |
+| 3 | PCA | [Edit slides](https://docs.google.com/presentation/d/1R0cHHMU-07BllTep-F3L0lm_GhHT8nbM7Kly6S09ukQ/edit) | 4 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1uJHGMFdhLJN91SnfxdoWfLlotUC17IELK2Fqi5gU4v0/edit) |
+| 5 | PCA | [Edit slides](https://docs.google.com/presentation/d/1vQQxXc7Ed-GbF1OBMASSxP_TU4lUSKaYN3PXi9TVfMQ/edit) | 6 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1JIZ3XeC7VTGT3UMTSUo9061MxwSN4WHwOgFjIS3oWwA/edit) |
+| 7 | PCA | [Edit slides](https://docs.google.com/presentation/d/186lB2BMZSb9AFEZeY_PtEvz-IHs4T_X4d5Kgr6OftbQ/edit) | 8 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1PIrqXVpJ4BO_vDLZlO8MHFDwCihhutaMS3FBncydp2M/edit) |
+| 9 | PCA | [Edit slides](https://docs.google.com/presentation/d/1_yUrjzyNeap0i3PZ2t9s70SNOKgWgry1lkgUObuuT1I/edit) | 10 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1G3xR6MthK7KBO2dwafUJj-q4Nu_c4RGbe7jRev9evG0/edit) |
+
+---
+
+# Phase 1: Self-teaching
+
+**13:00–14:00 · 60 minutes**
+
+Work on your group’s slide deck. Use the notebook to explore your method and prepare your explanation and plots.
+
+**Add two exam questions with proposed answers.** The teacher will select questions for the final discussion.
+
+<div class="text-base mt-4">
+
+| Group | Method | Slides | Group | Method | Slides |
+|---|---|---|---|---|---|
+| 1 | PCA | [Edit slides](https://docs.google.com/presentation/d/1baVgxHVeH84bjTQ5ZPwIXz3ZnUgb8ySSVZokca8atic/edit) | 2 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1fyb7l6_EnoHId_3HBeLJJmEYIxqo6axkTreFtKxU4UA/edit) |
+| 3 | PCA | [Edit slides](https://docs.google.com/presentation/d/1R0cHHMU-07BllTep-F3L0lm_GhHT8nbM7Kly6S09ukQ/edit) | 4 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1uJHGMFdhLJN91SnfxdoWfLlotUC17IELK2Fqi5gU4v0/edit) |
+| 5 | PCA | [Edit slides](https://docs.google.com/presentation/d/1vQQxXc7Ed-GbF1OBMASSxP_TU4lUSKaYN3PXi9TVfMQ/edit) | 6 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1JIZ3XeC7VTGT3UMTSUo9061MxwSN4WHwOgFjIS3oWwA/edit) |
+| 7 | PCA | [Edit slides](https://docs.google.com/presentation/d/186lB2BMZSb9AFEZeY_PtEvz-IHs4T_X4d5Kgr6OftbQ/edit) | 8 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1PIrqXVpJ4BO_vDLZlO8MHFDwCihhutaMS3FBncydp2M/edit) |
+| 9 | PCA | [Edit slides](https://docs.google.com/presentation/d/1_yUrjzyNeap0i3PZ2t9s70SNOKgWgry1lkgUObuuT1I/edit) | 10 | t-SNE | [Edit slides](https://docs.google.com/presentation/d/1G3xR6MthK7KBO2dwafUJj-q4Nu_c4RGbe7jRev9evG0/edit) |
+
 </div>
+
+---
+
+# Phase 2: Teach the other group
+
+**14:00–14:45 · 45 minutes**
+
+<div class="grid grid-cols-2 gap-12 mt-6">
+<div>
+
+## Teaching pairs
+
+| PCA group | t-SNE group |
+|---|---|
+| 1 | 2 |
+| 3 | 4 |
+| 5 | 6 |
+| 7 | 8 |
+| 9 | 10 |
+
+</div>
+<div>
+
+## Both groups teach
+
+- Use your slides to explain your method and demonstrate your plots
+- Give each group time to teach and answer questions
+- Compare what PCA and t-SNE reveal and discuss their limitations
+
+</div>
+</div>
+
+---
+
+# Phase 3: Class-wise synthesis
+
+**14:45–15:00 · 15 minutes**
+
+The teacher asks selected exam questions from the group decks.
+
+- Discuss the questions together as a class
+- Explain the reasoning behind your answers
+- Connect the answers to the strengths and limitations of PCA and t-SNE
+
+<div class="mt-8">
+
+**Use this discussion to clarify anything that remains unclear.**
 
 </div>

@@ -1,0 +1,5 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>glove_pca</title>
+<style>html,body,#plot{width:100%;height:100%;margin:0}</style></head>
+<body><div id="plot"></div><script src="./plotly.min.js"></script>
+<script>fetch('./glove_pca.json').then(r => r.json()).then(figure => Plotly.newPlot('plot', figure.data, {...figure.layout, autosize:true}, {responsive:true, displaylogo:false}));</script></body></html>
