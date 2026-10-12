@@ -1,4 +1,10 @@
 ---
+download: true
+exportFilename: slides
+export:
+  waitUntil: load
+  wait: 1000
+  timeout: 120000
 title: Geospatial Representation Learning
 author: Marc Rußwurm
 license: CC BY-NC 4.0
@@ -87,7 +93,7 @@ After completing the course, you will be able to:
 
 # Timeline at a Glance
 
-<p class="course-meeting-times"><strong>Fridays:</strong> Lectures 10:00–12:00, labs 13:00–15:00.</p>
+<p class="course-meeting-times"><strong>Fridays:</strong> Lectures 10:00–12:00 in HS VIII (Meckenheimer Allee 172)*<br>Labs 13:00–15:00 in Seminarraum 2.003 (Nußallee 1)<br><small>* Lecture 2 on October 30 is in HS IX (same floor).</small></p>
 
 <div class="course-gantt">
 
@@ -106,21 +112,21 @@ After completing the course, you will be able to:
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 1: Lectures</div>
 <div class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 2;" title="Course introduction">Intro</div>
-<a href="./1-why-geospatial-representation-learning/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lecture 1">L1</a>
-<a href="./2-geospatial-data-images-maps-time-series/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lecture 2">L2</a>
-<a href="./3-machine-learning-on-data-representations/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lecture 3">L3</a>
-<a href="./4-deep-representation-learning-i/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lecture 4">L4</a>
+<CourseResource resource="lecture-1" href="./1-why-geospatial-representation-learning/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lecture 1">L1</CourseResource>
+<CourseResource resource="lecture-2" href="./2-geospatial-data-images-maps-time-series/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lecture 2 — October 30, HS IX (same floor)">L2*</CourseResource>
+<CourseResource resource="lecture-3" href="./3-machine-learning-on-data-representations/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lecture 3">L3</CourseResource>
+<CourseResource resource="lecture-4" href="./4-deep-representation-learning-i/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lecture 4">L4</CourseResource>
 <div class="course-gantt-cancelled" style="grid-column: 7;">No class</div>
-<a href="./5-deep-representation-learning-ii/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 8;" title="Lecture 5">L5</a>
-<a href="./8-geospatial-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 9;" title="Lecture 6">L6</a>
+<CourseResource resource="lecture-5" href="./5-deep-representation-learning-ii/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 8;" title="Lecture 5">L5</CourseResource>
+<CourseResource resource="lecture-6" href="./8-geospatial-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 9;" title="Lecture 6">L6</CourseResource>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
 <div class="course-gantt-label">Phase 1: Labs</div>
-<a href="./labs/lab-1/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lab 1">Lab 1</a>
-<a href="./labs/lab-2/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lab 2">Lab 2</a>
-<a href="./labs/lab-3/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lab 3">Lab 3</a>
-<a href="./labs/lab-4/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lab 4">Lab 4</a>
+<CourseResource resource="lab-1" href="./labs/lab-1/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lab 1">Lab 1</CourseResource>
+<CourseResource resource="lab-2" href="./labs/lab-2/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lab 2">Lab 2</CourseResource>
+<CourseResource resource="lab-3" href="./labs/lab-3/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lab 3">Lab 3</CourseResource>
+<CourseResource resource="lab-4" href="./labs/lab-4/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lab 4">Lab 4</CourseResource>
 <div class="course-gantt-cancelled" style="grid-column: 7;" aria-hidden="true"></div>
 </div>
 
@@ -169,7 +175,10 @@ After completing the course, you will be able to:
 <div class="p-5 rounded-xl border">
 <h3>Lectures</h3>
 
-**1-2 hours**
+**10:00–12:00 (s.t.)**
+
+HS VIII (Meckenheimer Allee 172)\
+<small>Lecture 2 on October 30: HS IX (same floor).</small>
 
 Presentation slides introduce the core concepts, terminology, and research context.
 
@@ -179,7 +188,9 @@ They provide the shared conceptual foundation for the hands-on work.
 <div class="p-5 rounded-xl border">
 <h3>Labs</h3>
 
-**Remaining 2 hours**
+**13:00–15:00**
+
+Seminarraum 2.003 (Nußallee 1)
 
 Interactive activities reinforce the lecture through self-directed, collaborative, and hands-on learning:
 
@@ -197,35 +208,35 @@ Interactive activities reinforce the lecture through self-directed, collaborativ
 
 <div class="phase-content-grid lecture-overview-grid">
 
-<a href="./1-why-geospatial-representation-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-1" href="./1-why-geospatial-representation-learning/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 1</h3>
 <strong>Representations</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">What is a representation?</span>
-</a>
+</CourseResource>
 
-<a href="./2-geospatial-data-images-maps-time-series/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-2" href="./2-geospatial-data-images-maps-time-series/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 2</h3>
 <strong>Geospatial Data</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">What is geodata?</span>
-</a>
+</CourseResource>
 
-<a href="./3-machine-learning-on-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-3" href="./3-machine-learning-on-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
 <strong>Machine Learning on Data Representations</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning on fixed representations</span>
-</a>
+</CourseResource>
 
-<a href="./4-deep-representation-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-4" href="./4-deep-representation-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 4</h3>
 <strong>Deep Representation Learning I</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning the representation itself</span>
-</a>
+</CourseResource>
 
-<a href="./5-deep-representation-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-5" href="./5-deep-representation-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 5</h3>
 <strong>Deep Representation Learning II</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning beyond memorization</span>
-</a>
+</CourseResource>
 
-<a href="./8-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-6" href="./8-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 6</h3>
 <strong>Geospatial Embeddings</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Giving location a meaning</span>
-</a>
+</CourseResource>
 
 
 </div>
@@ -234,25 +245,25 @@ Interactive activities reinforce the lecture through self-directed, collaborativ
 <div class="phase-content-grid lab-overview-grid">
 
 
-<a href="./labs/lab-1/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lab-1" href="./labs/lab-1/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 1</h3>
 Visualizing high-dimensional representations
-</a>
+</CourseResource>
 
-<a href="./labs/lab-2/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lab-2" href="./labs/lab-2/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 2</h3>
 Geodata Scavanger Hunt
-</a>
+</CourseResource>
 
-<a href="./labs/lab-3/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lab-3" href="./labs/lab-3/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 3</h3>
 Machine Learning on Geospatial Data.
-</a>
+</CourseResource>
 
-<a href="./labs/lab-4/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lab-4" href="./labs/lab-4/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lab 4</h3>
 Practical: Supervised Deep Learning
-</a>
+</CourseResource>
 
 
 </div>
@@ -546,3 +557,20 @@ class: course-intro
 <div class="intro-credit">Thien-Anh Nguyen · EPFL · Research example reproduced from the source talk, slide 9.</div>
 
 <!-- Source: why_need_representations.pptx, slide 9. -->
+
+---
+
+# See you next Friday for Lecture 1!
+
+## Representations: What is a representation?
+
+We will explore how images, words, and places can be represented as data—and how choosing or learning a representation shapes what a model can understand.
+
+- From visual features to word embeddings
+- Representing places with coordinates, maps, and geospatial embeddings
+- Why useful representations depend on the task
+
+<div class="mt-8">
+<strong>10:00–12:00 (s.t.) · HS VIII</strong><br>
+Meckenheimer Allee 172
+</div>

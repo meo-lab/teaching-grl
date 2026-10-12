@@ -1,4 +1,10 @@
 ---
+download: true
+exportFilename: slides
+export:
+  waitUntil: load
+  wait: 1000
+  timeout: 120000
 addons:
   - "../"
 defaults:

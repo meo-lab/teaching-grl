@@ -81,7 +81,6 @@ const decks = [
   base: `${siteBase}${deck.slug}/`,
   out: resolve(tempDir, deck.slug),
   dest: resolve(distDir, deck.slug),
-  pdf: resolve(distDir, deck.slug, 'slides.pdf'),
   staticRoutes: ['presenter', 'overview'],
 }))
 
@@ -111,19 +110,7 @@ for (const deck of decks) {
     mkdirSync(routeDir, { recursive: true })
     copyFileSync(resolve(deck.dest, 'index.html'), resolve(routeDir, 'index.html'))
   }
-  run('npx', [
-    'slidev',
-    'export',
-    deck.entry,
-    '--output',
-    deck.pdf,
-    '--wait-until',
-    'load',
-    '--wait',
-    '1000',
-    '--timeout',
-    '120000',
-  ])
+
 }
 
 rmSync(tempDir, { recursive: true, force: true })
