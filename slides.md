@@ -22,27 +22,6 @@ Winter Semester 2026/27
 Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 
 ---
-section: course-format
-sectionTitle: Course organization
----
-
-# Course Learning Outcomes
-
-After completing the course, you will be able to:
-
-1. Explain the principles of geospatial representation learning, how geospatial embeddings are created, and their potential and limitations for different applications.
-
-2. Compare geospatial data sources and create and curate datasets from satellite imagery, time series, GIS layers, and other environmental and socio-economic data.
-
-3. Implement Python-based machine-learning workflows using both fixed representations of existing geospatial data and representations learned through modern deep-learning methods.
-
-4. Evaluate and compare models and representations for environmental and socio-ecological applications, considering predictive performance, generalization, and suitability for the task.
-
-5. Critically assess and discuss research papers on geospatial representation learning, foundation models, and Earth embeddings, examining their methods, evidence, and limitations.
-
-6. Design and conduct a research-oriented geospatial analysis project in a student group, and communicate its methods, results, and limitations through scientific writing and oral presentations.
-
----
 
 # Three Phases: 
 
@@ -69,7 +48,7 @@ After completing the course, you will be able to:
 
 <div class="box-body">Develop code and conduct a research-oriented geospatial analysis project in groups.</div>
 
-<div class="box-body"><strong>Examination:</strong> written project report.</div>
+<div class="box-body"><strong>Examination:</strong> four-page scientific paper.</div>
 </div>
 
 </div>
@@ -159,7 +138,7 @@ After completing the course, you will be able to:
     <span>February 5th, 2027</span>
   </div>
   <div class="course-gantt-exam phase-3">
-    <strong>Phase 3 report deadline</strong>
+    <strong>Phase 3 paper deadline</strong>
     <span>Date: TBD</span>
   </div>
 </div>
@@ -316,55 +295,51 @@ Each topical session introduces a new research area and assigns papers to the st
 
 ---
 
-# Phase 3: Group Project
+# Phase 3: Group Projects
 
-<div class="grid grid-cols-2 gap-6 mt-6">
+**Groups of five · One research question · One four-page scientific paper**
 
-<div>
+<div class="phase-content-grid lecture-overview-grid mt-4">
 
-## Core project idea
-
-Students investigate geospatial questions by **conducting a research study** or **developing GeoAI agents**.
-
-Example themes:
-
-- Deforestation monitoring
-- Marine litter monitoring
-- Urban expansion
-- Agricultural change
-- Flood or drought impacts
-- Biodiversity and habitat suitability
-- Land-cover and land-use change
-- Climate-risk indicators
-- Infrastructure and mobility patterns
-- Human-environment interactions
-
+<div class="phase-content-tile">
+<h3>Solar Fields</h3>
+Map solar expansion on farmland.
 </div>
 
-<div>
-
-
-## Examination Method: Short Research Paper
-
-<div class="grid grid-cols-2 gap-3 mt-4 text-sm">
-
-<div class="p-4 rounded-lg border">
-<div class="i-carbon:document mx-auto text-4xl mb-2 opacity-70"></div>
-<h3 class="text-center">Application Paper</h3>
-<p>An in-depth study of a specific environmental or socio-economic phenomenon using geospatial AI models and representations.</p>
+<div class="phase-content-tile">
+<h3>Border Landscapes</h3>
+Compare farming landscapes across European borders.
 </div>
 
-<div class="p-4 rounded-lg border">
-<div class="i-carbon:document-tasks mx-auto text-4xl mb-2 opacity-70"></div>
-<h3 class="text-center">Method Paper</h3>
-<p>A methodology paper describing how the group developed an AI agent to dynamically study a specific environmental or socio-economic phenomenon.</p>
+<div class="phase-content-tile">
+<h3>Plastic Currents</h3>
+Explore potential plastic sources and sinks along the Rhine.
+</div>
+
+<div class="phase-content-tile">
+<h3>Earth Economies</h3>
+Connect landscape embeddings with production and trade.
+</div>
+
+<div class="phase-content-tile">
+<h3>Embedding Seasons</h3>
+Detect double versus triple cropping in southern Brazil.
+</div>
+
+<div class="phase-content-tile">
+<h3>Generative Fields</h3>
+Generate satellite imagery from field maps in India.
 </div>
 
 </div>
 
-
+<div class="mt-4 p-3 rounded-xl border text-sm">
+<strong>Paper:</strong> Question &amp; hypothesis → Experiment &amp; baselines → Results &amp; limitations<br>
+<strong>Reproducibility:</strong> GitHub repository with code and a short README.
 </div>
 
+<div class="mt-2 text-xs">
+<a href="https://docs.google.com/document/d/1-6uXiFvE93s0HY87o6teCeBA-XZNOWYYWsfxtIMpehc/edit" target="_blank" rel="noopener noreferrer">Project descriptions and evaluation rubric ↗</a>
 </div>
 
 ---
@@ -403,6 +378,55 @@ This gives me feedback during class and also tracks the general understandabilit
   instruction="Are you ready to continue?"
 />
 -->
+
+---
+
+# What is your study field?
+
+Click the category that best describes your study programme.
+
+<div class="mt-12 w-full study-field-poll">
+  <UnderstandingPulse
+    session-id="course-overview-background"
+    poll-id="study-field"
+    :categories="['Geodesy & Geoinformation', 'Geodetic Engineering', 'Mobile Robotics', 'Other']"
+    instruction="Select your study field"
+  />
+</div>
+
+---
+layout: learning-outcomes
+mode: before
+meeting: course-overview
+section: course-format
+sectionTitle: Course organization
+---
+
+# Course Learning Outcomes
+
+<LearningOutcome id="principles">
+<strong>Explain</strong> geospatial representations and embeddings, including their potential and limitations.
+</LearningOutcome>
+
+<LearningOutcome id="geodata">
+<strong>Compare and curate</strong> geospatial datasets from imagery, time series, GIS, and socio-economic sources.
+</LearningOutcome>
+
+<LearningOutcome id="workflows">
+<strong>Implement</strong> Python ML workflows with fixed and learned geospatial representations.
+</LearningOutcome>
+
+<LearningOutcome id="evaluation">
+<strong>Evaluate</strong> models for environmental applications: performance, generalization, and task suitability.
+</LearningOutcome>
+
+<LearningOutcome id="research-papers">
+<strong>Critically assess</strong> research on geospatial representations, foundation models, and Earth embeddings.
+</LearningOutcome>
+
+<LearningOutcome id="research-project">
+<strong>Conduct</strong> a group research project and communicate methods, results, and limitations.
+</LearningOutcome>
 
 ---
 layout: bonn-section
@@ -467,6 +491,20 @@ class: course-intro
 class: course-intro
 ---
 
+# Finding meteorites in Antarctic blue ice
+
+<div class="intro-antarctica">
+  <div><div class="intro-person"><img src="./assets/course-introduction/image12.png" alt="Veronica Tollenaar" /><span>Veronica Tollenaar<br />Vrije Universiteit Brussel</span></div><img class="intro-ice-detail" src="./assets/course-introduction/image11.png" alt="Blue-ice prediction, uncertainty, radar backscatter, and satellite imagery" /></div>
+  <img class="intro-ice-map" src="./assets/course-introduction/image10.png" alt="Antarctic blue-ice mapping results and regional detail maps" />
+</div>
+<div class="intro-credit">Tollenaar, V., Zekollari, H., Pattyn, F., Rußwurm, M., Kellenberger, B., Lhermitte, S., Izeboud, M., &amp; Tuia, D. (2024). Where the White Continent Is Blue: Deep Learning Locates Bare Ice in Antarctica. <em>Geophysical Research Letters</em>, 51(3), e2023GL106285. <a href="https://doi.org/10.1029/2023GL106285">doi:10.1029/2023GL106285</a></div>
+
+<!-- Source: why_need_representations.pptx, slide 4. -->
+
+---
+class: course-intro
+---
+
 # Pollution monitoring
 
 <div class="intro-two-images">
@@ -477,20 +515,6 @@ class: course-intro
 <div class="intro-credit">Hagenbeek, G. W., van Emmerik, et al., including Rußwurm, M. (2026). Exploring transferability of plastic-water hyacinth interaction and detection in rivers. <em>iScience</em>, 29(6).</div>
 
 <!-- Source: why_need_representations.pptx, slide 3. -->
-
----
-class: course-intro
----
-
-# Finding meteorites in Antarctic blue ice
-
-<div class="intro-antarctica">
-  <div><div class="intro-person"><img src="./assets/course-introduction/image12.png" alt="Veronica Tollenaar" /><span>Veronica Tollenaar<br />Vrije Universiteit Brussel</span></div><img class="intro-ice-detail" src="./assets/course-introduction/image11.png" alt="Blue-ice prediction, uncertainty, radar backscatter, and satellite imagery" /></div>
-  <img class="intro-ice-map" src="./assets/course-introduction/image10.png" alt="Antarctic blue-ice mapping results and regional detail maps" />
-</div>
-<div class="intro-credit">Tollenaar, V., Zekollari, H., Pattyn, F., Rußwurm, M., Kellenberger, B., Lhermitte, S., Izeboud, M., &amp; Tuia, D. (2024). Where the White Continent Is Blue: Deep Learning Locates Bare Ice in Antarctica. <em>Geophysical Research Letters</em>, 51(3), e2023GL106285. <a href="https://doi.org/10.1029/2023GL106285">doi:10.1029/2023GL106285</a></div>
-
-<!-- Source: why_need_representations.pptx, slide 4. -->
 
 ---
 class: course-intro
@@ -550,8 +574,10 @@ class: course-intro
 
 # Forest change in the Swiss Alps
 
+<p class="intro-forest-summary">Historic aerial photos (1946–2020) reveal forest gains at high altitudes as the tree line advances upwards with a warming climate.</p>
+
 <div class="intro-forest">
-  <div><p>Historic aerial photos (1946–2020) reveal forest gains at high altitudes as the tree line advances upwards with a warming climate.</p><p class="intro-data">Data: 2,660 tiles of 1 km × 1 km, with 12–20 time steps.</p><img src="./assets/course-introduction/image26.png" alt="Locations of historic aerial-photo tiles in the Swiss Alps" /></div>
+  <div class="intro-data"><strong>Historic aerial imagery</strong><br>2,660 tiles<br>1 km × 1 km<br>12–20 time steps</div>
   <img src="./assets/course-introduction/image25.png" alt="Forest gains across a sequence of aerial photographs from 1946 to 2020" />
 </div>
 <div class="intro-credit">Thien-Anh Nguyen · EPFL · Research example reproduced from the source talk, slide 9.</div>

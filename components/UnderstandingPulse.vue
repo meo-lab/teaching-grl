@@ -1,16 +1,17 @@
 <template>
-  <div class="understanding-pulse" :style="{ width: `${WIDTH}px`, height: `${HEIGHT}px` }">
+  <div class="understanding-pulse" :class="{ 'understanding-pulse--categorical': categories.length }" :style="{ width: categories.length ? '100%' : `${WIDTH}px`, height: categories.length ? 'auto' : `${HEIGHT}px` }">
     <svg
       :width="WIDTH"
       :height="HEIGHT"
       :viewBox="`0 0 ${WIDTH} ${HEIGHT}`"
       role="img"
-      aria-label="Live understanding pulse"
+      :aria-label="categories.length ? 'Live categorical poll' : 'Live understanding pulse'"
       @pointerdown="handlePointerDown"
     >
       <rect :width="WIDTH" :height="HEIGHT" fill="white" />
 
       <text
+        v-if="!categories.length"
         :x="LEFT_MARGIN"
         :y="LINE_Y - 18"
         text-anchor="start"
@@ -19,6 +20,7 @@
         {{ leftLabel }}
       </text>
       <text
+        v-if="!categories.length"
         :x="WIDTH - RIGHT_MARGIN"
         :y="LINE_Y - 18"
         text-anchor="end"
@@ -26,6 +28,24 @@
       >
         {{ rightLabel }}
       </text>
+
+      <g
+        v-for="(category, index) in categories"
+        :key="category"
+        role="button"
+        tabindex="0"
+        :aria-label="category"
+        class="understanding-pulse__category"
+        @pointerdown.stop="insertPoint((index + 0.5) / categories.length)"
+        @keydown.enter.prevent="insertPoint((index + 0.5) / categories.length)"
+        @keydown.space.prevent="insertPoint((index + 0.5) / categories.length)"
+      >
+        <rect :x="valueToX((index + 0.5) / categories.length) - lineWidth / categories.length / 2" y="20" :width="lineWidth / categories.length" height="82" fill="transparent" />
+        <text :x="valueToX((index + 0.5) / categories.length)" y="40" text-anchor="middle" class="understanding-pulse__category-label">
+          <tspan v-for="(line, row) in category.split(' &amp; ')" :key="row" :x="valueToX((index + 0.5) / categories.length)" :dy="row ? 13 : 0">{{ row ? '&amp; ' : '' }}{{ line }}</tspan>
+        </text>
+        <line :x1="valueToX((index + 0.5) / categories.length)" :x2="valueToX((index + 0.5) / categories.length)" :y1="LINE_Y - 5" :y2="LINE_Y + 5" stroke="black" />
+      </g>
 
       <path v-if="comparisonPath" :d="comparisonPath" class="understanding-pulse__comparison" />
 
@@ -120,6 +140,7 @@ const LINE_Y = 78;
 const SAMPLE_COUNT = 120;
 
 const props = defineProps({
+  categories: { type: Array, default: () => [] },
   comparisonPollId: {
     type: String,
     default: "",
@@ -292,7 +313,9 @@ function handlePointerDown(event) {
 
   if (y < LINE_Y - 24 || y > LINE_Y + 24) return;
 
-  insertPoint(xToValue(x));
+  const value = xToValue(x);
+  const count = props.categories.length;
+  insertPoint(count ? (Math.min(Math.floor(value * count), count - 1) + 0.5) / count : value);
 }
 
 function startListening() {
@@ -376,6 +399,17 @@ onUnmounted(() => {
   display: block;
   cursor: crosshair;
 }
+
+.understanding-pulse--categorical { display: block; }
+.understanding-pulse--categorical svg {
+  width: 100%;
+  max-width: none;
+  height: auto;
+}
+
+.understanding-pulse__category { cursor: pointer; }
+.understanding-pulse__category:focus { outline: 1px solid var(--bonn-blue); }
+.understanding-pulse__category-label { font-size: 9px; fill: #111; }
 
 .understanding-pulse__label {
   fill: #111;
