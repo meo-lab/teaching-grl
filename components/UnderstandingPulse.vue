@@ -1,6 +1,8 @@
 <template>
-  <div class="understanding-pulse" :class="{ 'understanding-pulse--categorical': categories.length }" :style="{ width: categories.length ? '100%' : `${WIDTH}px`, height: categories.length ? 'auto' : `${HEIGHT}px` }">
+  <div class="understanding-pulse" :class="{ 'understanding-pulse--categorical': categories.length, 'understanding-pulse--full-width': fullWidth }" :style="{ width: categories.length || fullWidth ? '100%' : `${WIDTH}px`, height: categories.length || fullWidth ? 'auto' : `${HEIGHT}px` }">
     <svg
+      ref="svgElement"
+      :style="{ '--pulse-text-scale': textScale }"
       :width="WIDTH"
       :height="HEIGHT"
       :viewBox="`0 0 ${WIDTH} ${HEIGHT}`"
@@ -140,6 +142,7 @@ const LINE_Y = 78;
 const SAMPLE_COUNT = 120;
 
 const props = defineProps({
+  fullWidth: { type: Boolean, default: false },
   categories: { type: Array, default: () => [] },
   comparisonPollId: {
     type: String,
@@ -184,6 +187,11 @@ const props = defineProps({
     default: 6,
   },
 });
+
+const svgElement = ref(null);
+const renderedWidth = ref(WIDTH);
+const textScale = computed(() => props.fullWidth ? WIDTH / renderedWidth.value : 1);
+let sizeObserver;
 
 // Reuse a single Firebase app instance across mounts (Slidev can mount this
 // component more than once in the same page session).
@@ -369,6 +377,10 @@ function startComparisonListening() {
 }
 
 onMounted(() => {
+  sizeObserver = new ResizeObserver(([entry]) => {
+    if (entry.contentRect.width > 0) renderedWidth.value = entry.contentRect.width;
+  });
+  sizeObserver.observe(svgElement.value);
   clientId = getClientId();
   startListening();
   startComparisonListening();
@@ -380,6 +392,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  sizeObserver?.disconnect();
   if (fadeInterval) window.clearInterval(fadeInterval);
   if (unsubscribe) unsubscribe();
   if (unsubscribeComparison) unsubscribeComparison();
@@ -400,8 +413,10 @@ onUnmounted(() => {
   cursor: crosshair;
 }
 
-.understanding-pulse--categorical { display: block; }
-.understanding-pulse--categorical svg {
+.understanding-pulse--categorical,
+.understanding-pulse--full-width { display: block; }
+.understanding-pulse--categorical svg,
+.understanding-pulse--full-width svg {
   width: 100%;
   max-width: none;
   height: auto;
@@ -414,13 +429,13 @@ onUnmounted(() => {
 .understanding-pulse__label {
   fill: #111;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 13px;
+  font-size: calc(13px * var(--pulse-text-scale, 1));
 }
 
 .understanding-pulse__instruction {
   fill: #888;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 10px;
+  font-size: calc(10px * var(--pulse-text-scale, 1));
 }
 
 .understanding-pulse__line {

@@ -16,7 +16,7 @@ subhead: Course Overview
 
 # Geospatial Representation Learning
 
-## Course Structure and Format
+## Introduction and Kick-off
 
 Winter Semester 2026/27  
 Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
@@ -343,8 +343,46 @@ Generate satellite imagery from field maps in India.
 </div>
 
 ---
+layout: bonn-section
+sectionColor: "#00457c"
+section: who-is-in-the-room
+sectionTitle: Who’s in the Room?
+---
 
-# Live Understanding Pulse
+#  Who’s in the Room?
+
+---
+
+# Teachers
+
+<div class="grid grid-cols-3 gap-16 mt-10 text-center">
+  <div>
+    <img src="/images/teacher-marc.jpg" alt="Marc Rußwurm" class="w-44 h-44 mx-auto rounded-full object-cover object-top" />
+    <div class="mt-4 text-xl font-bold">Marc Rußwurm</div>
+    <div class="mt-1 text-base">Professor</div>
+  </div>
+  <div>
+    <img src="/images/teacher-sawssen.png" alt="Sawssen Hannachi" class="w-44 h-44 mx-auto rounded-full object-cover object-top" />
+    <div class="mt-4 text-xl font-bold">Sawssen Hannachi</div>
+    <div class="mt-1 text-base">Doctoral Researcher</div>
+  </div>
+  <div>
+    <img src="/images/teacher-gabriele.jpeg" alt="Gabriele Tijunaityte" class="w-44 h-44 mx-auto rounded-full object-cover object-top" />
+    <div class="mt-4 text-xl font-bold">Gabriele Tijunaityte</div>
+    <div class="mt-1 text-base">Doctoral Researcher</div>
+  </div>
+</div>
+
+<!--
+Portraits: https://meo-lab.com/
+Marc: https://meo-lab.com/assets/images/members/marc.jpg (Photo: Gregor Hübl/Universität Bonn)
+Sawssen: https://meo-lab.com/assets/images/members/sawssen.png
+Gabriele: https://meo-lab.com/assets/images/members/gabriele.jpeg
+-->
+
+---
+
+# Student Polling - Live Understanding Pulse
 
 <div class="mt-2 text-lg leading-relaxed max-w-3xl">
 Throughout this course, I will show this widget to touch base on your level of understanding. It synchronizes across all devices, including in-class and virtual participants.
@@ -391,6 +429,52 @@ Click the category that best describes your study programme.
     poll-id="study-field"
     :categories="['Geodesy & Geoinformation', 'Geodetic Engineering', 'Mobile Robotics', 'Other']"
     instruction="Select your study field"
+  />
+</div>
+
+---
+
+# I can train Transformer models
+
+<div class="absolute inset-x-14 top-1/2 -translate-y-1/2">
+  <UnderstandingPulse
+    full-width
+    session-id="course-overview-background"
+    poll-id="pytorch-data-loader"
+    left-label="which movie?"
+    right-label="sure, give me a dataset."
+    instruction="Click on the line to vote."
+  />
+</div>
+
+
+---
+
+# I can write a PyTorch data loader
+
+<div class="absolute inset-x-14 top-1/2 -translate-y-1/2">
+  <UnderstandingPulse
+    full-width
+    session-id="course-overview-background"
+    poll-id="pytorch-data-loader"
+    left-label="what is pytorch?"
+    right-label="sure, but I prefer JAX"
+    instruction="Click on the line to vote."
+  />
+</div>
+
+---
+
+# Explaining coordinate reference systems
+
+<div class="absolute inset-x-14 top-1/2 -translate-y-1/2">
+  <UnderstandingPulse
+    full-width
+    session-id="course-overview-background"
+    poll-id="coordinate-reference-systems"
+    left-label="coordinate?"
+    right-label="which one do you want, EPSG:32632?"
+    instruction="Click on the line to vote."
   />
 </div>
 
