@@ -343,6 +343,26 @@ Generate satellite imagery from field maps in India.
 </div>
 
 ---
+
+# AI policy
+
+<div class="mt-6 text-2xl font-bold">
+The goal of this course is for you to think.
+</div>
+
+<div class="mt-6 text-lg leading-relaxed">
+You are encouraged to use ChatGPT, Claude, Gemini, and other AI tools to:
+</div>
+
+- Retrieve information and explore new ideas
+- Structure **your own thoughts**
+- Discuss concepts with an LLM agent to sharpen your understanding
+
+<div class="mt-6 text-lg leading-relaxed">
+Labs and exercises are designed to be interactive, and the exam is handwritten. AI agents cannot do the thinking or complete these activities for you.
+</div>
+
+---
 layout: bonn-section
 sectionColor: "#00457c"
 section: who-is-in-the-room
@@ -382,7 +402,7 @@ Gabriele: https://meo-lab.com/assets/images/members/gabriele.jpeg
 
 ---
 
-# Student Polling - Live Understanding Pulse
+# What about you? - Live Understanding Pulse
 
 <div class="mt-2 text-lg leading-relaxed max-w-3xl">
 Throughout this course, I will show this widget to touch base on your level of understanding. It synchronizes across all devices, including in-class and virtual participants.
@@ -442,7 +462,7 @@ Click the category that best describes your study programme.
     session-id="course-overview-background"
     poll-id="pytorch-data-loader"
     left-label="which movie?"
-    right-label="sure, give me a dataset."
+    right-label="sure!"
     instruction="Click on the line to vote."
   />
 </div>
@@ -457,7 +477,7 @@ Click the category that best describes your study programme.
     full-width
     session-id="course-overview-background"
     poll-id="pytorch-data-loader"
-    left-label="what is pytorch?"
+    left-label="what is PyTorch?"
     right-label="sure, but I prefer JAX"
     instruction="Click on the line to vote."
   />
@@ -465,7 +485,7 @@ Click the category that best describes your study programme.
 
 ---
 
-# Explaining coordinate reference systems
+# I can explain coordinate reference systems
 
 <div class="absolute inset-x-14 top-1/2 -translate-y-1/2">
   <UnderstandingPulse
@@ -473,7 +493,7 @@ Click the category that best describes your study programme.
     session-id="course-overview-background"
     poll-id="coordinate-reference-systems"
     left-label="coordinate?"
-    right-label="which one do you want, EPSG:32632?"
+    right-label="sure, which one? WGS84?"
     instruction="Click on the line to vote."
   />
 </div>
@@ -674,13 +694,20 @@ class: course-intro
 
 ## Representations: What is a representation?
 
-We will explore how images, words, and places can be represented as data—and how choosing or learning a representation shapes what a model can understand.
-
-- From visual features to word embeddings
-- Representing places with coordinates, maps, and geospatial embeddings
-- Why useful representations depend on the task
+We will explore how images, words, and places can be represented.
 
 <div class="mt-8">
 <strong>10:00–12:00 (s.t.) · HS VIII</strong><br>
 Meckenheimer Allee 172
+</div>
+
+<div class="absolute bottom-0 inset-x-14">
+  <UnderstandingPulse
+    full-width
+    session-id="course-overview-background"
+    poll-id="course-excitement"
+    left-label="Oh god, where did I sign up?"
+    right-label="I am excited about the course!"
+    instruction="Click on the line to vote."
+  />
 </div>
