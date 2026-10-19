@@ -6,7 +6,7 @@ export:
   wait: 1000
   timeout: 120000
 addons:
-  - "../../"
+  - "../"
 defaults:
   layout: bonn-content
 layout: bonn-cover
@@ -25,8 +25,8 @@ Visualizing high-dimensional representation spaces
 # Recap: Lecture 1
 
 <script setup>
-import PcaEmbeddingDemo from '../../1-why-geospatial-representation-learning/components/PcaEmbeddingDemo.vue'
-import TsneEmbeddingDemo from '../../1-why-geospatial-representation-learning/components/TsneEmbeddingDemo.vue'
+import PcaEmbeddingDemo from '../lecture-1/components/PcaEmbeddingDemo.vue'
+import TsneEmbeddingDemo from '../lecture-1/components/TsneEmbeddingDemo.vue'
 </script>
 
 <div class="grid grid-cols-2 gap-6 mt-4">

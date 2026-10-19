@@ -6,23 +6,23 @@ export:
   wait: 1000
   timeout: 120000
 addons:
-  - "../../"
+  - "../"
 defaults:
   layout: bonn-content
 layout: bonn-cover
-subhead: Lab 4
+subhead: Lab 7
 home: ../../
 ---
 
 # Geospatial Representation Learning
 
 <div class="mt-8 text-xl text-gray-600 font-semibold">
-Lab 4: Self-Supervised Learning and Foundation Models
+Lab 7: Geospatial AI Agents and Dynamic Prompting
 </div>
 
 ---
 
-# Lab 4 Overview
+# Lab 7 Overview
 
 **Learning Objectives**
 

@@ -11,7 +11,7 @@ defaults:
   layout: bonn-content
 layout: bonn-cover
 subhead: Paper Analysis
-home: ../
+home: ../../
 ---
 
 # Paper Analysis

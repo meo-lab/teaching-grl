@@ -6,23 +6,23 @@ export:
   wait: 1000
   timeout: 120000
 addons:
-  - "../../"
+  - "../"
 defaults:
   layout: bonn-content
 layout: bonn-cover
-subhead: Lab 5
+subhead: Lab 6
 home: ../../
 ---
 
 # Geospatial Representation Learning
 
 <div class="mt-8 text-xl text-gray-600 font-semibold">
-Lab 5: Neural Networks as Knowledge Bases
+Lab 6: Geospatial Embedding Representations
 </div>
 
 ---
 
-# Lab 5 Overview
+# Lab 6 Overview
 
 **Learning Objectives**
 

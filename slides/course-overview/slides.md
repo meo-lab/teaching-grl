@@ -1,4 +1,6 @@
 ---
+addons:
+  - "../"
 download: true
 exportFilename: slides
 export:
@@ -548,9 +550,9 @@ class: course-intro
 # The Earth faces global challenges
 
 <div class="intro-challenges">
-  <figure><img src="./assets/course-introduction/image3.gif" alt="Animated satellite time series of urban expansion" /><figcaption>Urbanization</figcaption></figure>
-  <img class="intro-earth" src="./assets/course-introduction/image5.png" alt="The Earth viewed from space" />
-  <figure><img src="./assets/course-introduction/image4.gif" alt="Animated satellite time series of deforestation" /><figcaption>Deforestation</figcaption></figure>
+  <figure><img src="../../assets/course-introduction/image3.gif" alt="Animated satellite time series of urban expansion" /><figcaption>Urbanization</figcaption></figure>
+  <img class="intro-earth" src="../../assets/course-introduction/image5.png" alt="The Earth viewed from space" />
+  <figure><img src="../../assets/course-introduction/image4.gif" alt="Animated satellite time series of deforestation" /><figcaption>Deforestation</figcaption></figure>
 </div>
 
 <div class="intro-message"><strong>We need to analyze geodata at large scale</strong><br />to inform policies on biodiversity, food security, human health, and livelihoods.</div>
@@ -566,7 +568,7 @@ class: course-intro
 # Observing the Earth at unprecedented scales
 
 <div class="intro-satellite-archive">
-  <img src="./assets/course-introduction/image6.jpeg" alt="Timeline of Earth observation missions from ESA" />
+  <img src="../../assets/course-introduction/image6.jpeg" alt="Timeline of Earth observation missions from ESA" />
   <div class="intro-archive-caption">Sentinel-2 archive: <strong>45 petabytes</strong><br />Growing by <strong>4 PB per year</strong><small>Figures reported in the October 2026 talk</small></div>
 </div>
 
@@ -581,10 +583,10 @@ class: course-intro
 # We need effective representations of heterogeneous geodata
 
 <div class="intro-representation-flow">
-  <img class="intro-flow-earth" src="./assets/course-introduction/image5.png" alt="The Earth" />
+  <img class="intro-flow-earth" src="../../assets/course-introduction/image5.png" alt="The Earth" />
   <div class="intro-flow-arrow" aria-hidden="true"></div>
-  <div class="intro-geodata"><strong>Geodata</strong><div class="intro-stack"><img src="./assets/course-introduction/image28.png" alt="Geospatial image tile" /><img src="./assets/course-introduction/image29.png" alt="Additional geospatial observations" /><img src="./assets/course-introduction/image30.png" alt="Geospatial data layer" /><img src="./assets/course-introduction/image31.png" alt="Map data layer" /></div></div>
-  <div class="intro-embedding"><strong>Effective geospatial<br />representations</strong><img src="./assets/course-introduction/image33.gif" alt="Animated globe of geospatial representations" /></div>
+  <div class="intro-geodata"><strong>Geodata</strong><div class="intro-stack"><img src="../../assets/course-introduction/image28.png" alt="Geospatial image tile" /><img src="../../assets/course-introduction/image29.png" alt="Additional geospatial observations" /><img src="../../assets/course-introduction/image30.png" alt="Geospatial data layer" /><img src="../../assets/course-introduction/image31.png" alt="Map data layer" /></div></div>
+  <div class="intro-embedding"><strong>Effective geospatial<br />representations</strong><img src="../../assets/course-introduction/image33.gif" alt="Animated globe of geospatial representations" /></div>
   <strong class="intro-decisions">Informed<br />decisions</strong>
 </div>
 <div class="intro-flow-captions"><span>Geospatial data from ground, air, and space<br />at enormous scale</span><span>Modern <br>data representations learning</br> with deep neural networks</span> </div>
@@ -598,8 +600,8 @@ class: course-intro
 # Finding meteorites in Antarctic blue ice
 
 <div class="intro-antarctica">
-  <div><div class="intro-person"><img src="./assets/course-introduction/image12.png" alt="Veronica Tollenaar" /><span>Veronica Tollenaar<br />Vrije Universiteit Brussel</span></div><img class="intro-ice-detail" src="./assets/course-introduction/image11.png" alt="Blue-ice prediction, uncertainty, radar backscatter, and satellite imagery" /></div>
-  <img class="intro-ice-map" src="./assets/course-introduction/image10.png" alt="Antarctic blue-ice mapping results and regional detail maps" />
+  <div><div class="intro-person"><img src="../../assets/course-introduction/image12.png" alt="Veronica Tollenaar" /><span>Veronica Tollenaar<br />Vrije Universiteit Brussel</span></div><img class="intro-ice-detail" src="../../assets/course-introduction/image11.png" alt="Blue-ice prediction, uncertainty, radar backscatter, and satellite imagery" /></div>
+  <img class="intro-ice-map" src="../../assets/course-introduction/image10.png" alt="Antarctic blue-ice mapping results and regional detail maps" />
 </div>
 <div class="intro-credit">Tollenaar, V., Zekollari, H., Pattyn, F., Rußwurm, M., Kellenberger, B., Lhermitte, S., Izeboud, M., &amp; Tuia, D. (2024). Where the White Continent Is Blue: Deep Learning Locates Bare Ice in Antarctica. <em>Geophysical Research Letters</em>, 51(3), e2023GL106285. <a href="https://doi.org/10.1029/2023GL106285">doi:10.1029/2023GL106285</a></div>
 
@@ -612,10 +614,10 @@ class: course-intro
 # Pollution monitoring
 
 <div class="intro-two-images">
-  <figure><img src="./assets/course-introduction/image7.png" alt="Plastic litter at Cuttings Beach, Durban" /><figcaption>Cuttings Beach, Durban, South Africa<br />Image: Lisa Guastella</figcaption></figure>
-  <figure><img src="./assets/course-introduction/image8.png" alt="Examples of entangled plastics and free-floating plastics among water hyacinths" /></figure>
+  <figure><img src="../../assets/course-introduction/image7.png" alt="Plastic litter at Cuttings Beach, Durban" /><figcaption>Cuttings Beach, Durban, South Africa<br />Image: Lisa Guastella</figcaption></figure>
+  <figure><img src="../../assets/course-introduction/image8.png" alt="Examples of entangled plastics and free-floating plastics among water hyacinths" /></figure>
 </div>
-<div class="intro-person"><img src="./assets/course-introduction/image9.png" alt="Giel Hagenbeek" /><span>Giel Hagenbeek · Wageningen University &amp; Research</span></div>
+<div class="intro-person"><img src="../../assets/course-introduction/image9.png" alt="Giel Hagenbeek" /><span>Giel Hagenbeek · Wageningen University &amp; Research</span></div>
 <div class="intro-credit">Hagenbeek, G. W., van Emmerik, et al., including Rußwurm, M. (2026). Exploring transferability of plastic-water hyacinth interaction and detection in rivers. <em>iScience</em>, 29(6).</div>
 
 <!-- Source: why_need_representations.pptx, slide 3. -->
@@ -627,8 +629,8 @@ class: course-intro
 # Detecting litter in open waters
 
 <div class="intro-marine">
-  <figure><img src="./assets/course-introduction/image7.png" alt="Marine litter washed ashore at Cuttings Beach" /><figcaption>Cuttings Beach, Durban · Image: Lisa Guastella</figcaption><div class="intro-satellite-label"><img src="./assets/course-introduction/image14.svg" alt="Satellite" />Sentinel-2 satellite</div></figure>
-  <video controls muted loop playsinline preload="none" poster="./assets/course-introduction/image13.png" aria-label="Marine debris detection demonstration"><source src="./assets/course-introduction/marine-debris.mp4" type="video/mp4" /></video>
+  <figure><img src="../../assets/course-introduction/image7.png" alt="Marine litter washed ashore at Cuttings Beach" /><figcaption>Cuttings Beach, Durban · Image: Lisa Guastella</figcaption><div class="intro-satellite-label"><img src="../../assets/course-introduction/image14.svg" alt="Satellite" />Sentinel-2 satellite</div></figure>
+  <video controls muted loop playsinline preload="none" poster="../../assets/course-introduction/image13.png" aria-label="Marine debris detection demonstration"><source src="../../assets/course-introduction/marine-debris.mp4" type="video/mp4" /></video>
 </div>
 <div class="intro-credit">Rußwurm, M., Venkatesa, S. J., &amp; Tuia, D. (2023). Large-scale detection of marine debris in coastal areas with Sentinel-2. <em>iScience</em>, 26(12). <a href="https://go.epfl.ch/marinedebrisdetector">Marine debris detector</a></div>
 
@@ -640,8 +642,8 @@ class: course-intro
 
 # Tracking litter patches across sensors
 
-<div class="intro-person intro-person-right"><img src="./assets/course-introduction/image17.png" alt="Gabrielė Tijūnaitytė" /><span>Gabrielė Tijūnaitytė · Wageningen, Bonn</span></div>
-<div class="intro-tracking"><img src="./assets/course-introduction/image16.png" alt="Marine litter patches observed in overlapping satellite acquisitions" /><img src="./assets/course-introduction/image15.png" alt="Dual-encoder model for matching patches across sensors" /></div>
+<div class="intro-person intro-person-right"><img src="../../assets/course-introduction/image17.png" alt="Gabrielė Tijūnaitytė" /><span>Gabrielė Tijūnaitytė · Wageningen, Bonn</span></div>
+<div class="intro-tracking"><img src="../../assets/course-introduction/image16.png" alt="Marine litter patches observed in overlapping satellite acquisitions" /><img src="../../assets/course-introduction/image15.png" alt="Dual-encoder model for matching patches across sensors" /></div>
 <div class="intro-credit">Tijūnaitytė, G., Dalsasso, E., &amp; Rußwurm, M. (2026). Cross-Sensor Matching of Marine Litter Patches in Satellite Double Acquisitions. ECCV Marine Vision Workshop (MaVi).</div>
 
 <!-- Source: why_need_representations.pptx, slide 6. -->
@@ -653,8 +655,8 @@ class: course-intro
 # Text-based image retrieval on camera traps
 
 <div class="intro-retrieval">
-  <div><p>Trained on the Snapshot Serengeti camera-trap dataset (Swanson et al., 2015) with more than <strong>seven million images</strong>.</p><div class="intro-person"><img src="./assets/course-introduction/image19.jpg" alt="Valentin Gabeff" /><span>Valentin Gabeff · EPFL</span></div></div>
-  <img src="./assets/course-introduction/image18.png" alt="WildCLIP models connect camera-trap images with text descriptions for retrieval" />
+  <div><p>Trained on the Snapshot Serengeti camera-trap dataset (Swanson et al., 2015) with more than <strong>seven million images</strong>.</p><div class="intro-person"><img src="../../assets/course-introduction/image19.jpg" alt="Valentin Gabeff" /><span>Valentin Gabeff · EPFL</span></div></div>
+  <img src="../../assets/course-introduction/image18.png" alt="WildCLIP models connect camera-trap images with text descriptions for retrieval" />
 </div>
 <div class="intro-credit">Gabeff, V., Rußwurm, M., Tuia, D., &amp; Mathis, A. (2024). WildCLIP: Scene and animal attribute retrieval from camera trap data with domain-adapted vision-language models. <em>International Journal of Computer Vision</em>, 132(9), 3770–3786.</div>
 
@@ -666,8 +668,8 @@ class: course-intro
 
 # Tree species classification
 
-<div class="intro-person intro-person-right"><img src="./assets/course-introduction/image21.jpeg" alt="Takayuki Ishikawa" /><span>Takayuki Ishikawa · WUR MSc student</span></div>
-<div class="intro-trees"><img src="./assets/course-introduction/tree-species-chart.svg" alt="Comparison of tree-species classification results using deep embeddings" /><img src="./assets/course-introduction/image22.png" alt="Detailed tree-species map of a forest region" /><img src="./assets/course-introduction/image20.png" alt="Dutch Forest Inventory locations and the detailed study region" /></div>
+<div class="intro-person intro-person-right"><img src="../../assets/course-introduction/image21.jpeg" alt="Takayuki Ishikawa" /><span>Takayuki Ishikawa · WUR MSc student</span></div>
+<div class="intro-trees"><img src="../../assets/course-introduction/tree-species-chart.svg" alt="Comparison of tree-species classification results using deep embeddings" /><img src="../../assets/course-introduction/image22.png" alt="Detailed tree-species map of a forest region" /><img src="../../assets/course-introduction/image20.png" alt="Dutch Forest Inventory locations and the detailed study region" /></div>
 <div class="intro-credit">Ishikawa, T., Bonannella, C., Lerink, B. J. W., &amp; Rußwurm, M. (2026). Assessing the effectiveness of deep embeddings for tree species classification in the Dutch Forest Inventory. <em>Science of Remote Sensing</em>, 14, 100498. <a href="https://doi.org/10.1016/j.srs.2026.100498">doi:10.1016/j.srs.2026.100498</a></div>
 
 <!-- Source: why_need_representations.pptx, slide 8. Source chart recovered from the PDF embedded in image23.emf and converted to SVG; original EMF also retained. -->
@@ -682,7 +684,7 @@ class: course-intro
 
 <div class="intro-forest">
   <div class="intro-data"><strong>Historic aerial imagery</strong><br>2,660 tiles<br>1 km × 1 km<br>12–20 time steps</div>
-  <img src="./assets/course-introduction/image25.png" alt="Forest gains across a sequence of aerial photographs from 1946 to 2020" />
+  <img src="../../assets/course-introduction/image25.png" alt="Forest gains across a sequence of aerial photographs from 1946 to 2020" />
 </div>
 <div class="intro-credit">Thien-Anh Nguyen · EPFL · Research example reproduced from the source talk, slide 9.</div>
 

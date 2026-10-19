@@ -69,6 +69,10 @@ jobs:
             test -f "dist/labs/lab-$lab/overview/index.html"
             test -f "dist/labs/lab-$lab/slides.pdf"
           done
+          test -f dist/slides/paper-analysis/index.html
+          test -f dist/slides/paper-analysis/presenter/index.html
+          test -f dist/slides/paper-analysis/overview/index.html
+          test -f dist/slides/paper-analysis/slides.pdf
           ls -la dist
 
       - name: Checkout meo-lab.com site

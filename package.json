@@ -3,11 +3,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "slidev slides.md",
-    "dev:course-overview": "slidev slides.md",
+    "dev": "slidev slides/course-overview/slides.md",
+    "dev:course-overview": "slidev slides/course-overview/slides.md",
     "dev:illustrations": "slidev slides/0-illustration-workbench/slides.md",
     "build": "node scripts/build-site.mjs",
-    "export": "slidev export slides.md"
+    "export": "slidev export slides/course-overview/slides.md"
   },
   "dependencies": {
     "@slidev/cli": "^52.14.2",
