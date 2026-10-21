@@ -449,10 +449,13 @@ Click the category that best describes your study programme.
   <UnderstandingPulse
     session-id="course-overview-background"
     poll-id="study-field"
+    :comparison-values="[0.125,0.375,0.375,0.375,0.375,0.375,0.375,0.625,0.625,0.625,0.625,0.625,0.625,0.625]"
     :categories="['Geodesy & Geoinformation', 'Geodetic Engineering', 'Mobile Robotics', 'Other']"
     instruction="Select your study field"
   />
 </div>
+
+<div class="absolute left-14 bottom-5 text-[0.6rem] text-gray-500">Light gray fill: responses of the 14 participants on 16 October 2026 (10:00–12:00), last vote per person.</div>
 
 ---
 
@@ -462,12 +465,15 @@ Click the category that best describes your study programme.
   <UnderstandingPulse
     full-width
     session-id="course-overview-background"
-    poll-id="pytorch-data-loader"
+    poll-id="train-transformer"
+    :comparison-values="[0.030,0.031,0.047,0.057,0.067,0.079,0.082,0.269,1.000]"
     left-label="which movie?"
     right-label="sure!"
     instruction="Click on the line to vote."
   />
 </div>
+
+<div class="absolute left-14 bottom-5 text-[0.6rem] text-gray-500">Light gray fill: responses of the 9 participants on 16 October 2026 (10:00–12:00), last vote per person.</div>
 
 
 ---
@@ -479,11 +485,14 @@ Click the category that best describes your study programme.
     full-width
     session-id="course-overview-background"
     poll-id="pytorch-data-loader"
+    :comparison-values="[0.023,0.076,0.105,0.158,0.260,0.271,0.300,0.303,0.332,0.466,0.510,0.514,0.612,0.920,0.950,1.000]"
     left-label="what is PyTorch?"
     right-label="sure, but I prefer JAX"
     instruction="Click on the line to vote."
   />
 </div>
+
+<div class="absolute left-14 bottom-5 text-[0.6rem] text-gray-500">Light gray fill: responses of the 16 participants on 16 October 2026 (10:00–12:00), last vote per person.</div>
 
 ---
 
@@ -494,11 +503,14 @@ Click the category that best describes your study programme.
     full-width
     session-id="course-overview-background"
     poll-id="coordinate-reference-systems"
+    :comparison-values="[0.206,0.614,0.661,0.751,0.861,0.871,0.878,0.900,0.926,0.934,0.943,0.961,0.965,0.969,1.000]"
     left-label="coordinate?"
     right-label="sure, which one? WGS84?"
     instruction="Click on the line to vote."
   />
 </div>
+
+<div class="absolute left-14 bottom-5 text-[0.6rem] text-gray-500">Light gray fill: responses of the 15 participants on 16 October 2026 (10:00–12:00), last vote per person.</div>
 
 ---
 layout: learning-outcomes
@@ -510,27 +522,29 @@ sectionTitle: Course organization
 
 # Course Learning Outcomes
 
-<LearningOutcome id="principles">
+<div class="absolute left-14 bottom-5 text-[0.6rem] text-gray-500">Light gray fill: responses of the 16 participants on 16 October 2026 (10:00–12:00), last vote per person.</div>
+
+<LearningOutcome id="principles" :comparison-values="[0.036,0.058,0.097,0.139,0.227,0.315,0.315,0.335,0.420,0.481,0.495,0.545,0.752,0.861]">
 <strong>Explain</strong> geospatial representations and embeddings, including their potential and limitations.
 </LearningOutcome>
 
-<LearningOutcome id="geodata">
+<LearningOutcome id="geodata" :comparison-values="[0.175,0.384,0.425,0.438,0.460,0.504,0.516,0.554,0.566,0.839,0.864,0.929,0.950,1.000]">
 <strong>Compare and curate</strong> geospatial datasets from imagery, time series, GIS, and socio-economic sources.
 </LearningOutcome>
 
-<LearningOutcome id="workflows">
+<LearningOutcome id="workflows" :comparison-values="[0.020,0.043,0.209,0.263,0.264,0.304,0.342,0.496,0.507,0.612,0.646,0.703,0.727,0.794,1.000]">
 <strong>Implement</strong> Python ML workflows with fixed and learned geospatial representations.
 </LearningOutcome>
 
-<LearningOutcome id="evaluation">
+<LearningOutcome id="evaluation" :comparison-values="[0.207,0.213,0.343,0.367,0.400,0.457,0.478,0.511,0.548,0.556,0.566,0.577,0.779]">
 <strong>Evaluate</strong> models for environmental applications: performance, generalization, and task suitability.
 </LearningOutcome>
 
-<LearningOutcome id="research-papers">
+<LearningOutcome id="research-papers" :comparison-values="[0.159,0.179,0.283,0.377,0.406,0.517,0.522,0.523,0.538,0.553,0.663,0.725,0.760]">
 <strong>Critically assess</strong> research on geospatial representations, foundation models, and Earth embeddings.
 </LearningOutcome>
 
-<LearningOutcome id="research-project">
+<LearningOutcome id="research-project" :comparison-values="[0.132,0.222,0.287,0.432,0.474,0.530,0.683,0.727,0.786,0.903,0.957,0.966,0.982]">
 <strong>Conduct</strong> a group research project and communicate methods, results, and limitations.
 </LearningOutcome>
 
@@ -708,8 +722,11 @@ Meckenheimer Allee 172
     full-width
     session-id="course-overview-background"
     poll-id="course-excitement"
+    :comparison-values="[0.025,0.732,0.757,0.841,0.872,0.873,0.925,0.929,0.990,0.991,0.994,1.000,1.000]"
     left-label="Oh god, where did I sign up?"
     right-label="I am excited about the course!"
     instruction="Click on the line to vote."
   />
 </div>
+
+<div class="absolute left-14 bottom-5 text-[0.6rem] text-gray-500">Light gray fill: responses of the 13 participants on 16 October 2026 (10:00–12:00), last vote per person.</div>

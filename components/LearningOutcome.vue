@@ -2,7 +2,11 @@
 import { inject } from 'vue'
 import UnderstandingPulse from './UnderstandingPulse.vue'
 
-const props = defineProps({ id: { type: String, required: true } })
+const props = defineProps({
+  id: { type: String, required: true },
+  // Optional recorded responses (values in [0, 1]) shown in the "after"-mode comparison style.
+  comparisonValues: { type: Array, default: () => [] },
+})
 const context = inject('grl-learning-outcomes')
 if (!context) throw new Error('LearningOutcome requires the learning-outcomes layout')
 // Freeze a consistent Berlin calendar day for this slide instance. Intl handles DST.
@@ -39,6 +43,7 @@ const sessionId = `grl--${context.meeting}--${day}`
       :comparison-poll-id="context.mode === 'after' ? `outcome--${props.id}--before` : ''"
       :comparison-start="start"
       :comparison-end="end"
+      :comparison-values="props.comparisonValues"
     />
   </section>
 </template>
