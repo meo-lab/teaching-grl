@@ -12,6 +12,8 @@ defaults:
 layout: bonn-cover
 subhead: Lecture 1
 home: ../
+section: opening
+sectionTitle: Opening
 ---
 
 <script setup>
@@ -34,20 +36,26 @@ Welcome to the first lecture on geospatial representation learning.
 layout: learning-outcomes
 mode: before
 meeting: lecture-01
+section: opening
+sectionTitle: Opening
 ---
 
 # Learning outcomes
 
-<LearningOutcome id="encoding-meaning">
-<strong>Explain</strong> the difference between encoding and meaning in representations.
+<LearningOutcome id="choose-representation">
+<strong>Discuss</strong> representations of the same object and <strong>choose</strong> a suitable one for a problem.
 </LearningOutcome>
 
-<LearningOutcome id="representation-types">
-<strong>Compare</strong> biological, engineered, and learned representations.
+<LearningOutcome id="embedding-comparison">
+<strong>Discuss</strong> the similarities and differences in visual, word, or geospatial representations.
 </LearningOutcome>
 
-<LearningOutcome id="learned-features">
-<strong>Explain</strong> how neural networks learn useful feature representations.
+<LearningOutcome id="embedding-similarity">
+<strong>Understand</strong> how cosine similarity measures how close two embeddings are.
+</LearningOutcome>
+
+<LearningOutcome id="dimensionality-reduction">
+<strong>Understand</strong> how PCA and t-SNE visualize high-dimensional vector representations.
 </LearningOutcome>
 
 <LearningOutcome id="language-representations">
@@ -55,21 +63,51 @@ meeting: lecture-01
 </LearningOutcome>
 
 <LearningOutcome id="place-representations">
-<strong>Compare</strong> coordinates, geodatabases, and learned embeddings as representations of places.
+<strong>Understand</strong> what geospatial information is encoded in geospatial embeddings.
 </LearningOutcome>
 
-<LearningOutcome id="task-dependence">
-<strong>Justify</strong> why a representation’s usefulness depends on the task.
-</LearningOutcome>
+---
+layout: bonn-two-cols-header
+section: opening
+sectionTitle: Opening
+---
+
+# This Lecture: Ideas and Methods
+
+::left::
+
+<div class="h-full rounded-xl border p-5 box-card box-1">
+<h3>Philosophy</h3>
+<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">What do we mean by a representation?</div>
+<ul class="mt-4 space-y-2 text-[0.95rem] leading-snug">
+  <li>How does our mind represent things and places?</li>
+  <li>Encoding vs. meaning</li>
+  <li>Re-thinking ideas we take for granted</li>
+</ul>
+</div>
+
+::right::
+
+<div class="h-full rounded-xl border p-5 box-card box-2">
+<h3>Technology</h3>
+<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">How do computers represent the world?</div>
+<ul class="mt-4 space-y-2 text-[0.95rem] leading-snug">
+  <li>Computer vision</li>
+  <li>Natural language processing</li>
+  <li>Math: vectors and similarity</li>
+  <li>Methods: PCA, t-SNE, embeddings</li>
+</ul>
+</div>
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
+hide: true
 section: representations
 sectionTitle: Representations
 ---
 
-# Representations of our World
+# Intro: What is a Representation?
 
 <img src="./figures/apple_image_world.jpg" alt="An image of an Apple" />
 
@@ -257,6 +295,65 @@ sectionTitle: Representations
 <div class="box-body">What are representations?</div>
 </div>
 
+<div class="p-4 rounded-xl border box-card box-2">
+<h3>Vision</h3>
+<img
+  src="./figures/representations.png"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Human vision representation layer"
+/>
+<div class="box-body">How vision encodes the world</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-3" style="visibility: hidden;">
+<h3>Language</h3>
+<img
+  src="./figures/apple-language.png"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Language representation summary"
+/>
+<div class="box-body">How text becomes meaning</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-4" style="visibility: hidden;">
+<h3>Spatial</h3>
+<img
+  src="./figures/mentalmap.jpeg"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Mental map illustration"
+/>
+<div class="box-body">How places carry spatial meaning</div>
+</div>
+
+</div>
+
+<div class="slide-citation">
+  <a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
+    Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
+  </a>
+</div>
+
+---
+section: representations
+sectionTitle: Representations
+---
+
+# Lecture Outline
+
+## What is a representation?
+
+<div class="grid grid-cols-4 gap-4 mt-8">
+
+<div class="p-4 rounded-xl border box-card box-1">
+<h3>Representations</h3>
+<img
+  src="./figures/apple_image_world.jpg"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="An image of an apple"
+/>
+<div class="box-body">What are representations?</div>
+</div>
+
 <div class="p-4 rounded-xl border box-card box-2" v-click>
 <h3>Vision</h3>
 <img
@@ -392,7 +489,7 @@ section: visual-representations
 sectionTitle: Vision
 ---
 
-# Engineering suitable Reprepresentations.
+# Engineering suitable Representations.
 
 <div class="mt-8 grid grid-cols-2 gap-8 items-start">
   <div v-click class="flex flex-col items-center">
@@ -643,8 +740,8 @@ So far, we have asked how we can represent an object, like an apple.
 
 ---
 layout: bonn-two-cols-header
-section: Representations of our World
-sectionTitle: Representations of our World
+section: visual-representations
+sectionTitle: Vision
 ---
 
 # Excurse: Dimensionality Reduction
@@ -846,8 +943,8 @@ sectionTitle: Vision
 </div>
 
 ---
-section: language-representations
-sectionTitle: Language
+section: visual-representations
+sectionTitle: Vision
 ---
 
 # From Physical to Societal Representations
@@ -885,6 +982,63 @@ This gives us the path from character encodings to tokenization, embeddings, and
 -->
 
 ---
+section: visual-representations
+sectionTitle: Vision
+---
+
+# Lecture Outline
+
+<div class="grid grid-cols-4 gap-4 mt-8">
+
+<div class="p-4 rounded-xl border box-card box-1">
+<h3>Representations</h3>
+<img
+  src="./figures/apple_image_world.jpg"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="An image of an apple"
+/>
+<div class="box-body">What are representations?</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-2">
+<h3>Vision</h3>
+<img
+  src="./figures/representations.png"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Human vision representation layer"
+/>
+<div class="box-body">How vision encodes the world</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-3">
+<h3>Language</h3>
+<img
+  src="./figures/apple-language.png"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Language representation summary"
+/>
+<div class="box-body">How text becomes meaning</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-4" style="visibility: hidden;">
+<h3>Spatial</h3>
+<img
+  src="./figures/mentalmap.jpeg"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Mental map illustration"
+/>
+<div class="box-body">How places carry spatial meaning</div>
+</div>
+
+</div>
+
+<div class="slide-citation">
+  <a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
+    Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
+  </a>
+</div>
+
+---
 layout: bonn-section
 sectionColor: "#6f2d7f"
 section: language-representations
@@ -909,7 +1063,7 @@ sectionTitle: Language
       "Apple"
     </div>
     <p class="mt-4 text-[0.72rem] leading-snug text-gray-600">
-      Text is a human-readable representation of concepts and meaning.
+      Human-readable meaning.
     </p>
   </div>
 
@@ -923,7 +1077,7 @@ sectionTitle: Language
       [23182]
     </div>
     <p class="mt-4 text-[0.72rem] leading-snug text-gray-600">
-      A tokenizer maps text pieces to numerical IDs that a computer can process.
+      Text pieces become numbers.
     </p>
   </div>
 
@@ -937,7 +1091,7 @@ sectionTitle: Language
       [0.12, -0.41, ...]
     </div>
     <p class="mt-4 text-[0.72rem] leading-snug text-gray-600">
-      Embeddings turn tokens into dense vectors to encode semantic relationships.
+      Vectors that capture meaning.
     </p>
   </div>
 
@@ -951,13 +1105,13 @@ sectionTitle: Language
       context + prediction
     </div>
     <p class="mt-4 text-[0.72rem] leading-snug text-gray-600">
-      Language models use context to predict likely next tokens.
+      Use context to predict the next token.
     </p>
   </div>
 </div>
 
 <blockquote v-click="5" class="blockquote1 mt-6">
-Text and language captures the human world: machines move from low-level encodings of words and tokens to high-level representations associated with meaning in context.
+From symbols to meaning in context.
 </blockquote>
 
 ---
@@ -973,7 +1127,7 @@ sectionTitle: Language
 
 ## Human writing systems
 
-Societal history of representing meaning with symbols.
+Symbols carry meaning.
 
 <div class="mt-3 grid grid-cols-3 gap-2">
   <div class="rounded-lg border-2 p-2" style="border-color: var(--grl-data-orange); background: color-mix(in srgb, var(--grl-data-orange) 8%, white);">
@@ -1028,7 +1182,7 @@ Societal history of representing meaning with symbols.
 
 ## Machine character encodings
 
-Computers encode characters as integer numbers.
+Computers store characters as numbers.
 
 <div class="mt-3 grid grid-cols-[repeat(3,minmax(0,1fr))] gap-2">
   <div class="rounded-lg border-2 p-2" style="border-color: var(--grl-data-orange); background: color-mix(in srgb, var(--grl-data-orange) 8%, white);">
@@ -1071,7 +1225,7 @@ A computer encodes "Apple" as [65, 112, 112, 108, 101] in ASCII or [41, 70, 70, 
 
 <blockquote>
 <div class="mt-3 text-[0.72rem] leading-snug">
-  What's the result of "A" + "B" in C++? Try it out via
+  What does "A" + "B" give in C++? Try
   <a href="https://cpp.sh/" target="_blank" rel="noopener noreferrer" class="text-blue-800">cpp.sh</a>
 
 ```cpp
@@ -1104,11 +1258,8 @@ sectionTitle: Language
         <div class="font-semibold text-gray-600">Token IDs</div>
         <div class="font-mono text-blue-800">[3504, 1134, 19772]</div>
       </div>
-      <div class="mt-1 text-[0.58rem] leading-tight text-gray-500">
-        Tokenization depends on the tokenizer.
-      </div>
       <div class="mt-2 text-[0.62rem] leading-tight text-gray-600">
-        Modern LLM tokenizers use vocabularies of roughly 100k-200k unique tokens.
+        Vocabulary: ~100k–200k tokens.
       </div>
     </div>
     <div class="mt-auto rounded-lg bg-white px-3 py-2 text-[0.62rem] leading-snug">
@@ -1117,18 +1268,18 @@ sectionTitle: Language
         <a href="https://platform.openai.com/tokenizer" target="_blank" rel="noopener noreferrer" class="text-blue-800">platform.openai.com/tokenizer</a>
       </div>
       <div class="mt-1 text-gray-600">
-        Test: Strawberry · Schifffahrt · Poppelsdorf · Poppelsdorfer Allee · She sells seashells.
+        Try: Strawberry · Schifffahrt · Poppelsdorfer Allee
       </div>
     </div>
   </div>
 
   <div class="box-card box-2 flex h-[330px] flex-col rounded-xl border-2 p-4" style="border-color: var(--grl-data-green); background: color-mix(in srgb, var(--grl-data-green) 8%, white);">
-    <h3 class="text-blue-800">We also learned to read text in chunks</h3>
+    <h3 class="text-blue-800">We also read in chunks</h3>
     <div class="mt-4 rounded-lg bg-white p-4 text-[0.95rem] leading-snug text-blue-800">
-      Hmuans do not raed ervey wrod letetr by letetr. We raed in chnuks, ptaterns, and expcetations. As lnog as the frist and lsat lettres are in the rghit palce, the mnidele can be sracmbeled and the txet is sitll surprisingly easy to raed.
+      Hmuans do not raed ervey wrod letetr by letetr. As lnog as the frist and lsat lettres are rghit, the txet is sitll esay to raed.
     </div>
     <p class="mt-4 text-[0.76rem] leading-snug text-gray-600">
-      We also use learned representations — not raw pixels or letters alone.
+      We read learned patterns, not single letters.
     </p>
   </div>
 </div>
@@ -1160,7 +1311,7 @@ sectionTitle: Language
       </div>
     </div>
     <p class="mt-auto text-[0.72rem] leading-snug text-gray-600">
-      Token IDs are arbitrary labels. Embedding vectors are learned representations that can capture meaning.
+      IDs are arbitrary. Vectors are learned and capture meaning.
     </p>
   </div>
 
@@ -1184,10 +1335,10 @@ sectionTitle: Language
       />
     </div>
     <p v-click="1" class="mt-3 text-[0.72rem] leading-snug text-gray-600">
-      Points are defined by embedding vectors
+      Each word is a vector.
     </p>
     <p v-click="2" class="mt-3 text-[0.72rem] leading-snug text-gray-600">
-      Similarity can be measured with cosine similarity.
+      Similarity = cosine of the angle.
     </p>
   </div>
 </div>
@@ -1208,16 +1359,13 @@ sectionTitle: Language
 
 # Context matters
 
-## The same word can move to different semantic neighborhoods depending on context.
+## Same word, different neighbours.
 
 <div class="mt-4 grid grid-cols-2 gap-5">
   <div class="box-card box-1 flex h-[285px] flex-col rounded-xl border-2 p-4" style="border-color: var(--grl-data-green); background: color-mix(in srgb, var(--grl-data-green) 8%, white);">
     <h3 class="text-blue-800">Fruit context</h3>
     <div class="mt-2 rounded-lg bg-white px-3 py-2 text-[0.82rem] text-blue-800">
       I ate an <span class="rounded-full px-2 py-0.5 font-semibold" style="background: color-mix(in srgb, var(--grl-data-green) 18%, white);">apple</span>.
-    </div>
-    <div class="mt-2 rounded-lg bg-white px-3 py-2 font-mono text-[0.68rem] text-blue-800">
-      apple | "I ate an ..." → fruit-like vector
     </div>
     <div class="relative mt-3 h-[145px] rounded-lg border bg-white">
       <div class="absolute left-3 top-2 text-[0.52rem] text-gray-500">2D illustration of high-dimensional embeddings</div>
@@ -1238,9 +1386,6 @@ sectionTitle: Language
     <h3 class="text-blue-800">Technology context</h3>
     <div class="mt-2 rounded-lg bg-white px-3 py-2 text-[0.82rem] text-blue-800">
       I bought the new <span class="rounded-full px-2 py-0.5 font-semibold" style="background: color-mix(in srgb, var(--grl-data-orange) 18%, white);">Apple</span>.
-    </div>
-    <div class="mt-2 rounded-lg bg-white px-3 py-2 font-mono text-[0.68rem] text-blue-800">
-      Apple | "I bought the new ..." → company
     </div>
     <div class="relative mt-3 h-[145px] rounded-lg border bg-white">
       <div class="absolute left-3 top-2 text-[0.52rem] text-gray-500">2D illustration of high-dimensional embeddings</div>
@@ -1274,8 +1419,7 @@ sectionTitle: Language
   <div class="rounded-lg bg-white px-3 py-2">
     <div class="text-[0.68rem] font-bold text-blue-800">Contextual embedding</div>
     <div class="mt-1 font-mono text-[0.62rem] leading-snug text-blue-800">
-      apple in "I ate an ..." → fruit-like vector<br />
-      Apple in "I bought the new ..." → company-like vector
+      apple → vector depends on context
     </div>
   </div>
 </div>
@@ -1285,10 +1429,10 @@ sectionTitle: Language
     <div class="text-[0.7rem] font-bold text-blue-800">Inputs</div>
     <div class="mt-2 grid gap-2 text-[0.68rem] leading-snug text-blue-800">
       <div class="rounded border px-2 py-1">
-        1. word to predict: <span class="font-mono">&lt;CLS&gt;</span>
+        1. masked word: <span class="font-mono">&lt;CLS&gt;</span>
       </div>
       <div class="rounded border px-2 py-1">
-        2. context: other text
+        2. context
       </div>
     </div>
   </div>
@@ -1297,7 +1441,7 @@ sectionTitle: Language
 
   <div class="flex items-center justify-center rounded-lg bg-white px-3 py-3 text-center">
     <div>
-      <div class="text-[0.7rem] font-bold text-blue-800">Statistical language model</div>
+      <div class="text-[0.7rem] font-bold text-blue-800">Language model</div>
       <div class="mt-2 font-mono text-[0.82rem] text-blue-800">
         p(&lt;CLS&gt; | context)
       </div>
@@ -1318,7 +1462,7 @@ sectionTitle: Language
 </div>
 
 <div class="mt-4 rounded-xl border px-4 py-2 text-center text-[0.76rem] font-semibold text-blue-800">
-  Try masked word prediction:
+  Try it:
   <a href="https://huggingface.co/spaces/ysdede/fill-mask-demo" target="_blank" rel="noopener noreferrer" class="underline">
     huggingface.co/spaces/ysdede/fill-mask-demo
   </a>
@@ -1336,13 +1480,10 @@ sectionTitle: Language
   <div class="rounded-xl border-2 p-4 text-blue-800" style="border-color: var(--grl-data-green); background: color-mix(in srgb, var(--grl-data-green) 7%, white);">
     <h3 class="text-lg">One token at a time</h3>
     <p class="mt-3 text-sm leading-relaxed text-gray-700">
-      Language models predict the next token from a special masked position and the context that comes before it.
-    </p>
-    <p class="mt-3 text-sm leading-relaxed text-gray-700">
-      After a token is predicted, it is appended to the sequence. The model then repeats the same prediction step for the next position.
+      Predict the next token, append it, repeat.
     </p>
     <blockquote class="mt-4 border-l-4 pl-3 text-sm font-semibold leading-relaxed" style="border-color: var(--grl-data-green);">
-      Autoregressive generation means predicting one token after another.
+      Autoregressive = one token after another.
     </blockquote>
   </div>
 
@@ -1351,7 +1492,7 @@ sectionTitle: Language
     <div class="mt-2 rounded-xl border-2 p-3 text-blue-800" style="border-color: var(--grl-data-green); background: color-mix(in srgb, var(--grl-data-green) 7%, white);">
       <h3>Training signal</h3>
       <p class="mt-0 text-sm leading-snug text-gray-700">
-        Models are trained with superised learning to minimize cross-entropy between predicted token probabilities and the actual next token.
+        Trained to predict the actual next token (cross-entropy loss).
       </p>
     </div>
   </div>
@@ -1369,7 +1510,7 @@ sectionTitle: Language
     <div class="rounded-xl border-2 p-4 text-blue-800" style="border-color: var(--grl-data-green); background: color-mix(in srgb, var(--grl-data-green) 7%, white);">
       <h2 class="text-lg">Pre-training</h2>
       <p class="mt-3 text-sm leading-relaxed text-gray-700">
-        Language models are pre-trained to predict the next tokens as accurately as possible given an existing text corpus.
+        Predict the next token on huge text corpora.
       </p>
       <blockquote class="mt-4 border-l-4 pl-3 text-sm font-semibold leading-relaxed" style="border-color: var(--grl-data-green);">
         Predicting the next token requires world knowledge.
@@ -1378,16 +1519,16 @@ sectionTitle: Language
     <div v-click="2" class="mt-4 rounded-xl border-2 p-4 text-blue-800" style="border-color: var(--grl-data-orange); background: color-mix(in srgb, var(--grl-data-orange) 7%, white);">
       <h2 class="text-lg">Fine-tuning</h2>
       <p class="mt-3 text-sm leading-relaxed text-gray-700">
-        They are then further fine-tuned to match developer-defined prompts.
+        Then tuned to follow instructions.
       </p>
       <blockquote class="mt-4 border-l-4 pl-3 text-sm font-semibold leading-relaxed" style="border-color: var(--grl-data-orange);">
-        Fine-tuning creates AI assitants like ChatGPT, Claude, Mistral.
+        → AI assistants like ChatGPT, Claude, Mistral.
       </blockquote>
     </div>
     <p class="mt-4 text-xs leading-relaxed text-gray-600">
       More details:
       <a href="https://www.youtube.com/watch?v=7xTGNNLPyMI" target="_blank" rel="noopener noreferrer" class="font-semibold underline">
-        Andrew Karpathy, “Deep Dive into LLMs like ChatGPT”
+        Andrej Karpathy, “Deep Dive into LLMs like ChatGPT”
       </a>
     </p>
   </div>
@@ -1414,42 +1555,153 @@ sectionTitle: Language
 </div>
 
 ---
+section: language-representations
+sectionTitle: Language
+---
+
+# Lecture Outline
+
+<div class="grid grid-cols-4 gap-4 mt-8">
+
+<div class="p-4 rounded-xl border box-card box-1">
+<h3>Representations</h3>
+<img
+  src="./figures/apple_image_world.jpg"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="An image of an apple"
+/>
+<div class="box-body">What are representations?</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-2">
+<h3>Vision</h3>
+<img
+  src="./figures/representations.png"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Human vision representation layer"
+/>
+<div class="box-body">How vision encodes the world</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-3">
+<h3>Language</h3>
+<img
+  src="./figures/apple-language.png"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Language representation summary"
+/>
+<div class="box-body">How text becomes meaning</div>
+</div>
+
+<div class="p-4 rounded-xl border box-card box-4">
+<h3>Spatial</h3>
+<img
+  src="./figures/mentalmap.jpeg"
+  class="mt-3 h-[118px] w-full object-contain rounded"
+  alt="Mental map illustration"
+/>
+<div class="box-body">How places carry spatial meaning</div>
+</div>
+
+</div>
+
+<div class="slide-citation">
+  <a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
+    Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
+  </a>
+</div>
+
+---
 layout: bonn-section
 sectionColor: "#00457c"
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # Geospatial Representations
 
-<img src="./figures/mentalmap.jpeg" alt="Mental map illustration" />
 
-<div class="bonn-section-citation">
-<a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
-Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
-</a>
+<div class="flex flex-col items-center self-center justify-self-center">
+  <iframe
+    width="186"
+    height="330"
+    src="https://www.youtube.com/embed/5ZOU68rYkWA?rel=0"
+    title="YouTube Short: a mental representation of a place"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+    class="rounded-xl"
+  ></iframe>
+  <div class="mt-1 text-[0.65rem] leading-snug text-gray-500">
+    Video: Just Exploring It, via <a href="https://youtube.com/shorts/5ZOU68rYkWA" target="_blank" rel="noopener noreferrer">YouTube Shorts</a>
+  </div>
 </div>
 
-# Task: Think of a place
+
+---
+section: geospatial-representations
+sectionTitle: Spatial
+---
+
+# GeoGuessR
+
+<div class="flex flex-col items-center mt-1">
+  <img
+    src="./figures/geoguessr.png"
+    class="h-[280px] w-auto rounded-xl border border-gray-200 shadow-sm"
+    alt="GeoGuessr start page with an avatar standing on a globe and menus for single-player, multiplayer, and daily challenge"
+  />
+  <a
+    href="https://www.geoguessr.com/"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-800 px-5 py-2 text-[0.95rem] font-semibold text-white no-underline shadow hover:bg-blue-700"
+    style="border-bottom: none;"
+  >📍 Play GeoGuessR</a>
+  <div class="mt-1 text-[0.6rem] leading-snug text-gray-500">Screenshot: geoguessr.com</div>
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Spatial
+---
+
+# Geolocalization to Learn a Mental Map
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/geolocalization1.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="Geolocalization overview"
+  />
+</div>
+
+---
+section: geospatial-representations
+sectionTitle: Spatial
+---
+
+# Mental Representation of a Place
 
 ## Think of a place you visited on vacation.
 Not the country or city name first — think of the actual place.
 What do you remember?
 
 <div class="relative w-full h-[200px]">
-  <img v-click
+  <img
     src="./brain_representation/00-Base_Layer.svg"
     class="absolute inset-0 w-full h-full object-contain"
     alt="Place representation base sketch"
   />
-  <img v-click
+  <img
     src="./brain_representation/01-Mental_Representations.svg"
     class="absolute inset-0 w-full h-full object-contain"
     alt="Mental representations overlay"
   />
 </div>
 
-<blockquote v-click>
+<blockquote>
 We feel mental representations as "intuitions" and "memories" of things/places.
 </blockquote>
 
@@ -1461,170 +1713,7 @@ We feel mental representations as "intuitions" and "memories" of things/places.
 
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# A place is more than a coordinate
-
-<div class="grid grid-cols-2 gap-8 mt-8">
-
-<div class="border rounded-xl p-6">
-
-## Coordinate
-
-<div class="mt-5 text-2xl font-bold text-blue-800">50.7374° N, 7.0982° E</div>
-
-<div class="grid grid-cols-3 gap-3 mt-8 text-center text-gray-700">
-  <div class="border rounded-xl p-3">reference</div>
-  <div class="border rounded-xl p-3">position</div>
-  <div class="border rounded-xl p-3">index</div>
-</div>
-
-</div>
-
-<div class="border rounded-xl p-6">
-
-## Place
-
-<div class="grid grid-cols-2 gap-3 mt-5 text-center">
-  <div class="border rounded-xl p-3">home</div>
-  <div class="border rounded-xl p-3">routes</div>
-  <div class="border rounded-xl p-3">landmarks</div>
-  <div class="border rounded-xl p-3">memories</div>
-  <div class="border rounded-xl p-3">context</div>
-  <div class="border rounded-xl p-3">meaning</div>
-</div>
-
-</div>
-
-</div>
-
-<blockquote>
-A coordinate tells us where something is. A representation tells us what that place means.
-</blockquote>
-
----
-section: language-representations
-sectionTitle: Language
----
-
-# Representations of Geospatial Information
-
-## Same city, different maps
-
-<div class="grid grid-cols-3 gap-4 mt-5">
-  <img
-    src="./figures/mentalmap.jpeg"
-    class="w-full h-[220px] object-cover rounded-xl border"
-    alt="Mental map of Munich"
-  />
-  <img v-click
-    src="./figures/ubahnmunich.jpg"
-    class="w-full h-[220px] object-cover rounded-xl border"
-    alt="Munich U-Bahn map"
-  />
-  <img v-click
-    src="./figures/munich.png"
-    class="w-full h-[220px] object-cover rounded-xl border"
-    alt="Map of Munich"
-  />
-</div>
-
-<blockquote v-click class="blockquite1">
-We need to select or learn a suitable representation for the problem-at-hand.
-</blockquote>
-
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# How do we experience and recognize   places?
-
-<div class="mt-5 text-2xl text-gray-700">
-We infer location from many weak cues.
-</div>
-
-<div class="grid grid-cols-3 gap-2 mt-7 text-center">
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">🌿</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">vegetation</div>
-  </div>
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">🛣️</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">road markings</div>
-  </div>
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">🏘️</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">architecture</div>
-  </div>
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">🪧</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">signs and language</div>
-  </div>
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">⛰️</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">terrain</div>
-  </div>
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">🌦️</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">climate</div>
-  </div>
-  <div v-click class="border rounded-xl px-2 py-1.5">
-    <div class="text-2xl leading-none">🚉</div>
-    <div class="mt-1 text-sm font-bold text-blue-800">infrastructure</div>
-  </div>
-</div>
-
-<blockquote v-click>
-We do not recognize places from one signal. We combine many imperfect signals into a coherent spatial intuition.
-</blockquote>
-
-
----
-layout: bonn-two-cols-header
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Spatial Representations for Earth and Society
-
-> Modern geospatial AI aims to learn representations of our planet across space, time, scale, and modality.
-
-::left::
-
-### 🌍 Environmental Systems
-
-- 🌲 Deforestation and forest degradation
-- 🌡️ Climate change and global warming
-- 🌊 Flooding and sea level rise
-- 🏜️ Desertification and drought monitoring
-- 🧊 Glacier retreat and polar ice loss
-- 🌾 Agriculture and crop monitoring
-- 🐟 Marine ecosystems and coastal change
-- 🗑️ Environmental pollution and plastic waste
-- 🔥 Wildfire detection and risk prediction
-- 🐘 Biodiversity and species distribution
-
-::right::
-
-### 🏙️ Societal & Human Systems
-
-- 🏗️ Urbanization and city growth
-- 🚗 Navigation and route planning
-- 🚦 Traffic and mobility analysis
-- 🚑 Disaster response and humanitarian aid
-- 🛰️ Infrastructure and construction monitoring
-- ⚡ Energy systems and resource management
-- 🏠 Population density and settlement mapping
-- 🌍 Migration and human mobility
-- 🛡️ Security and border monitoring
-- 📦 Logistics and supply chain optimization
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # History: When was this city founded?
@@ -1677,8 +1766,9 @@ sectionTitle: Geospatial
 </div>
 
 ---
+hide: true
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # Livability: How livable is this neighborhood?
@@ -1727,8 +1817,9 @@ sectionTitle: Geospatial
 </div>
 
 ---
+hide: true
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # Livability: How livable is this neighborhood?
@@ -1777,8 +1868,9 @@ sectionTitle: Geospatial
 </div>
 
 ---
+hide: true
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # Livability: Qualitative and Quantitative Factors
@@ -1819,10 +1911,10 @@ It takes into account:
 
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
-# Biodiversity: Which Agriculural Landscape supports more Diverse Bird Populations?
+# Biodiversity: Which Agricultural Landscape supports more Diverse Bird Populations?
 
 <div class="grid grid-cols-[1.15fr_0.85fr] gap-8 mt-6 items-start">
 
@@ -1865,197 +1957,56 @@ sectionTitle: Geospatial
   </a>
 </div>
 
----
-layout: bonn-two-cols-header
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Takeaway: We learn our spatial environment
-
-::left::
-
-Everybody has an intuitive spatial mental representation of the world.
-
-<div class="mt-6 flex h-[300px] items-center justify-center">
-
-![Mental map illustration](./figures/mentalmap.jpeg){class="max-h-full w-full object-contain rounded-xl"}
-
-</div>
-
-::right::
-
-Some people can learn to become extremely good at mentally mapping the world.
-
-<div class="mt-6 flex h-[300px] items-center justify-center">
-
-<iframe
-  v-click
-  class="h-[270px] aspect-[9/16] rounded-xl shadow"
-  src="https://www.youtube.com/embed/OV6SYabHM_w?rel=0&modestbranding=1"
-  title="GeoGuessr example"
-  frameborder="0"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-  allowfullscreen>
-</iframe>
-
-</div>
 
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
-# Data of our Spatial Environment
-
-<div class="grid grid-cols-3 gap-5 mt-7 items-start">
-
-  <div>
-
-  ### Virtual Reconstructions
-
-<img
-  src="./figures/poppelsdorferschloss.png"
-  class="mt-4 h-[250px] w-full object-contain rounded-xl"
-  alt="Digital twin of Poppelsdorfer Schloss"
-/>
-
-  </div>
-
-  <div>
-
-  ### Dense Dynamic Measurements
-
-  <iframe
-    class="mt-4 h-[250px] w-full rounded-xl shadow"
-    src="https://www.youtube.com/embed/lF_rHnZ7yo4?rel=0&modestbranding=1"
-    title="Earth observation sensors video"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowfullscreen>
-  </iframe>
-
-  </div>
-
-  <div>
-
-  ### Geospatial data layers
-
-  <img
-    src="./figures/gis.png"
-    class="mt-4 h-[250px] w-full object-contain rounded-xl"
-    alt="Geospatial data layers"
-  />
-
-  </div>
-
-
-</div>
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Geodata are Data Tensors
-
-<div class="grid grid-cols-2 gap-8 mt-8 items-center">
-
-<div>
-
-![Sentinel-2 pixels as geodata tensor](./figures/embedding_space_figure/Sentinel-2pixels.svg){class="h-[330px] w-full object-contain"}
-
-</div>
-
-<div>
-
-### Examples of different data tensors
-
-![Examples of different data tensors](./figures/embedding_space_figure/Tensors.svg){class="mt-4 h-[300px] w-full object-contain"}
-
-</div>
-
-</div>
-
----
-layout: bonn-two-cols-header
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Location and Coordinates join all Geodata
-
-::left::
-
-<div class="flex h-[390px] items-center justify-center">
-
-<img
-  src="./figures/coordinates.svg"
-  class="max-h-[340px] w-full object-contain"
-  alt="Longitude, latitude, elevation, and time coordinates"
-/>
-
-</div>
-
-::right::
-
-<div class="flex h-[390px] flex-col justify-center">
-
-### Any place on Earth can be represented by coordinates
-
-- **Longitude**
-- **Latitude**
-- **Elevation**
-- **Time**
-
-Coordinates join heterogeneous geodata sources together because they reference the same place and time.
-
-</div>
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Describing a Place
+# Learning a Map Representation
 
 <div class="mt-5 flex justify-center">
   <img
-    src="./figures/describeaplace.svg"
+    src="./figures/geoloc_embedding.svg"
     class="h-[370px] w-full object-contain rounded-xl"
-    alt="Diagram describing a place"
+    alt="An image encoder and a location encoder map an aerial image and its location (longitude, latitude, time) into a shared embedding"
   />
 </div>
 
 ---
-layout: bonn-two-cols-header
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
-# Heterogeneous Datasets in Geodatabases
+# Satellite Contrastive Location-Image Pre-training (SatCLIP)
 
-## Describe a place by Geodatabases
-
-::left::
-
-### Geodata is heterogeneous
-
-![Heterogeneous geodata sources](./figures/geodatasources.svg){class="mt-5 h-[330px] w-full object-contain"}
-
-::right::
-
-### Implementation examples
-
-- **Spatial database:** [PostGIS](https://postgis.net/documentation/getting_started/) extends PostgreSQL with spatial types, indexes, and functions.
-- **Geolocated raster:** [GeoTIFF](https://www.ogc.org/publications/standard/geotiff/) stores georeferenced imagery in TIFF files.
-- **Multidimensional arrays:** [NetCDF](https://docs.unidata.ucar.edu/netcdf/) stores scientific data across dimensions such as time, depth, latitude, and longitude.
-
-Different sources use different schemas, coordinate systems, resolutions, timestamps, and file or database abstractions.
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/satclip.svg"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="SatCLIP overview"
+  />
+</div>
 
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
+---
+
+# SatCLIP Encoder for Implicit Embeddings
+
+<div class="mt-5 flex justify-center">
+  <img
+    src="./figures/satclip2.png"
+    class="h-[370px] w-full object-contain rounded-xl"
+    alt="SatCLIP details"
+  />
+</div>
+
+
+---
+section: geospatial-representations
+sectionTitle: Spatial
 ---
 
 # Geospatial Foundation Models
@@ -2065,29 +2016,14 @@ sectionTitle: Geospatial
 <div class="mt-5 flex justify-center">
   <img
     src="./figures/mmearth.png"
-    class="h-[370px] w-full object-contain rounded-xl"
+    class="h-[320px] w-full object-contain rounded-xl"
     alt="Geospatial foundation model overview"
   />
 </div>
 
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Explicit Precomputed Geospatial Representations
-
-<div class="mt-5 flex justify-center">
-  <img
-    src="./figures/precomputed.svg"
-    class="h-[370px] w-full object-contain rounded-xl"
-    alt="Explicit precomputed geospatial representations"
-  />
-</div>
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # Alpha Earth Embeddings
@@ -2108,7 +2044,7 @@ sectionTitle: Geospatial
 
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
 # Alpha Earth Embedding Explorer
@@ -2121,141 +2057,40 @@ sectionTitle: Geospatial
   allowfullscreen>
 </iframe>
 
+
 ---
 section: geospatial-representations
-sectionTitle: Geospatial
+sectionTitle: Spatial
 ---
 
-# From Explicit and Implicit Embeddings
+# Takeaways - Same city, different maps
 
-<div class="mt-5 flex justify-center">
+<div class="grid grid-cols-3 gap-4 mt-5">
   <img
-    src="./figures/taxonomy.svg"
-    class="h-[370px] w-full object-contain rounded-xl"
-    alt="Taxonomy of explicit and implicit embeddings"
+    src="./figures/mentalmap.jpeg"
+    class="w-full h-[220px] object-cover rounded-xl border"
+    alt="Mental map of Munich"
+  />
+  <img v-click
+    src="./figures/ubahnmunich.jpg"
+    class="w-full h-[220px] object-cover rounded-xl border"
+    alt="Munich U-Bahn map"
+  />
+  <img v-click
+    src="./figures/munich.png"
+    class="w-full h-[220px] object-cover rounded-xl border"
+    alt="Map of Munich"
   />
 </div>
 
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Geolocalization for Implicit Embeddings
-
-<div class="mt-5 flex justify-center">
-  <img
-    src="./figures/geolocalization1.svg"
-    class="h-[370px] w-full object-contain rounded-xl"
-    alt="Geolocalization overview"
-  />
-</div>
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Geolocalization implement with Deep Models
-
-<div class="mt-5 flex justify-center">
-  <img
-    src="./figures/geolocalization2.svg"
-    class="h-[370px] w-full object-contain rounded-xl"
-    alt="Geolocalization embedding overview"
-  />
-</div>
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Example: Satellite Contrastive Location-Image Pre-training (SatCLIP)
-
-<div class="mt-5 flex justify-center">
-  <img
-    src="./figures/satclip.svg"
-    class="h-[370px] w-full object-contain rounded-xl"
-    alt="SatCLIP overview"
-  />
-</div>
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# SatCLIP Encoder for Implicit Embeddings
-
-<div class="mt-5 flex justify-center">
-  <img
-    src="./figures/satclip2.png"
-    class="h-[370px] w-full object-contain rounded-xl"
-    alt="SatCLIP details"
-  />
-</div>
-
-
----
-section: geospatial-representations
-sectionTitle: Geospatial
----
-
-# Recap: Geospatial representations
-
-<div class="grid grid-cols-3 gap-4 mt-8">
-
-<div v-click class="p-4 rounded-xl border box-card box-1">
-<h3>Mental representations <span class="box-icon i-carbon:user-profile"></span></h3>
-<img
-  src="./figures/mentalmap.jpeg"
-  class="mt-3 w-full h-[108px] object-cover rounded"
-  alt="Mental map illustration"
-/>
-<div class="box-body">Human memories, intuitions, expectations, and place knowledge built from experience.</div>
-</div>
-
-<div v-click class="p-4 rounded-xl border box-card box-2">
-<h3>Geospatial databases <span class="box-icon i-carbon:map"></span></h3>
-<img
-  src="./figures/gis.png"
-  class="mt-3 w-full h-[108px] object-contain rounded"
-  alt="Geospatial database illustration"
-/>
-<div class="box-body">Rasters, vectors, polygons, and geodata layers that encode explicit spatial structure.</div>
-</div>
-
-<div v-click class="p-4 rounded-xl border box-card box-3">
-<h3>Geospatial databases <span class="box-icon i-carbon:map"></span></h3>
-<img
-  src="./figures/satclip_globe.png"
-  class="mt-3 w-full h-[108px] object-contain rounded"
-  alt="Geospatial database illustration"
-/>
-<div class="box-body">High-level embedding location representations.</div>
-</div>
-
-</div>
-
-<div class="slide-citation">
-  <a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
-    Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
-  </a>
-</div>
-
----
-layout: bonn-section
-sectionColor: "#20b32f"
-section: takeaways
-sectionTitle: Takeaways
----
-
-# Closing and Takeaways
+<blockquote v-click class="blockquite1">
+We need to select or learn a suitable representation for the problem-at-hand.
+</blockquote>
 
 --- 
-section: language-representations
-sectionTitle: Language
+hide: true
+section: closing
+sectionTitle: Closing
 ---
 
 # We Navigate the World by Representations
@@ -2292,66 +2127,60 @@ sectionTitle: Language
 </blockquote>
 
 ---
-section: language-representations
-sectionTitle: Language
+layout: bonn-two-cols-header
+columns: "minmax(0, 1fr) minmax(0, 1.1fr)"
+section: closing
+sectionTitle: Closing
 ---
 
-# Choosing or Learning Representations
+# The Platonic Representation Hypothesis
 
-<div class="grid grid-cols-2 gap-6 mt-8">
+::left::
 
-<div v-click="1" class="p-4 rounded-xl border shadow-sm flex min-h-[300px] flex-col">
-<h3>Designed representations</h3>
+<img
+  src="./figures/platonic-representation-hypothesis.jpg"
+  class="mx-auto h-[300px] w-auto object-contain"
+  alt="A scene Z (a cone and a sphere) is observed as an image X and described in text Y; image and text encoders f_img and f_text map both into representations"
+/>
 
-<p class="mt-2 text-sm leading-snug text-gray-600">
-We choose structures that make operations easier.
-</p>
+::right::
 
-<div class="flex flex-1 items-center justify-center mt-6">
-  <img
-    src="./figures/gis.png"
-    class="w-full max-h-40 object-contain"
-    alt="Geodatabase representation"
-  />
-</div>
+<div class="flex h-full flex-col justify-center">
+
+<div class="rounded-xl border-2 p-5 text-[1.15rem] font-semibold leading-snug text-blue-900" style="border-color: var(--grl-data-green); background: color-mix(in srgb, var(--grl-data-green) 8%, white);">
+Neural networks, trained with different objectives on different data and modalities, are converging to a shared statistical model of reality in their representation spaces.
 </div>
 
-<div v-click="2" class="p-4 rounded-xl border shadow-sm flex min-h-[300px] flex-col">
-<h3>Learned representations</h3>
-
-<p class="mt-2 text-sm leading-snug text-gray-600">
-We train models to discover useful structure.
-</p>
-
-<div class="flex flex-1 items-center justify-center mt-6">
-  <img
-    src="./figures/neuralgeorepresentation.svg"
-    class="w-full max-h-40 object-contain"
-    alt="Neural georepresentation"
-  />
-</div>
+<div class="mt-4 text-[0.68rem] leading-snug text-gray-500">
+  Huh, M., Cheung, B., Wang, T., &amp; Isola, P. (2024).
+  <a href="https://phillipi.github.io/prh/" target="_blank" rel="noopener noreferrer"><em>The Platonic Representation Hypothesis</em></a>.
+  Position paper, ICML 2024.
 </div>
 
 </div>
-
-<blockquote v-click="3" class="blockquote1 text-center">
-This course focuses on learning representations. 
-</blockquote>
 
 ---
 layout: learning-outcomes
 mode: after
 meeting: lecture-01
+section: closing
+sectionTitle: Closing
 ---
 
 # Revisit the learning outcomes
 
 ---
-layout: bonn-cover
-subhead: Practical 1
-home: ../
+section: closing
+sectionTitle: Closing
 ---
 
-# Exploring Geospatial Representations
+# See you at 13:00 for Lab 1!
 
-## Geospatial Representation Learning
+## Visualizing high-dimensional representation spaces
+
+We will investigate how **PCA** and **t-SNE** reveal the structure of embeddings.
+
+<div class="mt-8">
+<strong>13:00–15:00 · Seminarraum 2.003</strong><br>
+Nußallee 1
+</div>
