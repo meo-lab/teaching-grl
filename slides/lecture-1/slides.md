@@ -33,81 +33,13 @@ Welcome to the first lecture on geospatial representation learning.
 -->
 
 ---
-layout: learning-outcomes
-mode: before
-meeting: lecture-01
-section: opening
-sectionTitle: Opening
----
-
-# Learning outcomes
-
-<LearningOutcome id="choose-representation">
-<strong>Discuss</strong> representations of the same object and <strong>choose</strong> a suitable one for a problem.
-</LearningOutcome>
-
-<LearningOutcome id="embedding-comparison">
-<strong>Discuss</strong> the similarities and differences in visual, word, or geospatial representations.
-</LearningOutcome>
-
-<LearningOutcome id="embedding-similarity">
-<strong>Understand</strong> how cosine similarity measures how close two embeddings are.
-</LearningOutcome>
-
-<LearningOutcome id="dimensionality-reduction">
-<strong>Understand</strong> how PCA and t-SNE visualize high-dimensional vector representations.
-</LearningOutcome>
-
-<LearningOutcome id="language-representations">
-<strong>Describe</strong> how tokenization, embeddings, and next-token prediction represent language.
-</LearningOutcome>
-
-<LearningOutcome id="place-representations">
-<strong>Understand</strong> what geospatial information is encoded in geospatial embeddings.
-</LearningOutcome>
-
----
-layout: bonn-two-cols-header
-section: opening
-sectionTitle: Opening
----
-
-# This Lecture: Ideas and Methods
-
-::left::
-
-<div class="h-full rounded-xl border p-5 box-card box-1">
-<h3>Philosophy</h3>
-<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">What do we mean by a representation?</div>
-<ul class="mt-4 space-y-2 text-[0.95rem] leading-snug">
-  <li>How does our mind represent things and places?</li>
-  <li>Encoding vs. meaning</li>
-  <li>Re-thinking ideas we take for granted</li>
-</ul>
-</div>
-
-::right::
-
-<div class="h-full rounded-xl border p-5 box-card box-2">
-<h3>Technology</h3>
-<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">How do computers represent the world?</div>
-<ul class="mt-4 space-y-2 text-[0.95rem] leading-snug">
-  <li>Computer vision</li>
-  <li>Natural language processing</li>
-  <li>Math: vectors and similarity</li>
-  <li>Methods: PCA, t-SNE, embeddings</li>
-</ul>
-</div>
-
----
 layout: bonn-section
 sectionColor: "#00457c"
-hide: true
 section: representations
 sectionTitle: Representations
 ---
 
-# Intro: What is a Representation?
+# What is an Apple?
 
 <img src="./figures/apple_image_world.jpg" alt="An image of an Apple" />
 
@@ -218,7 +150,7 @@ section: representations
 sectionTitle: Representations
 ---
 
-# Choosing Right Encoding Representations
+# Choosing the right Encoding matters
 
 ## Examples
 
@@ -277,61 +209,91 @@ Similarly, coordinates are great for databases, but they are hard to read. Place
 -->
 
 ---
-section: representations
-sectionTitle: Representations
+section: geospatial-representations
+sectionTitle: Spatial
 ---
 
-# Lecture Outline
+# An Encoding does not carry Meaning.
 
-<div class="grid grid-cols-4 gap-4 mt-8">
-
-<div class="p-4 rounded-xl border box-card box-1">
-<h3>Representations</h3>
-<img
-  src="./figures/apple_image_world.jpg"
-  class="mt-3 h-[118px] w-full object-contain rounded"
-  alt="An image of an apple"
-/>
-<div class="box-body">What are representations?</div>
-</div>
-
-<div class="p-4 rounded-xl border box-card box-2">
-<h3>Vision</h3>
-<img
-  src="./figures/representations.png"
-  class="mt-3 h-[118px] w-full object-contain rounded"
-  alt="Human vision representation layer"
-/>
-<div class="box-body">How vision encodes the world</div>
-</div>
-
-<div class="p-4 rounded-xl border box-card box-3" style="visibility: hidden;">
-<h3>Language</h3>
-<img
-  src="./figures/apple-language.png"
-  class="mt-3 h-[118px] w-full object-contain rounded"
-  alt="Language representation summary"
-/>
-<div class="box-body">How text becomes meaning</div>
-</div>
-
-<div class="p-4 rounded-xl border box-card box-4" style="visibility: hidden;">
-<h3>Spatial</h3>
-<img
-  src="./figures/mentalmap.jpeg"
-  class="mt-3 h-[118px] w-full object-contain rounded"
-  alt="Mental map illustration"
-/>
-<div class="box-body">How places carry spatial meaning</div>
-</div>
-
+<div class="mt-4 flex justify-center">
+  <img
+    src="./figures/apple-language.png"
+    class="h-[360px] w-auto object-contain rounded-xl"
+    alt="The word apple with many meanings: fruit, computer brand, Newton, nutrition, myth"
+  />
 </div>
 
 <div class="slide-citation">
-  <a href="https://www.sueddeutsche.de/muenchen/mental-maps-die-stadt-in-meinem-kopf-1.3087218" target="_blank" rel="noopener noreferrer">
-    Die Stadt in meinem Kopf. (2016). <em>Süddeutsche Zeitung</em>.
-  </a>
+  Image created with ChatGPT
 </div>
+
+
+---
+layout: bonn-two-cols-header
+section: opening
+sectionTitle: Opening
+---
+
+# This Lecture: Ideas and Methods
+
+::left::
+
+<div class="h-full rounded-xl border p-5 box-card box-1">
+<h3>Philosophy</h3>
+<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">What do we mean by a representation?</div>
+<ul class="mt-4 space-y-2 text-[0.95rem] leading-snug">
+  <li>How does our mind represent things and places?</li>
+  <li>Encoding vs. meaning</li>
+  <li>Re-thinking ideas we take for granted</li>
+</ul>
+</div>
+
+::right::
+
+<div class="h-full rounded-xl border p-5 box-card box-2">
+<h3>Technology</h3>
+<div class="mt-2 text-[1.05rem] font-semibold text-blue-800">How do computers represent the world?</div>
+<ul class="mt-4 space-y-2 text-[0.95rem] leading-snug">
+  <li>Computer vision</li>
+  <li>Natural language processing</li>
+  <li>Math: vectors and similarity</li>
+  <li>Methods: PCA, t-SNE, embeddings</li>
+</ul>
+</div>
+
+---
+layout: learning-outcomes
+mode: before
+meeting: lecture-01
+section: opening
+sectionTitle: Opening
+---
+
+# Learning outcomes
+
+<LearningOutcome id="choose-representation">
+<strong>Discuss</strong> representations of the same object and <strong>choose</strong> a suitable one for a problem.
+</LearningOutcome>
+
+<LearningOutcome id="embedding-comparison">
+<strong>Discuss</strong> the similarities and differences in visual, word, or geospatial representations.
+</LearningOutcome>
+
+<LearningOutcome id="embedding-similarity">
+<strong>Understand</strong> how cosine similarity measures how close two embeddings are.
+</LearningOutcome>
+
+<LearningOutcome id="dimensionality-reduction">
+<strong>Understand</strong> how PCA and t-SNE visualize high-dimensional vector representations.
+</LearningOutcome>
+
+<LearningOutcome id="language-representations">
+<strong>Describe</strong> how tokenization, embeddings, and next-token prediction represent language.
+</LearningOutcome>
+
+<LearningOutcome id="place-representations">
+<strong>Understand</strong> what geospatial information is encoded in geospatial embeddings.
+</LearningOutcome>
 
 ---
 section: representations
@@ -489,7 +451,7 @@ section: visual-representations
 sectionTitle: Vision
 ---
 
-# Engineering suitable Representations.
+# Encoding Light to Meaning
 
 <div class="mt-8 grid grid-cols-2 gap-8 items-start">
   <div v-click class="flex flex-col items-center">
@@ -532,7 +494,7 @@ section: visual-representations
 sectionTitle: Vision
 ---
 
-# Spectral information can make patterns visible.
+# Sensors can Measure different wavelengths
 
 <div class="mt-6 flex flex-col items-center gap-4">
   <div class="w-full max-w-[600px]">
@@ -556,7 +518,7 @@ section: visual-representations
 sectionTitle: Vision
 ---
 
-# The representation depends on the Problem
+# Other Species See the World Differently. 
 
 <div class="mt-5 grid h-[350px] grid-cols-[550px_minmax(220px,280px)] gap-3 items-stretch justify-start">
   <div class="grid h-[350px] grid-rows-2 gap-3">
@@ -597,7 +559,7 @@ section: visual-representations
 sectionTitle: Vision
 ---
 
-# Our eyes have edge detectors
+# Our Vision is Edge-enhanced
 
 <div class="mt-5 grid grid-cols-[420px_360px] gap-8 items-center justify-center">
   <div>
@@ -657,12 +619,41 @@ This is the mechanism behind the optical illusion called Mach bands. Here you se
 If I move the rectangles next to each other, we create hard edges between the blocks. Do you now see a grayscale gradient? The right edge of the lighter square appears lighter, and the left edge of the darker square appears darker. That is our visual system enhancing edges.
 -->
 
+---
+section: visual-representations
+sectionTitle: Vision
+---
+
+# Our mind selects what we perceive
+
+<div class="mt-4 flex justify-center">
+  <img
+    src="./figures/NIH-vision.svg"
+    class="max-h-[400px] max-w-[90%] object-contain rounded-xl"
+    alt="NIH visual acuity brain circuits illustration"
+  />
+</div>
+
+<div class="slide-citation">
+  <a href="https://www.nih.gov/news-events/news-releases/nih-researchers-identify-brain-circuits-responsible-visual-acuity" target="_blank" rel="noopener noreferrer">
+    Yang, J., et al. (2025). Differential impact of retinal lesions on visual responses of LGN X and Y cells. <em>The Journal of Neuroscience</em>. DOI: 10.1523/JNEUROSCI.0436-25.2025.
+  </a>
+</div>
+
+<!--
+Overall, our vision is much more selective than just seeing edges more clearly.
+
+We have a lateral geniculate nucleus, or LGN, between the eyes and the visual cortex. It can selectively change, focus, or suppress visual signals when our mind focuses on specific tasks.
+
+While the retina encodes light into low-level, edge-enhanced representations, the visual cortex builds much more complex representations of the environment and the task. The LGN receives signals from both and creates a feedback loop between low-level and high-level visual representations.
+-->
+
 --- 
 section: visual-representations
 sectionTitle: Vision
 ---
 
-# Selective Vision: The Monkey Business Illusion
+# Our Vision is Selective
 
 <div class="mt-0 flex justify-center">
   <iframe
@@ -693,38 +684,9 @@ section: visual-representations
 sectionTitle: Vision
 ---
 
-# Our mind selects what we perceive
+# Low-Level and High-Level Features in CNNs
 
-<div class="mt-4 flex justify-center">
-  <img
-    src="./figures/NIH-vision.svg"
-    class="max-h-[400px] max-w-[90%] object-contain rounded-xl"
-    alt="NIH visual acuity brain circuits illustration"
-  />
-</div>
-
-<div class="slide-citation">
-  <a href="https://www.nih.gov/news-events/news-releases/nih-researchers-identify-brain-circuits-responsible-visual-acuity" target="_blank" rel="noopener noreferrer">
-    Yang, J., et al. (2025). Differential impact of retinal lesions on visual responses of LGN X and Y cells. <em>The Journal of Neuroscience</em>. DOI: 10.1523/JNEUROSCI.0436-25.2025.
-  </a>
-</div>
-
-<!--
-Overall, our vision is much more selective than just seeing edges more clearly.
-
-We have a lateral geniculate nucleus, or LGN, between the eyes and the visual cortex. It can selectively change, focus, or suppress visual signals when our mind focuses on specific tasks.
-
-While the retina encodes light into low-level, edge-enhanced representations, the visual cortex builds much more complex representations of the environment and the task. The LGN receives signals from both and creates a feedback loop between low-level and high-level visual representations.
--->
-
----
-section: visual-representations
-sectionTitle: Vision
----
-
-# From Encoding to Meaning
-
-### Feature Learning in Neural Networks
+## From Encoding to Meaning
 
 <div class="mt-5 flex justify-center">
   <img
@@ -746,13 +708,13 @@ sectionTitle: Vision
 
 # Excurse: Dimensionality Reduction
 
-We often need to visualize high-dimensional data on a lower-dimensional space, as here with 3D data on a 2D screen.
+## To to visualize high-dimensional vector representations
 
 ::left::
 
 <div class="m-0">
 
-**Principal Component Analysis (PCA)** linearly rotates high-dimensional data points so that a 2D projection best captures the variance (i.e., spread) of the data
+**Principal Component Analysis (PCA)**
 
 <PcaEmbeddingDemo />
 
@@ -762,7 +724,7 @@ We often need to visualize high-dimensional data on a lower-dimensional space, a
 
 <div v-click class="m-0">
 
-**t-distributed Stochastic Neighborhood Embedding (t-SNE)** moves data points onto a 2D plane and tries to preserve the local neighborhood relation between points.
+**t-distributed Stochastic Neighborhood Embedding (t-SNE)** 
 
 <TsneEmbeddingDemo />
 
