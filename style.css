@@ -130,6 +130,23 @@
   line-height: 1.12;
 }
 
+.bonn-content .lab2-source-table th,
+.bonn-content .lab2-source-table td {
+  font-size: .7rem;
+  line-height: 1.2;
+  padding: .34rem .4rem;
+}
+
+.bonn-content .lab2-source-table th:first-child,
+.bonn-content .lab2-source-table td:first-child {
+  width: 25%;
+}
+
+.bonn-content .lab2-source-table th:nth-child(2),
+.bonn-content .lab2-source-table td:nth-child(2) {
+  width: 33%;
+}
+
 .bonn-content blockquote,
 .bonn-content .blockquote1,
 .bonn-content .blockquite1,

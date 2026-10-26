@@ -14,2794 +14,1660 @@ subhead: Lecture 6
 home: ../
 ---
 
-# Geospatial Embeddings
+# Earth Embeddings
 
-## Explicit and Implicit Representations of Geographic Space
+## Toward AI-centric representations of our planet
 
 <!--
-This is the final taught lecture. It builds on Lectures 3–5 (data, deep learning, generalization) and asks:
-how can we learn representations that transfer beyond one supervised task?
-Two answers: explicit embeddings from observations (Block 1) and implicit embeddings from location (Block 2).
+This lecture closely follows the perspective paper
+Klemmer, Rolf, Rußwurm, et al. (2026), "Earth Embeddings: Toward artificial intelligence-centric representations of our planet", IEEE Geoscience and Remote Sensing Magazine, doi:10.1109/MGRS.2026.3710416 (CC BY 4.0).
+It is complemented by material from the ISPRS 2026 tutorial "Towards Geospatial Embeddings" (Klemmer, Fuller, Shelhamer, Rolf, Rußwurm).
+
+Structure: four blocks, each answering one question.
+1. What are Earth embeddings?  2. How do we learn them?  3. How do we use them?  4. How do we evaluate and improve them?
+Running example throughout: mapping forest cover from a handful of field labels.
 -->
 
 ---
+layout: learning-outcomes
+mode: before
+meeting: lecture-06
+section: opening
+sectionTitle: Opening
+---
 
-# Learning Outcomes
+# Learning outcomes
 
-<div class="mt-5 flex flex-col gap-4">
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">1</div>
-    <div class="text-[.82rem] leading-snug">Explain how <strong>self-supervised learning</strong> can produce reusable geospatial representations without task-specific labels.</div>
-  </div>
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">2</div>
-    <div class="text-[.82rem] leading-snug">Explain how <strong>geospatial foundation models</strong> produce explicit embeddings from observations such as images or time series.</div>
-  </div>
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">3</div>
-    <div class="text-[.82rem] leading-snug">Explain how <strong>geographic location itself</strong> can be mapped to an implicit embedding through coordinate-based neural models and location encoders.</div>
-  </div>
-</div>
+<LearningOutcome id="define-earth-embeddings">
+<strong>Define</strong> Earth embeddings and <strong>distinguish</strong> them from the geospatial foundation models that produce them.
+</LearningOutcome>
 
-<!--
-Outcome 1 → Block 1 (SSL mechanics)
-Outcome 2 → Block 1 (foundation models / explicit embeddings)
-Outcome 3 → Block 2 (coordinate networks, INRs, location encoders)
--->
+<LearningOutcome id="explicit-implicit">
+<strong>Explain</strong> how explicit feature extraction and implicit neural representations put geographic information into a vector.
+</LearningOutcome>
+
+<LearningOutcome id="use-earth-embeddings">
+<strong>Choose</strong> a suitable way to use Earth embeddings (prediction, conditioning, retrieval, synthesis) for a given task.
+</LearningOutcome>
+
+<LearningOutcome id="evaluate-earth-embeddings">
+<strong>Assess</strong> the limits of an Earth embedding product: resolution, bias, interpretability, cost, and openness.
+</LearningOutcome>
 
 ---
 section: opening
 ---
 
-# Where We Are in the Course
+# Today: Four Questions
 
-<div class="grid grid-cols-5 gap-3 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lectures 2–3</div>
-    <div class="text-[.72rem] font-semibold text-gray-800">Geospatial Data</div>
-    <div class="text-[.62rem] text-gray-500 mt-1">Images, maps, time series</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lecture 3</div>
-    <div class="text-[.72rem] font-semibold text-gray-800">Classical ML</div>
-    <div class="text-[.62rem] text-gray-500 mt-1">ML on representations</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lecture 4</div>
-    <div class="text-[.72rem] font-semibold text-gray-800">Deep Learning</div>
-    <div class="text-[.62rem] text-gray-500 mt-1">Models &amp; optimization</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3">
-    <div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Lecture 5</div>
-    <div class="text-[.72rem] font-semibold text-gray-800">Generalization</div>
-    <div class="text-[.62rem] text-gray-500 mt-1">Beyond the training set</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-3">
-    <div class="text-[.58rem] font-bold uppercase tracking-wide text-blue-600 mb-1">Lecture 6 — today</div>
-    <div class="text-[.72rem] font-semibold text-blue-900">Reusable Embeddings</div>
-    <div class="text-[.62rem] text-blue-700 mt-1">Explicit &amp; implicit</div>
-  </div>
+| Block | Question | Content |
+|---|---|---|
+| **1 · Concept** | What are Earth embeddings? | Places as vectors, and why we want them |
+| **2 · Methods** | How do we learn them? | Explicit vs. implicit, encodings, objectives, AlphaEarth, SatCLIP |
+| **3 · Applications** | How do we use them? | Prediction, conditioning, retrieval, synthesis |
+| **4 · Agenda** | How do we evaluate and improve them? | Generalization, bias, cost, openness |
+
+<div class="blockquote2">
+
+**Running example:** we want a **forest-cover map** of a whole country, but only have a few hundred labelled field plots. We return to this problem in every block.
+
 </div>
 
-<div class="mt-6 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.82rem] text-blue-900 font-medium">
-  Main question: How can we learn representations that are useful beyond one specific supervised task?
+<div class="slide-citation">
+Based on K. Klemmer, E. Rolf, M. Rußwurm, et al., “Earth Embeddings: Toward artificial intelligence-centric representations of our planet,” <em>IEEE Geoscience and Remote Sensing Magazine</em>, 2026, and the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
 </div>
 
----
-section: opening
----
-
-# Two Ways to Obtain a Geospatial Embedding
-
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-4">Explicit Embedding</div>
-    <div class="flex items-center gap-3 font-mono text-[.78rem] mb-4">
-      <span class="rounded border border-gray-300 bg-white px-2 py-1">$x_{\text{observation}}$</span>
-      <span class="text-gray-400">→</span>
-      <span class="rounded border border-gray-300 bg-white px-2 py-1">$e_\theta(x)$</span>
-      <span class="text-gray-400">→</span>
-      <span class="rounded border border-blue-300 bg-blue-50 px-2 py-1">$z$</span>
-    </div>
-    <ul class="text-[.7rem] text-gray-600 space-y-1 list-disc pl-4 mb-3">
-      <li>satellite image</li>
-      <li>time series</li>
-      <li>multimodal observation</li>
-    </ul>
-    <div class="text-[.72rem] text-gray-700 font-medium">The representation is computed from an observation.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-4">Implicit Embedding</div>
-    <div class="flex items-center gap-3 font-mono text-[.78rem] mb-4">
-      <span class="rounded border border-blue-300 bg-white px-2 py-1">$p_{\text{location}}$</span>
-      <span class="text-blue-400">→</span>
-      <span class="rounded border border-blue-300 bg-white px-2 py-1">$e_\theta(p)$</span>
-      <span class="text-blue-400">→</span>
-      <span class="rounded border border-blue-400 bg-blue-100 px-2 py-1">$z$</span>
-    </div>
-    <ul class="text-[.7rem] text-blue-700 space-y-1 list-disc pl-4 mb-3">
-      <li>geographic coordinates only</li>
-    </ul>
-    <div class="text-[.72rem] text-blue-900 font-medium">The representation is computed directly from geographic location.</div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.72rem] text-gray-500 text-center">This distinction structures the entire lecture.</div>
+<!--
+Concept → methods → applications → research agenda: the same progression as the paper.
+-->
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: explicit-embeddings
-sectionTitle: Explicit Geospatial Embeddings
+section: what
+sectionTitle: What are they?
 ---
 
-# Explicit Geospatial Embeddings
+# What are Earth embeddings?
 
-<div class="text-[.9rem] text-gray-700 mt-4">
-  From Self-Supervised Learning to Foundation Models
-</div>
+<img class="bonn-section-image bonn-section-image-sm" src="./assets/earth-embeddings/fig1-earth-embeddings.png" alt="A globe coloured by Earth embeddings with one location expanded into an embedding vector" />
 
-<div class="text-[.72rem] text-gray-500 mt-4">
-  labels → self-supervision → representation learning → embeddings → pretrained encoders → foundation models
+<div class="bonn-section-citation">
+Figure 1 (detail) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# The Limitation of Supervised Learning
+# We Are Drowning in Earth Data
 
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Supervised learning requires labeled data — but labels are:
-    </div>
-    <ul class="text-[.75rem] text-gray-600 space-y-2 list-disc pl-4 mb-5">
-      <li><strong>Expensive</strong> — manual annotation is slow and costly</li>
-      <li><strong>Task-specific</strong> — a land-cover label is useless for species prediction</li>
-      <li><strong>Specializing</strong> — supervised representations may only encode what was asked</li>
-    </ul>
-    <div class="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-      Can we learn useful representations from the data itself?
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
-    <!-- TODO: add schematic: supervised pipeline (observation → label → model) vs. unlabeled data -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ supervised pipeline vs. unlabeled data ]</div>
-  </div>
+::left::
+
+| Volume | What |
+|---|---|
+| **~800 PB** | of Earth observation data exist today |
+| **~4 TB** | of new Sentinel-2 imagery, every day |
+| **100s** | of satellites continuously imaging the planet |
+
+Almost none of it is **labelled**.
+
+::right::
+
+### How AI unlocks this data
+
+| Challenge | AI answer |
+|---|---|
+| **Large-scale:** petabytes no single team can process | Neural networks scale to huge datasets |
+| **Multimodal:** images, sensors, text, tables | Fuse and access everything by location and time |
+| **Unlabelled:** almost no ground truth | Self-supervised learning needs no labels |
+
+<div class="slide-citation">
+Numbers and framing from the ISPRS 2026 tutorial “Towards Geospatial Embeddings” (A. Fuller).
 </div>
+
+<!--
+Order-of-magnitude figures from the tutorial; check the latest archive statistics before quoting them precisely.
+The tutorial compares this to LLM training corpora; I left that out because the training-data size of commercial LLMs is not public.
+-->
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# Self-Supervised Learning
+# Running Example: Mapping Forest Cover
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  Create a learning signal from the <strong>structure of the data</strong> rather than from manually annotated labels.
+::left::
+
+Task: produce a **wall-to-wall forest-cover map** of a country.
+
+**What we have:**
+
+- a few hundred **labelled field plots** (forest / no forest)
+- petabytes of **optical, radar, and elevation** data
+- maybe photos, text, and inventories tagged with coordinates
+
+**The classical workflow:**
+
+- download and preprocess each source (clouds, mosaics, co-registration)
+- hand-craft features (NDVI, texture, slope …)
+- train a model on a few hundred samples
+
+::right::
+
+<div class="blockquote4">
+
+**The problem:** most of the effort goes into **data handling and expertise**, not into the forest question. And it is repeated for every new task.
+
 </div>
 
-<div class="flex items-center justify-center gap-5 my-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$x$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.8rem]">self-supervised objective</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$e_\theta(x)$</div>
-</div>
+<v-click>
 
-<div class="text-[.75rem] text-gray-600">
-  The objective is constructed entirely from data — no human annotation needed. The network must learn meaningful internal structure to solve it.
-</div>
+> **The idea:** what if someone had already turned all of that data into **one vector per location**, and we only had to look it up?
+
+</v-click>
+
+<!--
+The paper: Earth embeddings are "a powerful alternative to existing geospatial workflows that rely on heterogeneous data, hard-to-acquire expertise, and significant computation by the user."
+-->
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
+columns: "minmax(0, 1.3fr) minmax(0, 1fr)"
 ---
 
-# Pretext Tasks
+# All Geospatial Data Share One Index
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  A pretext task is designed so that solving it forces the model to learn useful internal representations.
+::left::
+
+![A globe with a satellite image of San Francisco, a geotagged flood tweet from Annapolis, and a temperature map of Brazil, each labelled with latitude, longitude, and time](./assets/tutorial/shared-index.png)
+
+::right::
+
+Satellite images, social-media posts, and climate maps look completely different…
+
+> …but every observation is a **snapshot at a location and a time**: (latitude, longitude, time).
+
+Geospatial data support disaster response, weather forecasting, transport, forest and wildfire management, water quality, and disease modelling.
+
+<div class="slide-citation">
+Figure from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
 </div>
 
-<div class="grid grid-cols-2 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Predict missing content</div>
-    <div class="text-[.72rem] text-gray-600">Mask part of the input, predict the masked part</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Predict transformations</div>
-    <div class="text-[.72rem] text-gray-600">Predict rotation, colorization, jigsaw order</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Predict context</div>
-    <div class="text-[.72rem] text-gray-600">Predict spatial or temporal neighbours</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Distinguish pairs</div>
-    <div class="text-[.72rem] text-gray-600">Distinguish related from unrelated samples</div>
-  </div>
-</div>
-
-<div class="mt-5 text-[.74rem] text-gray-500">
-  The pretext task is discarded after training — only the learned encoder is kept.
-</div>
+<!--
+The spatiotemporal index is the common key that lets us fuse heterogeneous data.
+-->
 
 ---
-section: explicit-embeddings
+section: what
 ---
 
-# Contrastive Learning
+# From Heterogeneous Data to One Reusable Representation
 
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Pull <strong>positive pairs</strong> together in embedding space; push <strong>negative pairs</strong> apart.
-    </div>
-    <div class="flex flex-col gap-3 mt-4">
-      <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[.74rem] text-green-900">
-        <strong>Positive pair:</strong> two views of the same instance
-      </div>
-      <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[.74rem] text-red-900">
-        <strong>Negative pair:</strong> views from different instances
-      </div>
-    </div>
-    <div class="mt-4 text-[.74rem] text-gray-600">
-      Similar observations → nearby embeddings; different observations → separated embeddings.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
-    <!-- TODO: add embedding-space illustration (clusters of similar, gaps between different) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ contrastive embedding space illustration ]</div>
-  </div>
+<img src="./assets/earth-embeddings/fig1.png" class="w-full max-h-[260px] object-contain" alt="Figure 1: multimodal observations of the Earth are encoded by an embedding model into Earth embeddings" />
+
+**Earth embeddings** are vector representations of geospatial data at specific locations in space and time. They capture similarities and differences among locations according to their local features, in a **lightweight, compact** format.
+
+<div class="slide-citation">
+Figure 1 from Klemmer et al. (2026), CC BY 4.0
 </div>
+
+<!--
+Distinguish throughout: the embedding MODEL (left of the arrow) and the EMBEDDINGS (right).
+-->
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# Learning Invariances
+# Formal Definition
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
-  The augmentations and positive-pair definition determine what the embedding should <strong>ignore</strong> and what it should <strong>preserve</strong>.
-</div>
+An Earth embedding model $E$ maps a continuous location input (longitude, latitude, optionally elevation, and time) to a $d$-dimensional vector:
 
-<div class="grid grid-cols-2 gap-5 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Generic augmentations</div>
-    <ul class="text-[.72rem] text-gray-600 space-y-1 list-disc pl-4">
-      <li>crop</li>
-      <li>color / spectral changes</li>
-      <li>rotation / flip</li>
-    </ul>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Geospatial-specific</div>
-    <ul class="text-[.72rem] text-blue-800 space-y-1 list-disc pl-4">
-      <li>temporal changes</li>
-      <li>sensor differences</li>
-      <li>seasonal variation</li>
-      <li>viewing angle</li>
-    </ul>
-  </div>
-</div>
+$$
+E : (\text{location}) \;\longrightarrow\; \mathbf{emb} \in \mathbb{R}^d
+$$
 
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-  Choosing the right positive-pair definition is a core design decision in SSL for Earth observation.
-</div>
+::left::
 
----
-section: explicit-embeddings
----
+### Explicit model
 
-# Masked Prediction
+$$
+\mathbf{emb} = E_{\text{explicit}}(\text{data}_{\text{location}})
+$$
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  A second major self-supervised paradigm: mask part of the input, predict the missing content.
-</div>
+Extracts the embedding from **raw data** (e.g., a satellite image) associated with the location. Example: a vision model + a global image database.
 
-<div class="flex items-center justify-center gap-5 my-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.8rem]">visible context</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.8rem]">predict missing information</div>
-</div>
+::right::
 
-<div class="grid grid-cols-3 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Images</div>
-    <div class="text-[.68rem] text-gray-500">masked image patches</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Tokens</div>
-    <div class="text-[.68rem] text-gray-500">masked feature tokens</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Time series</div>
-    <div class="text-[.68rem] text-gray-500">masked temporal observations</div>
-  </div>
-</div>
+### Implicit model
+
+$$
+\mathbf{emb} = E_{\text{implicit}}(\text{location})
+$$
+
+Takes **only the location** as input; the information is stored in the **weights** of a location encoder network.
+
+<!--
+This distinction is the backbone of Block 2.
+-->
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# Self-Supervision for Earth Observation
+# Earth Embeddings Are Learned Measurements
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Earth observation provides natural structure for self-supervised objectives:
-    </div>
-    <ul class="text-[.75rem] text-gray-600 space-y-2 list-disc pl-4">
-      <li>Multispectral observations across bands</li>
-      <li>Spatial context — neighbouring patches</li>
-      <li>Temporal observations — same place, different times</li>
-      <li>Multiple sensors observing the same area</li>
-      <li>Repeated coverage of the same location</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
-    <!-- TODO: add illustration: same location, different time/sensor = positive pair -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ same location, different observation → positive pair ]</div>
-  </div>
-</div>
+::left::
 
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-  Main question: What should count as two views of the same place?
+### Sensed measurement
+
+What an instrument physically records: reflectance in each spectral band.
+
+`[0.07, 0.12, 0.31, …]` (bands)
+
+Raw, large, **sensor-specific**.
+
+::right::
+
+### Learned measurement
+
+What a model learns to represent: a vector that captures the **character of a place**.
+
+$\mathbf{emb} \in \mathbb{R}^d$
+
+Compact, comparable, **reusable** across many tasks.
+
+::bottom::
+
+> Same goal as remote sensing, describing a location, but the description is **learned**, not directly sensed. Embeddings form a new data layer: optical, SAR, weather, elevation, text → **Earth embedding** → land cover, crops, species, poverty, similarity search.
+
+<div class="slide-citation">
+Framing from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
 </div>
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# From Encoder to Embedding
+# From Words to Places
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  After pretraining, the encoder maps any new observation to a reusable feature vector.
+::left::
+
+### Word embeddings
+
+Word2Vec and GloVe showed that vectors capture **meaning, not spelling**:
+
+$$
+\mathbf{v}_{\text{king}} - \mathbf{v}_{\text{man}} + \mathbf{v}_{\text{woman}} \approx \mathbf{v}_{\text{queen}}
+$$
+
+Distance in embedding space ≈ difference in meaning. Large language models build on the same idea.
+
+::right::
+
+### Earth embeddings
+
+The same arithmetic, applied to places:
+
+<div class="grid grid-cols-3 gap-2 items-center">
+
+![Aerial view of a road winding through a forest](./assets/tutorial/analogy-road.jpg)
+
+![Aerial view of a river meandering through fields](./assets/tutorial/analogy-river.jpg)
+
+![Aerial view of a bridge crossing a lake](./assets/tutorial/analogy-bridge.jpg)
+
 </div>
 
-<div class="flex items-center justify-center gap-5 my-6 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$x$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$e_\theta(x)$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-400 bg-blue-100 px-4 py-3">$z$</span>
+**road + river ≈ bridge**
+
+<div class="slide-citation">
+Images from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
 </div>
 
-<div class="grid grid-cols-2 gap-4 mt-4 text-[.74rem]">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>$e_\theta$:</strong> the encoder, fixed after pretraining
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>$z$:</strong> the embedding — a compact learned representation
-  </div>
-</div>
+<!--
+Paper box "The Origin of 'Embeddings' in NLP": Word2Vec and GloVe; distance between words is used in LLMs.
+The road + river ≈ bridge analogy is illustrative: it shows what we would like the geometry of an embedding space to look like.
+-->
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# What Makes an Embedding Useful?
+# Places That Are Alike Are Close
 
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Semantic similarity</div>
-    <div class="text-[.68rem] text-gray-500">Similar scenes → similar $z$</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Invariance</div>
-    <div class="text-[.68rem] text-gray-500">Robust to irrelevant variation</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Transferability</div>
-    <div class="text-[.68rem] text-gray-500">Useful across downstream tasks</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Compactness</div>
-    <div class="text-[.68rem] text-gray-500">High information density</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Linear separability</div>
-    <div class="text-[.68rem] text-gray-500">Simple probes work</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Multi-task utility</div>
-    <div class="text-[.68rem] text-gray-500">Useful for many downstream tasks</div>
-  </div>
-</div>
+::left::
 
----
-section: explicit-embeddings
----
+### Similarity across space
 
-# Exploring an Embedding Space
+An embedding of **urban New York City** may resemble that of **urban Delhi** more than that of **rural Arkansas**.
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  Once computed, embedding spaces can be visualized, probed, and queried.
-</div>
+Functional, not geographic, similarity.
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="flex flex-col gap-3">
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Nearby observations share visual or semantic properties</div>
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Clusters correspond to semantic categories</div>
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Trajectories trace temporal change</div>
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Nearest-neighbour retrieval finds similar observations</div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
-    <!-- TODO: add PCA / UMAP / retrieval example from a geospatial SSL model -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ PCA / UMAP of geospatial embeddings ]</div>
-  </div>
+::right::
+
+### Similarity across time
+
+Summer and winter embeddings of **equatorial Costa Rica** may be nearly identical, while those of **seasonal Alaska** differ strongly.
+
+A built-in signal of environmental change.
+
+::bottom::
+
+<div class="blockquote2">
+
+**Forest example:** two forest plots 1000 km apart should be *closer* in embedding space than a forest plot and the field next to it. That is what makes a few labels go a long way.
+
 </div>
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# From Pretraining to Transfer
+# Earth Embeddings ≠ Geospatial Foundation Models
 
-<div class="flex items-center gap-4 font-mono text-[.78rem] mt-6 mb-6 flex-wrap">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">large unlabeled dataset</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">pretraining</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-300 bg-blue-100 px-3 py-2 font-semibold">$e_\theta$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">many downstream tasks</span>
-</div>
+::left::
 
-<div class="grid grid-cols-3 gap-3">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Classification</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Regression</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Retrieval</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Segmentation</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Change detection</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[.7rem]">Clustering</div>
-</div>
+### Geospatial foundation models (GeoFMs)
+
+Large multimodal deep networks trained on diverse geospatial data, meant to be **fine-tuned** for downstream tasks (e.g., segmentation). Architecture and objective decisions are made here.
+
+Clay, Prithvi, Galileo, Smarties, DOFA, SkySense
+
+::right::
+
+### Earth embeddings
+
+Interoperable, **location-indexed data outputs** that can be stored, shared, and queried independently of the model that created them.
+
+AlphaEarth Foundations, Tessera, Major TOM (databases) · SatCLIP, GeoCLIP, SINR (location encoders)
+
+::bottom::
+
+> A GeoFM is the **factory**; Earth embeddings are the **product** you take home. Often a by-product of GeoFMs, but the part users actually touch.
+
+<!--
+Paper box "Earth Embeddings and Geospatial Foundation Models": GeoFMs are large-scale modeling and learning frameworks, whereas Earth embeddings constitute the interoperable location-indexed data outputs.
+-->
 
 ---
-section: explicit-embeddings
+section: what
 ---
 
-# Scaling Up Representation Learning
+# The Four Central Functions
 
-<div class="flex flex-col gap-4 mt-8">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 flex items-center gap-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 w-32 shrink-0">Small encoder</div>
-    <div class="text-[.74rem] text-gray-600">Pretrained on a limited dataset; transferable within domain</div>
-  </div>
-  <div class="text-gray-300 text-center text-sm">↓ more data, larger model, broader objective</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 flex items-center gap-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 w-32 shrink-0">Large encoder</div>
-    <div class="text-[.74rem] text-gray-600">Pretrained on many scenes and sensors; transfers broadly</div>
-  </div>
-  <div class="text-gray-300 text-center text-sm">↓ more data, larger model, broader objective</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 flex items-center gap-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 w-32 shrink-0">Foundation model</div>
-    <div class="text-[.74rem] text-blue-800">Large pretrained model intended as a general-purpose geospatial encoder</div>
-  </div>
+<img src="./assets/earth-embeddings/fig2.png" class="w-full max-h-[290px] object-contain" alt="Figure 2: compression, integration with other foundation models, fusion, and interpolation" />
+
+**Compression** · **Fusion** · **Interpolation** · **Interoperability**: current approaches serve one or more of these.
+
+<div class="slide-citation">
+Figure 2 from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# Geospatial Foundation Models
+# Compression and Fusion
 
-<div class="mt-5 text-[.82rem] text-gray-700 mb-5">
-  Large pretrained models intended to provide reusable representations across datasets, regions, sensors, or tasks.
-</div>
+::left::
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="flex flex-col gap-3">
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Pretrained on large-scale satellite or aerial data</div>
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Encoder output used directly as a feature</div>
-    <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.74rem]">Fine-tuned on small labeled datasets for downstream tasks</div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
-    <!-- TODO: insert selected model examples (SatMAE, Scale-MAE, Prithvi, GFM, etc.) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ selected geospatial foundation model examples ]</div>
-  </div>
-</div>
+![Compressing geospatial big data into a short vector](./assets/earth-embeddings/fig2-a-compression.png)
 
----
-section: explicit-embeddings
----
+**Compression:** distil high-dimensional, multimodal data (images, text) into a small vector. Lossy, but geospatial data are highly redundant and spatiotemporally structured.
 
-# What Does a Foundation Model Embedding Encode?
+Current embeddings are correlated, with low intrinsic dimension → dedicated compression models are still needed.
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  The embedding $z$ may contain much more information than the downstream task explicitly requests.
-</div>
+::right::
 
-<div class="grid grid-cols-3 gap-3 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Land cover</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Scene structure</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Season</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Climate zone</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Geographic context</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Sensor characteristics</div>
-</div>
+![Fusing audio, photo, image, and text into one embedding](./assets/earth-embeddings/fig2-c-fusion.png)
 
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-  The representation may carry much more than the downstream task needs — or may omit what it needs.
+**Fusion:** combine modalities into a joint embedding space, using their shared location and time.
+
+E.g., one embedding for the satellite image *and* the social-media posts at a place: MMEarth, DOFA, Galileo, Smarties, SkySense.
+
+<div class="slide-citation">
+Figure 2 (a, c) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: explicit-embeddings
+section: what
+layout: bonn-two-cols-header
 ---
 
-# Explicit Geospatial Embeddings
+# Interpolation and Interoperability
 
-<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$x_{\text{observation}}$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$e_\theta(x)$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-400 bg-blue-100 px-4 py-3">$z$</span>
-</div>
+::left::
 
-<div class="grid grid-cols-2 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Image embedding:</strong> one satellite patch → one vector</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Patch embedding:</strong> sub-image patch → local descriptor</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Temporal embedding:</strong> time series → sequence representation</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-[.7rem]"><strong>Multimodal embedding:</strong> multiple sensors → joint representation</div>
-</div>
+![Interpolating embeddings to unseen locations](./assets/earth-embeddings/fig2-d-interpolation.png)
 
-<div class="mt-5 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-[.78rem] text-amber-900">
-  The observation must be available when the embedding is computed.
+**Interpolation:** location encoders learn a smooth surface in embedding space, so **any** location (in continuous space and time) can be queried, even if it was not in the training data. SatCLIP, SINR, GeoCLIP.
+
+::right::
+
+![Integrating Earth embeddings with other AI models](./assets/earth-embeddings/fig2-b-integrating.png)
+
+**Interoperability:** embeddings act as **“location tokens”** for other foundation models, e.g., LLMs: “What are similar locations to (lon, lat)?” Location encoders also plug into image synthesis and super-resolution.
+
+<div class="slide-citation">
+Figure 2 (b, d) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: explicit-embeddings
+section: what
 ---
 
-# Using Explicit Embeddings
+# Forest Example: What Does an Embedding Buy Us?
 
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Classification</div>
-    <div class="text-[.68rem] text-gray-500">assign a category to each embedding</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Clustering</div>
-    <div class="text-[.68rem] text-gray-500">group similar scenes without labels</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Retrieval</div>
-    <div class="text-[.68rem] text-gray-500">find similar scenes in large archives</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Regression</div>
-    <div class="text-[.68rem] text-gray-500">estimate continuous quantities</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Change analysis</div>
-    <div class="text-[.68rem] text-gray-500">compare embeddings across time</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Diversity analysis</div>
-    <div class="text-[.68rem] text-gray-500">measure coverage and variety</div>
-  </div>
-</div>
+| Function | For our forest map |
+|---|---|
+| **Compression** | A 64-D vector per pixel instead of years of multispectral time series |
+| **Fusion** | Optical + radar (sees through clouds) + elevation, already combined |
+| **Interpolation** | A value for every location, including where there is no plot |
+| **Interoperability** | The same vectors serve the biodiversity team next door |
 
----
-section: explicit-embeddings
----
+<v-click>
 
-# Block 1 Takeaway
+> Earth embeddings turn geospatial analytics from **fragmented, task-specific modelling** into a **reusable, general** framework. The paper posits they will become a dominant format of geospatial data in the AI age.
 
-<div class="mt-8 flex items-center justify-center mb-8">
-  <div class="rounded-xl border-2 border-blue-300 bg-blue-50 px-8 py-5 text-blue-900">
+</v-click>
 
-$$\boxed{x_{\text{observation}} \rightarrow e_\theta(x) \rightarrow z}$$
+<!--
+Next: how does geographic information actually get into that vector?
+-->
 
-  </div>
-</div>
-
-<div class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[.82rem] text-blue-900">
-  <strong>Explicit geospatial embeddings</strong> summarize observed data into reusable learned representations. Self-supervised pretraining removes the need for labels; scaling up yields geospatial foundation models.
-</div>
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: implicit-embeddings
-sectionTitle: Implicit Geospatial Embeddings
+section: learning
+sectionTitle: How to learn?
 ---
 
-# Implicit Geospatial Embeddings
+# How do we learn Earth embeddings?
 
-<div class="text-[.9rem] text-gray-700 mt-4">
-  From Location Encoders to Generic Representations of Geographic Space
-</div>
-
-<div class="text-[.72rem] text-gray-500 mt-4">
-  location → continuous functions → coordinate networks → location encoders → implicit embeddings
-</div>
-
----
-section: implicit-embeddings
----
-
-# Must an Embedding Start From an Observation?
-
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Observation-based</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
-      <span>$x_{\text{image}}$</span>
-      <span class="text-gray-400">→</span>
-      <span>$z$</span>
-    </div>
-    <div class="text-[.72rem] text-gray-600">Requires an image or observation at query time.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Location-based</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
-      <span>$p_{\text{location}}$</span>
-      <span class="text-blue-400">→</span>
-      <span>$z$</span>
-    </div>
-    <div class="text-[.72rem] text-blue-800">Requires only geographic coordinates.</div>
-  </div>
-</div>
-
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.78rem] text-blue-900">
-  Can we learn a representation of a place without observing an image at query time?
-</div>
-
----
-section: implicit-embeddings
----
-
-# Discrete or Continuous Geographic Information?
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Discrete</div>
-    <ul class="text-[.72rem] text-gray-600 space-y-1 list-disc pl-4 mb-3">
-      <li>raster cells</li>
-      <li>vector geometries</li>
-      <li>point observations</li>
-    </ul>
-    <div class="text-[.68rem] text-gray-400">Store values at explicit spatial supports</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Continuous</div>
-    <div class="font-mono text-[.78rem] bg-white border border-blue-100 rounded px-3 py-2 mb-3">
-      $f : \mathcal{X} \rightarrow \mathcal{Y}$
-    </div>
-    <div class="text-[.72rem] text-blue-800">A continuous model stores parameters of a function instead of explicitly storing every spatial sample.</div>
-  </div>
-</div>
-
----
-section: implicit-embeddings
----
-
-# Functional Models of the Earth
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
-  Large-scale Earth fields have long been represented as continuous functions — not stored pixel by pixel.
-</div>
-
-<div class="grid grid-cols-3 gap-4 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Gravity</div>
-    <div class="text-[.68rem] text-gray-500">EGM2008: degree 2190 spherical harmonic model</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Magnetic field</div>
-    <div class="text-[.68rem] text-gray-500">IGRF: global spherical harmonic coefficients</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Geoid</div>
-    <div class="text-[.68rem] text-gray-500">Physical sea-level surface as a functional model</div>
-  </div>
-</div>
-
-<div class="mt-5 text-[.74rem] text-gray-600">
-  The field is stored through <em>coefficients of a continuous function</em>, evaluated wherever needed.
-</div>
-
----
-section: implicit-embeddings
----
-
-# Basis Functions
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
-  A general functional model represents a field as a linear combination of basis functions:
-</div>
-
-<div class="flex items-center justify-center my-5">
-  <div class="font-mono text-[.85rem] bg-gray-50 border border-gray-200 rounded px-6 py-4">
-    $$f(x) = \sum_k a_k \, \phi_k(x)$$
-  </div>
-</div>
-
-<div class="grid grid-cols-2 gap-4 mt-4 text-[.74rem]">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>$\phi_k(x)$:</strong> basis functions — predefined shapes that span the function space
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>$a_k$:</strong> coefficients — the learned or fitted parameters. The coefficients <em>are</em> the representation.
-  </div>
-</div>
-
----
-section: implicit-embeddings
----
-
-# Fourier Features
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Sine and cosine are the simplest basis functions on a periodic domain:
-    </div>
-    <div class="font-mono text-[.78rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $\phi_k(x) = \sin(kx),\;\cos(kx)$
-    </div>
-    <div class="flex flex-col gap-2 mt-4">
-      <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.72rem]">
-        <strong>Low $k$</strong> — broad spatial variation
-      </div>
-      <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.72rem]">
-        <strong>High $k$</strong> — fine spatial detail
-      </div>
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add sinusoidal basis functions at several frequencies -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ sinusoidal basis functions at $k = 1, 2, 3, \ldots$ ]</div>
-  </div>
-</div>
+<img class="bonn-section-image" src="./assets/earth-embeddings/fig4-a-methods.png" alt="Explicit feature extraction versus implicit neural representation" />
 
-<div class="mt-4 text-[.7rem] text-blue-700">
-  → Connects directly to positional encoding in neural networks.
+<div class="bonn-section-citation">
+Figure 4(a) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: implicit-embeddings
+section: learning
+layout: bonn-two-cols-header
 ---
 
-# From Fourier Modes to Spherical Harmonics
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Fourier functions work on periodic or Euclidean domains. The Earth is a sphere.
-    </div>
-    <div class="font-mono text-[.8rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4 text-center">
-      $\sin, \cos \;\xrightarrow{\text{sphere}}\; Y_{\ell m}(\theta, \lambda)$
-    </div>
-    <div class="text-[.74rem] text-gray-600">
-      Spherical harmonics are the natural generalization of sinusoidal basis functions to $S^2$.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add circle → sphere transition figure -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ circle → sphere transition ]</div>
-  </div>
-</div>
-
-<div class="mt-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-  The geometry of the domain matters.
-</div>
-
----
-section: implicit-embeddings
----
-
-# Geometry-Aware Basis Functions
-
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Line / Periodic</div>
-    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-2 py-1 mb-2">$\sin(kx),\,\cos(kx)$</div>
-    <div class="text-[.68rem] text-gray-500">Fourier modes</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Sphere $S^2$</div>
-    <div class="font-mono text-[.75rem] bg-white border border-blue-100 rounded px-2 py-1 mb-2">$Y_{\ell m}(\theta,\lambda)$</div>
-    <div class="text-[.68rem] text-blue-700">Spherical harmonics</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">General domain</div>
-    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-2 py-1 mb-2">$\Delta\phi_k = \lambda_k\phi_k$</div>
-    <div class="text-[.68rem] text-gray-500">Laplacian eigenfunctions</div>
-  </div>
-</div>
-
-<div class="mt-5 text-[.75rem] text-gray-600 text-center">
-  Each domain determines its own natural frequency basis through the geometry.
-</div>
-
----
-section: implicit-embeddings
----
-
-# Neural Networks for Continuous Signal Modeling
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  Instead of fixed basis functions, a neural network can parameterize the continuous function directly.
-</div>
-
-<div class="flex items-center justify-center gap-5 my-6 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$p$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$f_\theta(p)$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$y$</span>
-</div>
-
-<div class="text-[.75rem] text-gray-600 text-center">
-  The network parameters $\theta$ <em>are</em> the representation of the continuous function.
-</div>
+# Two Routes into a Vector
 
----
-section: implicit-embeddings
----
+<img src="./assets/earth-embeddings/fig4-a-methods.png" class="w-full max-h-[240px] object-contain" alt="Figure 4a: explicit feature extraction encodes images from a database; implicit neural representation encodes coordinates" />
 
-# Coordinate Networks
+::left::
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  The simplest formulation: the input is the coordinate; the output is the signal at that coordinate.
-</div>
-
-<div class="flex items-center justify-center gap-5 my-6 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$\mathbf{x}$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$f_\theta(\mathbf{x})$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$\mathbf{y}$</span>
-</div>
+**Explicit:** look up the data at (lon, lat, time) in a database, then encode the **data** with an image (or time-series) encoder.
 
-<div class="grid grid-cols-2 gap-4 mt-3 text-[.74rem]">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>Input:</strong> spatial coordinate
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>Output:</strong> signal value at that coordinate
-  </div>
-</div>
+::right::
 
----
-section: implicit-embeddings
----
+**Implicit:** encode the **coordinates themselves**; the knowledge about that place lives in the encoder’s weights.
 
-# An Image as a Function
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Discrete: pixel grid</div>
-    <div class="text-center rounded bg-gray-100 px-4 py-6 text-[.68rem] text-gray-400">[ pixel grid ]</div>
-    <div class="text-[.72rem] text-gray-600 mt-2">Store $H \times W \times 3$ values explicitly</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Continuous: neural function</div>
-    <div class="font-mono text-[.8rem] bg-white border border-blue-100 rounded px-4 py-3 mb-2 text-center">
-      $f_\theta(x, y) \rightarrow \mathrm{RGB}$
-    </div>
-    <div class="text-[.72rem] text-blue-800 mt-2">Store network weights; evaluate at any $(x,y)$</div>
-  </div>
+<div class="slide-citation">
+Figure 4(a) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: implicit-embeddings
+section: learning
+layout: bonn-two-cols-header
 ---
-
-# Positional Encoding
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
-  Map coordinates to sinusoidal features before the MLP to represent fine spatial variation more easily.
-</div>
 
-<div class="flex items-center justify-center gap-4 my-6 font-mono text-[.8rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$p$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$\gamma(p)$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">MLP</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y$</span>
-</div>
+# Explicit Feature Extraction
 
-<div class="text-[.74rem] text-gray-600">
-  The encoding $\gamma(p) = [\sin(2\pi B p),\;\cos(2\pi B p)]$ injects multiple frequencies explicitly. The MLP only needs to combine them.
-</div>
+::left::
 
----
-section: implicit-embeddings
----
+![Explicit feature extraction pipeline](./assets/earth-embeddings/fig4-a-explicit.png)
 
-# SIREN
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Fourier features</div>
-    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-3 py-2 mb-2">$p \rightarrow \gamma(p) \rightarrow \mathrm{MLP}$</div>
-    <div class="text-[.72rem] text-gray-600">Sinusoids <em>before</em> the network</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">SIREN</div>
-    <div class="font-mono text-[.75rem] bg-white border border-blue-100 rounded px-3 py-2 mb-2">$\sigma(x) = \sin(\omega_0 x)$</div>
-    <div class="text-[.72rem] text-blue-800">Sinusoidal activations <em>inside</em> the network</div>
-  </div>
-</div>
+Embed geospatial data directly with architectures and objectives from computer vision or time-series analysis. Since the inputs are geolocated, so are the embeddings.
 
-<div class="mt-5 text-[.74rem] text-gray-500">
-  Both address spectral bias; SIREN propagates sinusoidal structure through all layers.
+<div class="slide-citation">
+Figure 4(a, top) from Klemmer et al. (2026), CC BY 4.0
 </div>
-
-<!-- TODO: cite Sitzmann et al. 2020 (SIREN) -->
-
----
-section: implicit-embeddings
----
 
-# Neural Fields Beyond Geography
+::right::
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  Coordinate-based neural functions appear across many domains — not only geospatial.
-</div>
+Three families, from simple to large:
 
-<div class="grid grid-cols-2 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Images:</strong> $(x,y) \rightarrow$ RGB</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Signed-distance functions:</strong> $\mathbf{x} \rightarrow$ SDF (3D shape)</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Occupancy:</strong> $\mathbf{x} \rightarrow$ occupied / free</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-[.72rem]"><strong>Radiance fields (NeRF):</strong> $(\mathbf{x},\mathbf{d}) \rightarrow$ colour + density</div>
-</div>
+1. **Random features:** MOSAIKS
+2. **Self-supervised encoders:** contrastive or masked models trained on BigEarthNet or SSL4EO Sentinel-2 imagery
+3. **Multimodal GeoFMs:** DOFA, Smarties, MMEarth, Galileo, AlphaEarth
 
-<div class="mt-5 text-[.72rem] text-gray-500">
-  The same pattern — coordinate in, signal out — recurs across domains.
-</div>
+<!--
+Recall the deep-learning lectures: any encoder that maps an image patch to a vector is an explicit Earth embedding model once the patch has coordinates.
+-->
 
 ---
-section: implicit-embeddings
+section: learning
 ---
 
-# NeRF as an Example
-
-<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$(\mathbf{x},\mathbf{d})$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$f_\theta$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$(\sigma, \mathbf{c})$</span>
-</div>
-
-<div class="grid grid-cols-2 gap-4 mt-4 text-[.74rem]">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>$\mathbf{x}$:</strong> 3D position; <strong>$\mathbf{d}$:</strong> view direction
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <strong>$\sigma$:</strong> density; <strong>$\mathbf{c}$:</strong> colour
-  </div>
-</div>
+# Simplest Explicit Embedding: MOSAIKS
 
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-  Complex signals can be represented as continuous neural functions over coordinates.
-</div>
+<img src="./assets/tutorial/mosaiks-rcf.png" class="w-full max-h-[190px] object-contain" alt="MOSAIKS: sample K random patches, convolve them over each image, apply a nonlinearity, and average over pixels into a K-dimensional feature vector" />
 
----
-section: implicit-embeddings
----
+- Draw $K$ random patches from the image set and use them as **fixed convolution filters**: no training at all.
+- Convolve, apply a nonlinearity, average over pixels → a $K$-dimensional vector per image.
+- A **linear model** on top predicts forest cover, income, population, and more.
 
-# Bring the Coordinate Network Back to Earth
+> Even **random** features turn imagery into useful vectors: a strong baseline for every learned embedding.
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  Using coordinate networks for geographic space introduces domain-specific challenges.
+<div class="slide-citation">
+Rolf et al. (2021), “A generalizable and accessible approach to machine learning with global satellite imagery,” <em>Nature Communications</em>. Figure via the ISPRS 2026 tutorial.
 </div>
 
-<div class="grid grid-cols-2 gap-4 mt-4">
-  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
-    <strong>Longitude discontinuity:</strong> $-180°$ and $+180°$ are the same location
-  </div>
-  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
-    <strong>Poles:</strong> longitude becomes degenerate at $\pm 90°$ latitude
-  </div>
-  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
-    <strong>Spherical geometry:</strong> Euclidean distances are not geographic distances
-  </div>
-  <div class="rounded-xl border border-amber-100 bg-amber-50 p-4 text-[.72rem] text-amber-900">
-    <strong>Global scale:</strong> fine local and broad global structure must coexist
-  </div>
-</div>
+<!--
+Demo 2 of the tutorial builds MOSAIKS random convolutional features from scratch and compares them with a pretrained SSL4EO-S12 ResNet-18.
+-->
 
 ---
-section: implicit-embeddings
+section: learning
+layout: bonn-two-cols-header
 ---
-
-# Geographic Coordinate Encodings
 
-<div class="mt-4 text-[.78rem] text-gray-700 mb-4">
-  How we encode the location input matters.
-</div>
-
-<div class="flex flex-col gap-3 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>Raw $(\phi, \lambda)$:</strong> discontinuity at $\pm 180°$; poles degenerate</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>3D Cartesian $(x,y,z)$:</strong> continuous on the sphere; no discontinuity</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>Fourier features:</strong> $[\sin(k\phi),\cos(k\phi),\ldots]$ — injects frequency</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem]"><strong>Spherical harmonics:</strong> geometry-aware, no discontinuity</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.72rem] text-blue-900"><strong>Geometry-aware spectral:</strong> designed for the sphere from the start</div>
-</div>
-
----
-section: implicit-embeddings
----
+# Learned Features: Self-Supervised Encoders
 
-# Spherical Harmonics + Neural Network
-
-<div class="flex items-center justify-center gap-4 my-8 font-mono text-[.8rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$p$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$Y_{\ell m}(p)$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">MLP</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y(p)$</span>
-</div>
+Instead of designing or sampling features, **learn** them on large unlabelled archives.
 
-<div class="text-[.78rem] text-gray-700 mb-3">
-  The classical spherical harmonic basis becomes an input representation for a neural model.
-</div>
-<div class="text-[.74rem] text-gray-500">
-  The MLP learns nonlinear combinations of spherical harmonic features — more expressive than a purely linear model.
-</div>
+::left::
 
----
-section: implicit-embeddings
----
+![Masked autoencoder: most image patches are masked, an encoder processes the visible ones, and a decoder reconstructs the image](./assets/tutorial/mae.png)
 
-# Spherical Harmonics + SIREN
-
-<div class="flex items-center justify-center gap-4 my-8 font-mono text-[.8rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$p$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$Y_{\ell m}(p)$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-300 bg-blue-100 px-3 py-2">$\mathrm{SIREN}_\theta$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y(p)$</span>
-</div>
+**Masked autoencoder (MAE):** hide most patches, reconstruct them; the encoder output is the embedding.
 
-<div class="grid grid-cols-2 gap-4 mt-3 text-[.72rem]">
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-    <strong>Spherical harmonics →</strong> geometry-aware input encoding
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-    <strong>SIREN →</strong> nonlinear high-frequency modeling
-  </div>
+<div class="slide-citation">
+He et al. (2022), “Masked autoencoders are scalable vision learners,” CVPR.
 </div>
 
-<!-- TODO: add citation for SH+SIREN paper from paper-analysis deck (Session 2) -->
-
----
-section: implicit-embeddings
----
+::right::
 
-# Residual and Multi-Network Variants
-
-<div class="mt-5 grid grid-cols-2 gap-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Residual SIREN</div>
-    <div class="text-[.7rem] text-gray-600">Skip connections through sinusoidal layers; better gradient flow</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Multiple local MLPs</div>
-    <div class="text-[.7rem] text-gray-600">Different networks for different spatial regions</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Hierarchical models</div>
-    <div class="text-[.7rem] text-gray-600">Coarse-to-fine scale decomposition</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Mixture approaches</div>
-    <div class="text-[.7rem] text-gray-600">Soft partition of space into locally specialized experts</div>
-  </div>
-</div>
+![MMEarth: one encoder, several decoders reconstructing optical, radar, elevation, land-cover and climate modalities](./assets/tutorial/mmearth.png)
 
----
-section: implicit-embeddings
----
+**Cross-modal autoencoding (MMEarth):** reconstruct *other* modalities (radar, elevation, land cover, climate) from one input → **fusion** built in.
 
-# Geographic Neural Fields
-
-<div class="flex items-center justify-center gap-4 my-6 font-mono text-[.8rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$(p_i, y_i)$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2">$f_\theta(p)$</span>
-  <span class="text-gray-400">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">$y$</span>
+<div class="slide-citation">
+Nedungadi et al. (2024), “MMEarth: Exploring multi-modal pretext tasks for geospatial representation learning,” ECCV.
 </div>
 
-<div class="text-[.78rem] text-gray-700 mb-4">Target signals over geographic coordinates:</div>
-
-<div class="grid grid-cols-3 gap-3">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Climate</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Elevation</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Land properties</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Population</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Biodiversity</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Vegetation</div>
-</div>
+<!--
+Self-supervised learning is covered in more depth in its own lecture; here we only need the idea that the pretext task produces a general-purpose encoder.
+-->
 
 ---
-section: implicit-embeddings
+section: learning
+layout: bonn-two-cols-header
 ---
-
-# Species Observations as a Spatial Signal
 
-<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">$p$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">$P(\text{species} \mid p)$</span>
-</div>
-
-<div class="text-[.78rem] text-gray-700 mb-4">
-  Georeferenced occurrence records form a spatial signal — presence at location $p$.
-</div>
-
-<div class="text-[.74rem] text-gray-500">
-  A coordinate network can learn to predict species occurrence from location — effectively learning the spatial distribution of a taxon without explicit rasterization.
-</div>
+# Explicit Embeddings: Resolution and Modality
 
-<!-- TODO: add species-distribution / spatial-INR paper example from Session 2 of paper-analysis deck -->
+::left::
 
----
-section: implicit-embeddings
----
+### Resolution
 
-# From Signal Prediction to Location Representation
-
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Signal model</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
-      <span>$p$</span>
-      <span class="text-gray-400">→</span>
-      <span>$y$</span>
-    </div>
-    <div class="text-[.72rem] text-gray-600">The output is a signal value.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Representation model</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-3">
-      <span>$p$</span>
-      <span class="text-blue-400">→</span>
-      <span class="underline">$e_\theta$</span>
-      <span class="text-blue-400">→</span>
-      <span class="text-blue-800">$z(p)$</span>
-      <span class="text-blue-400">→</span>
-      <span>$y$</span>
-    </div>
-    <div class="text-[.72rem] text-blue-800">The hidden representation itself is the object of interest.</div>
-  </div>
-</div>
+- **Patch level:** one vector per image or tile (Clay, MMEarth)
+- **Pixel level:** one vector per pixel, e.g., 64-D every 10 m (AlphaEarth, Tessera)
 
----
-section: implicit-embeddings
----
+The embedding inherits the **extent**, **ground sample distance**, and **acquisition time** of its input.
 
-# Location Encoders
-
-<div class="flex items-center justify-center gap-5 my-8 font-mono text-[.85rem]">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">location</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-300 bg-blue-100 px-4 py-3 font-semibold">$e_\theta$</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-400 bg-blue-200 px-4 py-3">$\mathbb{R}^d$</span>
-</div>
+### Modality
 
-<div class="text-[.82rem] text-gray-700 text-center mb-4">
-  A location encoder maps geographic coordinates directly to a reusable $d$-dimensional embedding.
-</div>
+Which sensors went in? Optical-only vs. multimodal (radar, climate, elevation) can decide a task such as crop mapping.
 
-<div class="text-[.74rem] text-gray-500 text-center">
-  The embedding is implicit: spatial information is encoded in model parameters, not retrieved from local observations.
-</div>
+::right::
 
----
-section: implicit-embeddings
----
+<div class="blockquote2">
 
-# What Can a Location Embedding Encode?
-
-<div class="grid grid-cols-3 gap-3 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Climate</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Ecosystems</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Land use</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Biogeography</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Human activity</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-3 text-center text-[.7rem]">Visual appearance</div>
-</div>
+✓ Well suited for geosemantic search and fine-grained prediction (land cover, land use)
 
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900">
-  The representation is <strong>implicit</strong>: information is encoded in model parameters, not retrieved from a local observation at query time.
 </div>
 
----
-section: implicit-embeddings
----
-
-# SatCLIP / GeoCLIP-Like Models
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-4">
-  Train image and location encoders jointly so corresponding pairs become similar in embedding space.
-</div>
+<div class="blockquote4">
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Image branch</div>
-    <div class="font-mono text-[.78rem]">image $\rightarrow z_{\text{image}}$</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Location branch</div>
-    <div class="font-mono text-[.78rem]">location $\rightarrow z_{\text{location}}$</div>
-  </div>
-</div>
+✗ Less suited for geographic conditioning and data synthesis
 
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.74rem] text-blue-900">
-  Contrastive training aligns corresponding image–location pairs. The location encoder inherits visual semantics without needing an image at query time. Links to Block 1 contrastive learning.
 </div>
 
-<!-- TODO: link to SatCLIP / GeoCLIP papers in Session 4 of paper-analysis deck -->
+> **Match the embedding to the task:** field boundaries need high resolution and the right modalities; a broad climate gradient may only need coarse, optical embeddings.
 
 ---
-section: implicit-embeddings
+section: learning
 ---
-
-# The Two Blocks Meet
-
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Explicit branch</div>
-    <div class="flex items-center gap-2 font-mono text-[.75rem] mb-3">
-      <span>$x(p)$</span>
-      <span class="text-gray-400">→</span>
-      <span>$e_{\text{obs}}$</span>
-      <span class="text-gray-400">→</span>
-      <span>$z_{\text{explicit}}$</span>
-    </div>
-    <div class="text-[.7rem] text-gray-600">From observing the place</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Implicit branch</div>
-    <div class="flex items-center gap-2 font-mono text-[.75rem] mb-3">
-      <span>$p$</span>
-      <span class="text-blue-400">→</span>
-      <span>$e_{\text{loc}}$</span>
-      <span class="text-blue-400">→</span>
-      <span>$z_{\text{implicit}}$</span>
-    </div>
-    <div class="text-[.7rem] text-blue-800">From knowing where the place is</div>
-  </div>
-</div>
-
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.78rem] text-blue-900 text-center">
-  Contrastive learning can align them: $z_{\text{explicit}} \leftrightarrow z_{\text{implicit}}$
-</div>
 
----
-section: implicit-embeddings
----
+# Worked Example: AlphaEarth Foundations (1/2)
 
-# Explicit vs Implicit Geospatial Embeddings
-
-<table class="w-full text-[.72rem] mt-6 border-collapse">
-  <thead>
-    <tr class="bg-gray-100">
-      <th class="text-left px-3 py-2 border border-gray-200 text-gray-500 font-semibold uppercase text-[.6rem] tracking-wide"></th>
-      <th class="text-left px-3 py-2 border border-gray-200 text-gray-700">Explicit</th>
-      <th class="text-left px-3 py-2 border border-blue-200 bg-blue-50 text-blue-800">Implicit</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Input</td>
-      <td class="px-3 py-2 border border-gray-200">observation ($x$)</td>
-      <td class="px-3 py-2 border border-blue-200 bg-blue-50">location ($p$)</td>
-    </tr>
-    <tr class="bg-gray-50">
-      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Encoder</td>
-      <td class="px-3 py-2 border border-gray-200 font-mono">$e(x)$</td>
-      <td class="px-3 py-2 border border-blue-200 bg-blue-50 font-mono">$e(p)$</td>
-    </tr>
-    <tr>
-      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Observation at query time</td>
-      <td class="px-3 py-2 border border-gray-200">required</td>
-      <td class="px-3 py-2 border border-blue-200 bg-blue-50">not required</td>
-    </tr>
-    <tr class="bg-gray-50">
-      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Information source</td>
-      <td class="px-3 py-2 border border-gray-200">local observation</td>
-      <td class="px-3 py-2 border border-blue-200 bg-blue-50">learned spatial associations</td>
-    </tr>
-    <tr>
-      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Output</td>
-      <td class="px-3 py-2 border border-gray-200 font-mono">$z$</td>
-      <td class="px-3 py-2 border border-blue-200 bg-blue-50 font-mono">$z$</td>
-    </tr>
-    <tr class="bg-gray-50">
-      <td class="px-3 py-2 border border-gray-200 font-medium text-gray-500">Example</td>
-      <td class="px-3 py-2 border border-gray-200">EO foundation-model embedding</td>
-      <td class="px-3 py-2 border border-blue-200 bg-blue-50">SatCLIP location encoder</td>
-    </tr>
-  </tbody>
-</table>
+<img src="./assets/tutorial/alphaearth-architecture.png" class="w-full max-h-[230px] object-contain" alt="AlphaEarth Foundations architecture: multi-source inputs are encoded over time into a per-pixel embedding field and decoded back into the sources" />
 
----
-section: implicit-embeddings
----
+- An **embedding field model**: assimilates several sources (optical, radar, LiDAR, climate, …) over a time window into **one 64-D vector per 10 m pixel**.
+- Trained, among other objectives, to **reconstruct** its input sources from the embedding, so the vector summarises what was observed at that place in that year.
+- Designed for **sparse-label mapping**: a light classifier on top maps at scale.
 
-# Two Views of the Same Place
-
-<div class="grid grid-cols-2 gap-8 mt-8">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-4">Observation → embedding</div>
-    <div class="font-mono text-[.85rem]">$x(p) \rightarrow z_{\text{explicit}}$</div>
-    <div class="text-[.7rem] text-gray-500 mt-3">Requires sensing the place</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-6 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-4">Location → embedding</div>
-    <div class="font-mono text-[.85rem]">$p \rightarrow z_{\text{implicit}}$</div>
-    <div class="text-[.7rem] text-blue-700 mt-3">Only requires coordinates</div>
-  </div>
+<div class="slide-citation">
+Brown et al. (2025), “AlphaEarth Foundations: An embedding field model for accurate and efficient global mapping from sparse label data,” arXiv:2507.22291.
 </div>
 
-<div class="mt-6 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.78rem] text-blue-900 text-center">
-  One embedding comes from observing the place; the other comes from knowing where it is.
-</div>
+<!--
+The explicit counterpart to the SatCLIP worked example later in this block.
+-->
 
 ---
-section: implicit-embeddings
+section: learning
+layout: bonn-two-cols-header
 ---
 
-# Block 2 Takeaway
+# Worked Example: AlphaEarth Foundations (2/2)
 
-<div class="mt-8 flex items-center justify-center mb-8">
-  <div class="rounded-xl border-2 border-blue-300 bg-blue-50 px-8 py-5 text-blue-900">
+::left::
 
-$$\boxed{p_{\text{location}} \rightarrow e_\theta(p) \rightarrow z}$$
+![Google Earth Engine catalogue entry for the Satellite Embedding V1 dataset with availability, provider and code snippet](./assets/tutorial/alphaearth-gee.png)
 
-  </div>
+<div class="slide-citation">
+Google Earth Engine data catalogue, via the ISPRS 2026 tutorial.
 </div>
 
-<div class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[.82rem] text-blue-900">
-  <strong>Implicit geospatial embeddings</strong> generate representations directly from location using learned spatial structure. No observation is required at query time.
-</div>
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: synthesis
-sectionTitle: Course Synthesis
----
-
-# Final Course Synthesis
-
----
-section: synthesis
----
-
-# What Can Be a Representation?
-
-<div class="flex flex-col gap-5 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Engineered representation</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-2">
-      <span>$x$</span>
-      <span class="text-gray-400">→</span>
-      <span>$\phi(x)$</span>
-    </div>
-    <div class="text-[.7rem] text-gray-500">Human design — hand-crafted features, spectral indices, kernels</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Explicit learned representation</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-2">
-      <span>$x$</span>
-      <span class="text-gray-400">→</span>
-      <span>$e_\theta(x)$</span>
-      <span class="text-gray-400">→</span>
-      <span>$z$</span>
-    </div>
-    <div class="text-[.7rem] text-gray-500">Learned from observations — deep learning, self-supervised, foundation models</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Implicit learned representation</div>
-    <div class="flex items-center gap-3 font-mono text-[.8rem] mb-2">
-      <span>$p$</span>
-      <span class="text-blue-400">→</span>
-      <span>$e_\theta(p)$</span>
-      <span class="text-blue-400">→</span>
-      <span>$z$</span>
-    </div>
-    <div class="text-[.7rem] text-blue-700">Learned from spatial supervision — coordinate networks, location encoders</div>
-  </div>
-</div>
+::right::
 
----
-section: synthesis
----
+Released as a **precomputed dataset**, not as a model:
 
-# Where Does the Information Come From?
-
-<div class="grid grid-cols-3 gap-5 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Engineered</div>
-    <div class="text-[.75rem] text-gray-700 font-medium">Human design</div>
-    <div class="text-[.68rem] text-gray-500 mt-2">Domain knowledge drives feature construction</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Explicit learned</div>
-    <div class="text-[.75rem] text-gray-700 font-medium">Observations + learning objective</div>
-    <div class="text-[.68rem] text-gray-500 mt-2">The data itself drives what is encoded</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Implicit learned</div>
-    <div class="text-[.75rem] text-blue-900 font-medium">Spatial supervision + learned associations</div>
-    <div class="text-[.68rem] text-blue-700 mt-2">Spatial structure in data drives geographic embedding</div>
-  </div>
-</div>
-
----
-section: synthesis
----
+```js
+ee.ImageCollection(
+  "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL")
+```
 
-# Geospatial Representation Learning
-
-<div class="flex items-center justify-center gap-4 font-mono text-[.82rem] flex-wrap mt-8 mb-8">
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">data / location</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">learning</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-blue-300 bg-blue-100 px-4 py-3 font-semibold">representation</span>
-  <span class="text-gray-400 text-xl">→</span>
-  <span class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">downstream task</span>
-</div>
+- annual global layers, one 64-band image per year
+- users only **look up** vectors; no GPU, no imagery pipeline
+- the model weights are **not** released (more on openness in Block 4)
 
-<div class="rounded-xl border border-blue-200 bg-blue-50 px-6 py-5 text-[.82rem] text-blue-900">
-  Geospatial representation learning is about deciding <strong>what information should be encoded</strong>, <strong>where that information comes from</strong>, and <strong>how reusable the resulting representation should be</strong>.
-</div>
+<div class="blockquote2">
 
----
-section: synthesis
----
+**Forest example:** query the 64-D vector at each plot, train a classifier, apply it to every pixel.
 
-# Course Takeaway
-
-<div class="flex items-center justify-center h-[65%]">
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-10 py-8 text-center max-w-xl">
-    <div class="text-[1rem] font-semibold text-blue-900 leading-relaxed">
-      Good representations turn complex geospatial information into forms that make useful tasks easier.
-    </div>
-  </div>
 </div>
-
-<!-- OLD LECTURE 6 CONTENT - PRESERVED FOR REFERENCE -->
-<!-- The slides below are the original Lecture 6 (Implicit Neural Representations). -->
-<!-- They are kept here for reference and may be partially reused in future lectures. -->
 
 ---
-addons:
-  - "../"
-defaults:
-  layout: bonn-content
-layout: bonn-cover
-subhead: Lecture 6
-home: ../
+section: learning
+layout: bonn-two-cols-header
 ---
 
 # Implicit Neural Representations
 
-## Representing geospatial information as a continuous learned function
+::left::
+
+![Implicit neural representation: coordinates to location encoder to embedding](./assets/earth-embeddings/fig4-a-implicit.png)
+
+A **location encoder** takes coordinates (and possibly time) as input and outputs an embedding. Inspired by implicit neural representations in computer vision (SIREN, NeRF).
+
+<div class="slide-citation">
+Figure 4(a, bottom) from Klemmer et al. (2026), CC BY 4.0
+</div>
+
+::right::
+
+Two parts:
+
+1. **Positional encoding** $\mathrm{PE}(\lambda,\phi,t)$: a fixed function that expands coordinates into many features.
+2. **Neural network** $\mathrm{NN}_\theta$: a small MLP or SIREN that maps those features to $\mathbf{emb}$.
+
+$$
+\mathbf{emb} = \mathrm{NN}_\theta\big(\mathrm{PE}(\lambda,\phi,t)\big)
+$$
+
+Lightweight, open source, queryable anywhere. Examples: SatCLIP, GeoCLIP, SINR, Climplicit.
+
+---
+section: learning
+layout: bonn-two-cols-header
+---
+
+# Spatial Encodings: Respecting a Sphere
+
+::left::
+
+Raw (lon, lat) are a poor input: the network must learn that −180° and 180° are the same place, and a flat grid distorts the poles.
+
+**Spherical harmonics** $Y_\ell^m$ are the Fourier basis on the sphere:
+
+$$
+\mathrm{PE}(\lambda,\phi) = \big[\,Y_\ell^m(\lambda,\phi)\,\big]_{\ell=0,\dots,L;\; m=-\ell,\dots,\ell}
+$$
+
+$(L+1)^2$ features, smooth everywhere on the globe.
+
+::right::
+
+> **The degree $L$ sets the scale.** Low $L$ → only continent-scale patterns. High $L$ → finer detail, but harder to train and prone to overfitting.
+
+The encoding lets users **define the resolution** at which dynamics are modelled (metre vs. kilometre scale).
+
+Alternatives: multi-scale sinusoidal (Space2Vec, Sphere2Vec), random Fourier features (GeoCLIP).
+
+<div class="slide-citation">
+Rußwurm et al. (2024), “Geographic location encoding with spherical harmonics and sinusoidal representation networks,” ICLR.
+</div>
+
+---
+section: learning
+layout: bonn-two-cols-header
+---
+
+# Temporal Encodings: Periodic Processes
+
+::left::
+
+Many Earth processes are **periodic**: seasons (annual scale), day vs. night (daily scale).
+
+Encode time with Fourier functions of the relevant periods $P$:
+
+$$
+\mathrm{PE}(t) = \Big[\sin\tfrac{2\pi t}{P},\; \cos\tfrac{2\pi t}{P}\Big]_{P\,\in\,\{1\,\text{day},\,1\,\text{year},\,\dots\}}
+$$
+
+31 December and 1 January end up next to each other.
+
+::right::
+
+<svg viewBox="0 0 300 150" class="w-full h-[150px]">
+<line x1="10" y1="75" x2="290" y2="75" stroke="#ccc"/>
+<path d="M10.0,75.0 L12.8,71.5 L15.6,68.1 L18.4,64.7 L21.2,61.3 L24.0,58.0 L26.8,54.8 L29.6,51.6 L32.4,48.5 L35.2,45.5 L38.0,42.7 L40.8,39.9 L43.6,37.3 L46.4,34.9 L49.2,32.6 L52.0,30.5 L54.8,28.6 L57.6,26.8 L60.4,25.2 L63.2,23.9 L66.0,22.7 L68.8,21.7 L71.6,21.0 L74.4,20.4 L77.2,20.1 L80.0,20.0 L82.8,20.1 L85.6,20.4 L88.4,21.0 L91.2,21.7 L94.0,22.7 L96.8,23.9 L99.6,25.2 L102.4,26.8 L105.2,28.6 L108.0,30.5 L110.8,32.6 L113.6,34.9 L116.4,37.3 L119.2,39.9 L122.0,42.7 L124.8,45.5 L127.6,48.5 L130.4,51.6 L133.2,54.8 L136.0,58.0 L138.8,61.3 L141.6,64.7 L144.4,68.1 L147.2,71.5 L150.0,75.0 L152.8,78.5 L155.6,81.9 L158.4,85.3 L161.2,88.7 L164.0,92.0 L166.8,95.2 L169.6,98.4 L172.4,101.5 L175.2,104.5 L178.0,107.3 L180.8,110.1 L183.6,112.7 L186.4,115.1 L189.2,117.4 L192.0,119.5 L194.8,121.4 L197.6,123.2 L200.4,124.8 L203.2,126.1 L206.0,127.3 L208.8,128.3 L211.6,129.0 L214.4,129.6 L217.2,129.9 L220.0,130.0 L222.8,129.9 L225.6,129.6 L228.4,129.0 L231.2,128.3 L234.0,127.3 L236.8,126.1 L239.6,124.8 L242.4,123.2 L245.2,121.4 L248.0,119.5 L250.8,117.4 L253.6,115.1 L256.4,112.7 L259.2,110.1 L262.0,107.3 L264.8,104.5 L267.6,101.5 L270.4,98.4 L273.2,95.2 L276.0,92.0 L278.8,88.7 L281.6,85.3 L284.4,81.9 L287.2,78.5 L290.0,75.0" fill="none" stroke="#00457c" stroke-width="2.5"/>
+<path d="M10.0,20.0 L12.8,20.1 L15.6,20.4 L18.4,21.0 L21.2,21.7 L24.0,22.7 L26.8,23.9 L29.6,25.2 L32.4,26.8 L35.2,28.6 L38.0,30.5 L40.8,32.6 L43.6,34.9 L46.4,37.3 L49.2,39.9 L52.0,42.7 L54.8,45.5 L57.6,48.5 L60.4,51.6 L63.2,54.8 L66.0,58.0 L68.8,61.3 L71.6,64.7 L74.4,68.1 L77.2,71.5 L80.0,75.0 L82.8,78.5 L85.6,81.9 L88.4,85.3 L91.2,88.7 L94.0,92.0 L96.8,95.2 L99.6,98.4 L102.4,101.5 L105.2,104.5 L108.0,107.3 L110.8,110.1 L113.6,112.7 L116.4,115.1 L119.2,117.4 L122.0,119.5 L124.8,121.4 L127.6,123.2 L130.4,124.8 L133.2,126.1 L136.0,127.3 L138.8,128.3 L141.6,129.0 L144.4,129.6 L147.2,129.9 L150.0,130.0 L152.8,129.9 L155.6,129.6 L158.4,129.0 L161.2,128.3 L164.0,127.3 L166.8,126.1 L169.6,124.8 L172.4,123.2 L175.2,121.4 L178.0,119.5 L180.8,117.4 L183.6,115.1 L186.4,112.7 L189.2,110.1 L192.0,107.3 L194.8,104.5 L197.6,101.5 L200.4,98.4 L203.2,95.2 L206.0,92.0 L208.8,88.7 L211.6,85.3 L214.4,81.9 L217.2,78.5 L220.0,75.0 L222.8,71.5 L225.6,68.1 L228.4,64.7 L231.2,61.3 L234.0,58.0 L236.8,54.8 L239.6,51.6 L242.4,48.5 L245.2,45.5 L248.0,42.7 L250.8,39.9 L253.6,37.3 L256.4,34.9 L259.2,32.6 L262.0,30.5 L264.8,28.6 L267.6,26.8 L270.4,25.2 L273.2,23.9 L276.0,22.7 L278.8,21.7 L281.6,21.0 L284.4,20.4 L287.2,20.1 L290.0,20.0" fill="none" stroke="#B08900" stroke-width="2.5" stroke-dasharray="5 4"/>
+<text x="200" y="18" font-size="11" fill="#00457c">sin</text><text x="240" y="18" font-size="11" fill="#B08900">cos</text>
+<text x="12" y="145" font-size="11" fill="#555">Jan</text><text x="265" y="145" font-size="11" fill="#555">Dec</text>
+</svg>
+
+*Day of year as (sin, cos): every date gets a unique, periodic code.*
+
+<div class="blockquote2">
+
+**Forest example:** deciduous vs. evergreen forest differ mainly in their *seasonal* signal → time matters.
+
+</div>
+
+---
+section: learning
+---
+
+# Learning Objectives
+
+What signal teaches the encoder what makes a place distinctive?
+
+| | Supervised | Self-supervised (geolocalization) |
+|---|---|---|
+| **Idea** | Regress a location-specific value and interpolate between training points | Match a location to what is observed there: learn what makes a place **unique** |
+| **Examples** | Sea-ice thickness, housing prices, species presence (**SINR**) | **GeoCLIP** (ground-level Flickr photos), **SatCLIP**, **CSP** (satellite imagery) |
+| **Result** | Intermediate layers still encode general semantics (topography, biome boundaries) | General-purpose embeddings for many downstream tasks |
+
+Explicit models mostly *borrow* objectives from computer vision and NLP (masked autoencoding, contrastive learning). Objectives that exploit spatial autocorrelation or temporal dynamics are largely unexplored (Block 4).
+
+---
+section: learning
+---
+
+# Worked Example: SatCLIP (1/3) — Setup
+
+<img src="./assets/tutorial/satclip-contrastive.png" class="w-full max-h-[230px] object-contain" alt="SatCLIP: satellite images and their coordinates are encoded by an image encoder and a location encoder, and contrastive learning matches the two embeddings" />
+
+- **SatCLIP** (Klemmer et al., AAAI 2025): *Satellite Contrastive Location–Image Pretraining*. CLIP, with “caption” replaced by “coordinate”.
+- **Data:** ~100k Sentinel-2 tiles sampled across the global landmass (S2-100K), each with its centre coordinate.
+- **Encoders:** a pretrained image encoder $f$ (ResNet / ViT) and a location encoder $g$ (spherical harmonics + SIREN). After training, $f$ is discarded: **$g$ is the Earth embedding model**.
+
+<div class="slide-citation">
+Klemmer et al. (2025), “SatCLIP: Global, general-purpose location embeddings with satellite imagery,” AAAI. Figure from the ISPRS 2026 tutorial.
+</div>
+
+---
+section: learning
+layout: bonn-two-cols-header
+---
+
+# Worked Example: SatCLIP (2/3) — Contrastive Objective
+
+::left::
+
+For a batch of $B$ image–location pairs, with scaled cosine similarity $s_{ij} = \langle z^{\text{img}}_i, z^{\text{loc}}_j\rangle / \tau$:
+
+$$
+\mathcal{L} = -\frac{1}{B}\sum_{i=1}^{B}\log\frac{\exp(s_{ii})}{\sum_{j=1}^{B}\exp(s_{ij})}
+$$
+
+(symmetrised over images and locations, as in CLIP)
+
+::right::
+
+- **Positive pair:** an image and *its own* location.
+- **Negatives:** all other locations in the batch.
+
+> To pick its own image out of the batch, $g$ must learn **what the place looks like from space**: climate, vegetation, terrain, built-up area.
+
+---
+section: learning
+layout: bonn-two-cols-header
+---
+
+# Worked Example: SatCLIP (3/3) — What You Get
+
+::left::
+
+- A **global, continuous embedding field**: query any (lon, lat), even unseen locations.
+- Captures what large-scale overhead imagery shows: **climate zones, forest coverage**.
+- Does **not** capture what the imagery cannot see, e.g., **ocean currents** (and it was trained on land tiles only).
+- Low vs. high $L$ trades smoothness against detail.
+
+::right::
+
+<div class="blockquote2">
+
+**Forest example:** SatCLIP knows “this region is boreal / temperate / tropical”: a good **prior**. It cannot delineate a single forest stand; its effective resolution is far too coarse.
+
+</div>
+
+**Counterpart:** GeoCLIP is trained on ground-level Flickr images and captures patterns visible from the *street*. Same recipe, different data → different embedding.
 
 <!--
-This lecture bridges Lectures 4–5 (learning and generalization) to the question of how the signal itself is represented.
-The key move: from storing observations explicitly to storing the parameters of a continuous function.
+Key lesson from the paper: general-purpose embeddings are fundamentally constrained by the raw data they are based on.
 -->
 
 ---
-
-# Learning Outcomes
-
-<div class="mt-5 flex flex-col gap-4">
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">1</div>
-    <div class="text-[.82rem] leading-snug">Explain how geospatial information can be represented as <strong>discrete data or continuous functions</strong>.</div>
-  </div>
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">2</div>
-    <div class="text-[.82rem] leading-snug">Explain how <strong>coordinate-based neural networks</strong> model continuous signals using positional encodings and sinusoidal features.</div>
-  </div>
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">3</div>
-    <div class="text-[.82rem] leading-snug">Explain how <strong>implicit neural representations</strong> can model geographic space and produce either spatial signals or location embeddings.</div>
-  </div>
-</div>
-
-<!--
-Three outcomes tracking the three blocks:
-1 → Functional Models of the Earth
-2 → Neural Networks for Continuous Signal Modeling
-3 → Implicit Neural Representations of Geographic Space
--->
-
+section: learning
 ---
 
-# Where We Are in the Course
+# Explicit vs. Implicit: A Comparison
 
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Lecture 4</div>
-    <div class="text-[.78rem] font-semibold text-gray-800">Model &amp; Optimization</div>
-    <div class="text-[.68rem] text-gray-500 mt-1">How does a neural network learn from labeled data?</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Lecture 5</div>
-    <div class="text-[.78rem] font-semibold text-gray-800">Generalization</div>
-    <div class="text-[.68rem] text-gray-500 mt-1">How does learned structure transfer beyond the training data?</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Lecture 6 — today</div>
-    <div class="text-[.78rem] font-semibold text-blue-900">Representing Data as Functions</div>
-    <div class="text-[.68rem] text-blue-700 mt-1">Can geospatial information be represented as a continuous learned function instead of discrete samples?</div>
-  </div>
+<div class="compact-table">
+
+| | Explicit feature extraction | Implicit neural representation |
+|---|---|---|
+| **Input at inference** | Data at the location (image, time series) | Coordinates (+ time) only |
+| **Where knowledge lives** | In the input data | In the network weights |
+| **Resolution** | High, native resolution of the input | Low, smooth field |
+| **Coverage** | Where and when data exist | Continuous in space and time |
+| **Model size** | Large, compute-intensive | Small, lightweight |
+| **Usual interface** | Database of precomputed vectors | Model |
+| **Best for** | Retrieval, fine-grained prediction (land cover) | Conditioning, synthesis, large-scale prediction (air quality, disease) |
+| **Examples** | MOSAIKS, Clay, MMEarth, AlphaEarth, Tessera | SatCLIP, GeoCLIP, SINR, CSP, Climplicit |
+
 </div>
-
-<div class="mt-8 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.82rem] text-blue-900 font-medium">
-  Main question: Can geospatial information be represented as a continuous learned function instead of only as discrete samples?
-</div>
-
-<!--
-Lectures 4 and 5 treated the model and the data as given.
-Lecture 6 asks a different question: what is the right form to store geospatial information in the first place?
--->
 
 ---
+section: learning
+layout: bonn-two-cols-header
+---
 
-# Discrete or Continuous?
+# Hybrid Approaches
 
-<div class="grid grid-cols-2 gap-6 mt-4">
+Combine high-resolution explicit features with low-resolution implicit context.
 
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-widest text-gray-500 mb-3">Discrete</div>
-    <div class="text-[.75rem] text-gray-700 mb-3">Store observations explicitly at discrete spatial supports.</div>
-    <div class="font-mono text-[.72rem] bg-white border border-gray-200 rounded px-3 py-2 mb-3">
-      $\{(\mathbf{x}_i, y_i)\}_{i=1}^{N}$
-    </div>
-    <div class="text-[.7rem] text-gray-500">Examples: raster cells · vector geometries · point samples</div>
-  </div>
+::left::
 
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-widest text-blue-600 mb-3">Continuous</div>
-    <div class="text-[.75rem] text-blue-800 mb-3">Store the parameters of a function; evaluate wherever needed.</div>
-    <div class="font-mono text-[.72rem] bg-white border border-blue-100 rounded px-3 py-2 mb-3">
-      $f : \mathcal{X} \rightarrow \mathcal{Y}$
-    </div>
-    <div class="text-[.7rem] text-blue-700">
-      Examples: Fourier representations · spherical harmonic models · interpolation functions · <strong>neural fields / implicit neural representations</strong>
-    </div>
-  </div>
+### Simple: concatenation
+
+$[\,\mathbf{emb}_{\text{explicit}} \,\|\, \mathbf{emb}_{\text{implicit}}\,]$ won the NeuCo-Bench challenge at the 2025 CVPR EarthVision workshop.
+
+### Advanced: retrieval augmentation
+
+**RANGE** uses implicit embeddings as queries to retrieve suitable high-resolution image features.
+
+::right::
+
+> Good results in practice, at the cost of more methodological complexity.
+
+<div class="blockquote2">
+
+**Forest example:** pixel embeddings say “there are trees here”; the location embedding says “this is the boreal zone”. Together they help separate, e.g., plantations from natural forest.
 
 </div>
 
-<div class="mt-4 text-[.7rem] text-gray-500">
-  Neural fields are one type of continuous functional model — not a separate category.
-</div>
+---
+section: learning
+---
+
+# Check: Which Embedding for Our Forest Map?
+
+| Option | Embedding |
+|---|---|
+| **A** | SatCLIP embeddings at each plot |
+| **B** | 10 m pixel embeddings from a precomputed explicit database (e.g., AlphaEarth) |
+| **C** | Both, concatenated |
+
+<v-click>
+
+> **B** is the minimum: forest cover is a fine-grained, visual task → explicit, high-resolution features. **C** can help when the classes depend on regional context. **A** alone is too coarse to draw forest edges.
+
+</v-click>
 
 <!--
-The key point: neural fields are not special or separate. They are one way to parameterize a continuous function.
-Classical geodesy and signal processing have used continuous functional models for a long time.
+Next: what do we actually do with the vectors once we have them?
 -->
+
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: functional-models
-sectionTitle: Functional Models of the Earth
+section: using
+sectionTitle: How to use?
 ---
 
-# Functional Models of the Earth
+# How do we use Earth embeddings?
 
-<div class="text-[.9rem] text-gray-700 mt-4">
-  Geospatial analysis commonly discretizes space — but global physical fields have always been modeled as continuous functions.
-</div>
+<img class="bonn-section-image" src="./assets/earth-embeddings/fig3-a-direct-prediction.png" alt="Earth embeddings used as input to predictive models of forest cover and population density" />
 
-<div class="text-[.72rem] text-gray-500 mt-4">
-  discrete Earth data → basis functions → Fourier representations → spherical harmonics → Laplacian eigenfunctions
-</div>
-
----
-section: functional-models
----
-
-# The Earth as Discrete Data
-
-<div class="grid grid-cols-3 gap-4 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Raster</div>
-    <!-- TODO: add raster grid thumbnail -->
-    <div class="text-[.68rem] text-gray-500 mt-2">Regular grid of cells, each holding a value</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Vector</div>
-    <!-- TODO: add vector geometry thumbnail -->
-    <div class="text-[.68rem] text-gray-500 mt-2">Points, lines, polygons with explicit geometry</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Point Observations</div>
-    <!-- TODO: add scatter-point map thumbnail -->
-    <div class="text-[.68rem] text-gray-500 mt-2">Irregular samples at measured locations</div>
-  </div>
-</div>
-
-<div class="mt-6 text-[.78rem] text-gray-600">
-  Most geospatial tools discretize: store values at explicit supports, then process those values.
+<div class="bonn-section-citation">
+Figure 3(a) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: functional-models
+section: using
 ---
 
-# What Happens at Global Scale?
+# Four Ways to Use Earth Embeddings
 
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Some geophysical quantities vary continuously over the entire Earth:
-    </div>
-    <ul class="text-[.75rem] text-gray-600 space-y-2 list-disc pl-4">
-      <li>Gravity field</li>
-      <li>Magnetic field</li>
-      <li>Geoid (sea-level surface)</li>
-      <li>Atmospheric pressure</li>
-      <li>Temperature and precipitation</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-6">
-    <!-- TODO: add global gravity or geoid field image -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ global field image ]</div>
-  </div>
-</div>
+<img src="./assets/earth-embeddings/fig3.png" class="w-full max-h-[300px] object-contain" alt="Figure 3: direct prediction, conditioning predictive models, data synthesis and simulation, geosemantic search and retrieval" />
 
-<div class="mt-6 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.82rem] text-blue-900">
-  Must a global field be stored as billions of individual pixels?
+Because embeddings are lightweight, all of this works **without processing or analysing raw data**.
+
+<div class="slide-citation">
+Figure 3 from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: functional-models
+section: using
+layout: bonn-two-cols-header
 ---
 
-# From Samples to Functions
+# 1 · Direct Prediction
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">General functional model:</div>
-    <div class="font-mono text-[.8rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $f(x) = \sum_k a_k \, \phi_k(x)$
-    </div>
-    <ul class="text-[.75rem] text-gray-600 space-y-2 mt-4 list-disc pl-4">
-      <li>$\phi_k$: basis functions — predefined shapes that span the space</li>
-      <li>$a_k$: coefficients — the learned or fitted parameters</li>
-      <li>The coefficients <em>are</em> the stored representation of the field</li>
-    </ul>
-  </div>
-  <div class="flex flex-col gap-3">
-    <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-      <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Discrete</div>
-      <div class="text-[.72rem] text-gray-600">Store $N$ values at $N$ locations</div>
-    </div>
-    <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-      <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-1">Functional</div>
-      <div class="text-[.72rem] text-blue-800">Store $K$ coefficients; evaluate $f(x)$ anywhere</div>
-    </div>
-  </div>
+::left::
+
+![Direct prediction of forest cover and population density from Earth embeddings](./assets/earth-embeddings/fig3-a-direct-prediction.png)
+
+<div class="slide-citation">
+Figure 3(a) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
----
-section: functional-models
----
+::right::
 
-# Sine and Cosine as Basis Functions
+Use embeddings as the **input features** of a model for a spatially distributed outcome:
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      The simplest basis functions on a periodic domain are sinusoids:
-    </div>
-    <div class="font-mono text-[.78rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $\phi_k(x) = \sin(k x), \quad \cos(k x)$
-    </div>
-    <ul class="text-[.75rem] text-gray-600 space-y-2 list-disc pl-4">
-      <li>Each basis function oscillates at a different frequency $k$</li>
-      <li>Together they can represent any square-integrable periodic signal</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add visual of sinusoidal basis functions at several frequencies -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ sinusoidal basis functions at $k = 1, 2, 3, \ldots$ ]</div>
-  </div>
-</div>
+$$
+\hat{y}(\text{loc}) = h_\psi\big(E(\text{loc})\big)
+$$
 
-<div class="mt-4 text-[.7rem] text-gray-500">
-  This prepares us for Fourier representations and, later, positional encoding in neural networks.
-</div>
+- temperature, species presence, population density, **forest cover**
+- competitive with hand-crafted features (e.g., random forests for tree-species identification)
+- **cheap:** preprocessing is already done, a linear model, $k$-NN or random forest often suffices, and no raw-data archive has to be queried
 
----
-section: functional-models
----
-
-# Fourier Representations
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-3">
-      Any signal can be decomposed into components at different spatial frequencies:
-    </div>
-    <div class="font-mono text-[.78rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $f(x) = \sum_k \bigl(a_k \cos(kx) + b_k \sin(kx)\bigr)$
-    </div>
-    <div class="flex flex-col gap-2 mt-2">
-      <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.72rem]">
-        <strong>Low frequencies</strong> — broad, smooth variation
-      </div>
-      <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-[.72rem]">
-        <strong>High frequencies</strong> — fine spatial detail
-      </div>
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add frequency decomposition figure (signal = sum of waves) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ Fourier decomposition figure ]</div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.7rem] text-blue-700">
-  → This connects directly to <strong>spectral bias</strong> and <strong>positional encoding</strong> in Block 2.
-</div>
-
----
-section: functional-models
----
-
-# From the Circle to the Sphere
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Fourier functions work on periodic or Euclidean domains. The Earth is a sphere.
-    </div>
-    <div class="font-mono text-[.8rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4 text-center">
-      $\sin, \cos \quad\xrightarrow{\text{sphere}}\quad Y_{\ell m}(\theta, \lambda)$
-    </div>
-    <div class="text-[.74rem] text-gray-600">
-      Spherical harmonics are the natural generalization of sinusoidal basis functions to the sphere $S^2$.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add side-by-side: sine wave on circle / spherical harmonic on globe -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ circle → sphere transition figure ]</div>
-  </div>
-</div>
-
----
-section: functional-models
----
-
-# Spherical Harmonics
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      A field on the sphere is modeled as:
-    </div>
-    <div class="font-mono text-[.78rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $f(\theta,\lambda) = \sum_{\ell,m} a_{\ell m} \, Y_{\ell m}(\theta,\lambda)$
-    </div>
-    <ul class="text-[.74rem] text-gray-600 space-y-2 list-disc pl-4">
-      <li>$\ell$: degree — controls the spatial scale</li>
-      <li>$m$: order — controls the longitudinal variation</li>
-      <li>Increasing $\ell$ adds finer spatial detail</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add spherical harmonic visualization grid (degree × order) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ spherical harmonic visualization $Y_{\ell m}$ ]</div>
-  </div>
-</div>
-
----
-section: functional-models
----
-
-# Modeling Global Earth Fields
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Spherical harmonics are the standard representation in physical geodesy:
-    </div>
-    <ul class="text-[.74rem] text-gray-600 space-y-2 list-disc pl-4 mb-4">
-      <li>Gravity field (e.g. EGM2008: degree 2190)</li>
-      <li>Geomagnetic field (IGRF model)</li>
-      <li>Earth's topography</li>
-    </ul>
-    <div class="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-[.76rem] text-blue-900">
-      The field is stored through coefficients of a continuous functional model — not as billions of pixels.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add EGM geoid or magnetic field map -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ global field represented via spherical harmonics ]</div>
-  </div>
-</div>
-
----
-section: functional-models
----
-
-# Where Do the Basis Functions Come From?
-
-<div class="mt-6 text-[.85rem] text-gray-700 mb-5">
-  So far we chose basis functions by hand (sinusoids, spherical harmonics).
-</div>
-
-<div class="rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[.82rem] text-blue-900 mb-6">
-  Can the <strong>geometry of the domain itself</strong> determine useful basis functions?
-</div>
-
-<div class="text-[.76rem] text-gray-600">
-  The answer is yes — through the eigenfunctions of the Laplacian.
-</div>
+> One embedding product → many task-specific heads $h_\psi$.
 
 <!--
-This slide is the hinge between Fourier/spherical harmonics (chosen by symmetry of the domain) and the general Laplacian eigenfunctions framework.
+Recall the generalization lecture: few parameters + a good representation → better generalization from few labels.
+With a few hundred plots, a deep CNN on raw Sentinel-2 would overfit; a random forest on 64-D embeddings trains in seconds on a laptop.
 -->
 
 ---
-section: functional-models
+section: using
+layout: bonn-two-cols-header
+columns: "minmax(0, 1.1fr) minmax(0, 1fr)"
 ---
 
-# The Laplacian
+# Direct Prediction in Practice: Elevation from AlphaEarth
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      The Laplacian $\Delta$ measures local variation of a function on a domain.
-    </div>
-    <ul class="text-[.74rem] text-gray-600 space-y-2 list-disc pl-4">
-      <li>On $\mathbb{R}^n$: $\Delta f = \sum_i \partial^2 f / \partial x_i^2$</li>
-      <li>Captures local smoothness</li>
-      <li>Generalizes naturally to manifolds and graphs</li>
-      <li>Encodes the geometry of the domain</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add intuitive diagram: smooth vs. varying function, Laplacian large vs. small -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ Laplacian as local variation ]</div>
-  </div>
+::left::
+
+![Four maps: reference elevation and heights inferred from AlphaEarth embeddings with ridge regression, a U-Net, and a U-Net++](./assets/tutorial/aef-elevation.png)
+
+::right::
+
+- Target: a **reference elevation model**
+- Inputs: only the 64-D **AlphaEarth embeddings** per pixel
+- Models: from **ridge regression** to U-Net / U-Net++
+
+Even ridge regression recovers much of the terrain; deeper decoders mainly sharpen the details.
+
+> Lesson: before training a deep model on raw data, try a **simple head on embeddings**.
+
+<div class="slide-citation">
+Hamoudzadeh et al. (2026), arXiv. Figure via the ISPRS 2026 tutorial.
+</div>
+
+<!--
+Ask students: which panel is the reference, and which is the linear model? What does the linear model miss?
+-->
+
+---
+section: using
+layout: bonn-two-cols-header
+---
+
+# 2 · Geographic Conditioning
+
+::left::
+
+![A location embedding conditions an image classifier to recognise an arctic fox](./assets/earth-embeddings/fig3-b-conditioning.png)
+
+<div class="slide-citation">
+Figure 3(b) from Klemmer et al. (2026), CC BY 4.0
+</div>
+
+::right::
+
+Earth embeddings as **geographic priors**: an auxiliary input that gives a model context about *where* it is operating.
+
+- **Fine-grained classification:** white fox in a snowy photo, arctic fox or pale red fox? Location disambiguates.
+- **Domain transfer:** helps a segmentation model trained in the USA work in Somalia.
+- **Limited labels and domain shift:** extra context boosts performance when data are scarce.
+
+---
+section: using
+layout: bonn-two-cols-header
+---
+
+# How Conditioning Works
+
+::left::
+
+### As a prior (late fusion)
+
+Combine an image classifier with a location model, assuming image and location are conditionally independent given the class:
+
+$$
+p(y \mid \text{img}, \text{loc}) \;\propto\; p(y \mid \text{img})\; p(y \mid \text{loc})
+$$
+
+Mac Aodha et al. (2019): presence-only geographical priors for fine-grained classification.
+
+::right::
+
+### As a feature (early fusion)
+
+Concatenate or add the location embedding to intermediate image features:
+
+$$
+\hat{y} = h\big([\, f(\text{img}) \,\|\, E(\text{loc}) \,]\big)
+$$
+
+Location encoders are small and differentiable → they can be trained end-to-end with the main model.
+
+::bottom::
+
+<div class="blockquote2">
+
+**Forest example:** condition the pixel classifier on SatCLIP → a dark-green patch in the Amazon and one in Scandinavia get different priors on forest type.
+
 </div>
 
 ---
-section: functional-models
+section: using
 ---
 
-# Eigenfunctions of the Laplacian
+# Conditioning in Practice: Super-Resolution
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Eigenfunctions $\phi_k$ satisfy:
-    </div>
-    <div class="font-mono text-[.82rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $\Delta \phi_k = \lambda_k \phi_k$
-    </div>
-    <ul class="text-[.74rem] text-gray-600 space-y-2 list-disc pl-4">
-      <li>$\lambda_k$: eigenvalue — controls the spatial frequency</li>
-      <li>$\phi_k$: eigenfunction — a basis shape adapted to the domain</li>
-      <li>Together they form a geometry-aware basis for representing any function on the domain</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: show Laplacian eigenfunctions on a 2D surface or mesh -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ Laplacian eigenfunctions on a domain ]</div>
-  </div>
+<img src="./assets/tutorial/satclip-superres.png" class="w-full max-h-[250px] object-contain" alt="Super-resolution network: a Sentinel-2 image is upsampled by a RRDB network whose features are modulated by a SatCLIP location embedding" />
+
+- A super-resolution network turns **Sentinel-2** into a sharper image.
+- The **SatCLIP embedding** of the image’s coordinates is injected into the network as extra context.
+- Knowing *where* the image is (desert town vs. temperate farmland) helps it hallucinate **plausible local detail**.
+
+<div class="slide-citation">
+Panangian &amp; Bittner (2025), “Can location embeddings enhance super-resolution of satellite imagery?” WACV. Figure via the ISPRS 2026 tutorial.
 </div>
 
 ---
-section: functional-models
+section: using
+layout: bonn-two-cols-header
 ---
 
-# Geometry Determines the Basis
+# 3 · Geosemantic Search and Retrieval
 
-<div class="grid grid-cols-3 gap-4 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Line / Periodic</div>
-    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-2 py-1 mb-2">$\sin(kx),\,\cos(kx)$</div>
-    <div class="text-[.68rem] text-gray-500">Fourier modes</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Sphere $S^2$</div>
-    <div class="font-mono text-[.75rem] bg-white border border-blue-100 rounded px-2 py-1 mb-2">$Y_{\ell m}(\theta,\lambda)$</div>
-    <div class="text-[.68rem] text-blue-700">Spherical harmonics</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 text-center">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">General manifold / graph</div>
-    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-2 py-1 mb-2">$\Delta\phi_k = \lambda_k\phi_k$</div>
-    <div class="text-[.68rem] text-gray-500">Laplacian eigenfunctions</div>
-  </div>
+::left::
+
+![An anchor location is used to retrieve similar locations in embedding space](./assets/earth-embeddings/fig3-d-retrieval.png)
+
+<div class="slide-citation">
+Figure 3(d) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
-<div class="mt-5 text-[.75rem] text-gray-600 text-center">
-  Each domain determines its own natural frequency basis through the geometry.
+::right::
+
+A **“queryable Earth”**: embeddings as a lookup table for specific concepts.
+
+1. Take the embedding of an image containing a **solar farm**.
+2. Compute the similarity to all other embeddings.
+3. Return the locations with the highest scores.
+
+Embeddings aligned with text spaces allow **text queries**. Their small size makes **global search** feasible, which would be infeasible on raw imagery.
+
+---
+section: using
+layout: bonn-two-cols-header
+---
+
+# Search in Practice: “Where Else Looks Like This?”
+
+::left::
+
+### Query by example or by concept
+
+<div class="grid grid-cols-3 gap-2">
+
+![Satellite image of the Arizona desert](./assets/tutorial/desert-arizona.jpg)
+
+![Satellite image of the Sahara desert](./assets/tutorial/desert-sahara.jpg)
+
+![Satellite image of the Arabian desert](./assets/tutorial/desert-arabian.jpg)
+
+</div>
+
+Arizona, Sahara, and Arabian desert land close together, and close to the text embedding of **“desert”**.
+
+Matching is just vector similarity: **global results in seconds**, and a wall-to-wall similarity map from a single reference point.
+
+::right::
+
+<video src="./assets/tutorial/earth-search-demo.mp4" controls muted class="w-full rounded"></video>
+
+Natural-language search over Earth embeddings: “Find new solar panels in Texas”.
+
+<div class="slide-citation">
+Images and demo video (LGND, lgnd.ai) from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
 </div>
 
 ---
-section: functional-models
+section: using
+layout: bonn-two-cols-header
 ---
 
-# Block 1 Takeaway
+# 4 · Data Synthesis and Simulation
 
-<div class="mt-8 rounded-xl border border-blue-200 bg-blue-50 px-6 py-5">
-  <div class="text-[.95rem] font-semibold text-blue-900">
-    A spatial field can be represented by the <em>parameters of a continuous function</em> rather than by explicitly storing every sample.
-  </div>
-  <div class="mt-3 text-[.76rem] text-blue-700">
-    Classical geodesy and signal processing have exploited this for decades: spherical harmonic models of gravity, magnetic, and other global fields store coefficients, not pixels.
-  </div>
+::left::
+
+![A generative model synthesises an image at time t+1 from an image at time t and an Earth embedding](./assets/earth-embeddings/fig3-c-synthesis.png)
+
+Earth embeddings as the **conditioning signal of generative models**: image synthesis reflecting ground conditions (e.g., flooding), geography-aware super-resolution, building blocks for **simulators**, forecasting, and scenario generation.
+
+<div class="slide-citation">
+Figure 3(c) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
-<div class="mt-6 text-[.74rem] text-gray-500">
-  Next: what if the continuous function is parameterized by a neural network?
+::right::
+
+![GeoSynth: a latent diffusion model with ControlNet branches, conditioned on text, OpenStreetMap and SatCLIP location embeddings](./assets/tutorial/geosynth.png)
+
+**GeoSynth:** a diffusion model conditioned on text, OpenStreetMap, and a **SatCLIP location embedding** generates context-aware satellite imagery.
+
+> Embedding-conditioned simulators of physical processes **do not exist yet**: the goal is to integrate observations *and* scientific knowledge.
+
+<div class="slide-citation">
+Sastry et al. (2024), “GeoSynth: Contextually-aware high-resolution satellite image synthesis,” CVPR EarthVision Workshop.
 </div>
+
+---
+section: using
+---
+
+# Embeddings as Data: Who Needs Which Expertise?
+
+<img src="./assets/tutorial/schindler-pipeline.png" class="w-full max-h-[215px] object-contain" alt="A frozen foundation model turns a geospatial raster database into an embedding raster database once; downstream tasks only need linear regression or k-NN on top" />
+
+- **Once, by deep-learning experts:** load remote-sensing data, run a frozen foundation model, store compressed embeddings $e[\lambda,\phi]$.
+- **Many times, by domain experts:** linear regression or $k$-NN on top of the embedding database.
+
+<div class="slide-citation">
+Figure from the ISPRS 2026 tutorial, inspired by Konrad Schindler’s talk on foundation models at the ESA Living Planet Symposium 2025.
+</div>
+
+---
+section: using
+layout: bonn-two-cols-header
+---
+
+# Interfaces: Embedding Models vs. Embedding Databases
+
+::left::
+
+![Embedding model versus embedding database](./assets/earth-embeddings/fig4-b-interfaces.png)
+
+<div class="slide-citation">
+Figure 4(b) from Klemmer et al. (2026), CC BY 4.0
+</div>
+
+::right::
+
+### Embedding model
+
+Ship code + weights. You run inference yourself (ideally on a GPU). SatCLIP, Climplicit, GeoCLIP, AnySat, MMEarth, Galileo, MOSAIKS.
+
+### Embedding database
+
+Ship precomputed vectors at set locations. You query by location, as files or via Google Earth Engine. AlphaEarth, Tessera, Major TOM, MOSAIKS.
+
+> A location encoder is both: the model *is* the database.
+
+---
+section: using
+---
+
+# Model or Database? Trade-offs
+
+| | Embedding model | Embedding database |
+|---|---|---|
+| **User needs** | Deep-learning know-how, data pipeline, GPU | Only a location query |
+| **Flexibility** | Embed any self-compiled dataset; query any new point | Fixed locations, times, resolution |
+| **Inspect / adapt** | Grad-CAM, fine-tuning → often higher accuracy | Cannot run, alter, or inspect the model |
+| **Cost carried by** | The user (compute) | The producer (storage, bandwidth) |
+| **Typical for** | Small implicit location encoders | Large explicit models, expensive to run |
+
+> Databases open Earth embeddings to a **broad user base** beyond machine-learning experts, at the price of being static.
+
+---
+section: using
+layout: bonn-two-cols-header
+columns: "minmax(0, .8fr) minmax(0, 1.2fr)"
+---
+
+# Worked Workflow: From Sparse Labels to a Map
+
+::left::
+
+1. **Labels:** ~500 field plots (lon, lat, forest ∈ {0, 1}).
+2. **Look up** the embedding at every plot.
+3. **Train** a small classifier $h_\psi$ on (embedding, label).
+4. **Validate** with *spatial* cross-validation (blocks, not random splits).
+5. **Predict** on the embedding of every pixel → wall-to-wall map.
+6. **Inspect** errors: where does the map fail, and why?
+
+::right::
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import GroupKFold, cross_val_score
+
+X = lookup_embeddings(plots)          # (500, 64)
+y = plots["forest"]
+blocks = spatial_blocks(plots, size_km=50)
+
+clf = RandomForestClassifier(n_estimators=300)
+print(cross_val_score(clf, X, y, groups=blocks,
+                      cv=GroupKFold(5)).mean())
+
+clf.fit(X, y)
+forest_map = clf.predict_proba(lookup_embeddings(grid))[:, 1]
+```
+
+`lookup_embeddings` and `spatial_blocks` are placeholders. **Demo 1** of the ISPRS 2026 tutorial runs this workflow end to end on free Colab: SatCLIP for biomes, AlphaEarth for crop types, leave-one-continent-out transfer.
+
+<style>
+.slidev-code { font-size: .58rem !important; line-height: 1.4 !important; }
+</style>
+
+---
+section: using
+---
+
+# Which Embedding Should I Use?
+
+| If you… | then… |
+|---|---|
+| want **a value per location** | direct prediction |
+| want to **improve an existing model** | conditioning |
+| want **a set of places** | retrieval |
+| want **new data or scenarios** | synthesis |
+| need **fine detail or search** | explicit (AlphaEarth, Clay): higher resolution localises features |
+| need **any-point queries** | implicit (SatCLIP, SINR): interpolates to places without data |
+| have **no GPU or ML pipeline** | an embeddings-as-data product you can download and query |
+| depend on **specific sensors** | check the modalities: optical-only vs. multimodal |
+
+> Always ask: **was the phenomenon I care about visible in the data the embedding was built from?**
+
+---
+section: using
+---
+
+# Exercise: Pick the Use Mode
+
+In pairs (3 min): for each task, choose **prediction, conditioning, retrieval, or synthesis**, and **explicit or implicit** embeddings.
+
+1. Find all open-pit mines in a continent, starting from one example.
+2. Improve a bird-sound classifier that knows where each recording was made.
+3. Map average air quality at 1 km for a country from 200 sensors.
+4. Generate a plausible post-flood image of a town for an emergency drill.
+
+<v-click>
+
+| Task | Use mode | Embedding |
+|---|---|---|
+| 1 | Retrieval | Explicit (fine-grained, visual objects) |
+| 2 | Conditioning | Implicit (location prior, e.g., SINR / SatCLIP) |
+| 3 | Direct prediction | Implicit or hybrid (smooth, large-scale field) |
+| 4 | Synthesis | Explicit image + implicit conditioning |
+
+</v-click>
+
+<!--
+Answers follow the paper's guidance on which embedding families suit which tasks. Several answers are defensible; ask students to justify.
+-->
+
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: coordinate-networks
-sectionTitle: Neural Networks for Continuous Signal Modeling
+section: evaluating
+sectionTitle: Evaluate & improve
 ---
 
-# Neural Networks for Continuous Signal Modeling
+# How do we evaluate and improve them?
 
-<div class="text-[.9rem] text-gray-700 mt-4">
-  Fixed functional models choose basis functions by hand. Neural networks learn the function directly from data.
-</div>
+<img class="bonn-section-image bonn-section-image-sm" src="./assets/earth-embeddings/fig2-d-interpolation.png" alt="Interpolating Earth embeddings to unseen locations" />
 
-<div class="text-[.72rem] text-gray-500 mt-4">
-  fixed functional models → coordinate networks → spectral bias → Fourier features → SIREN → neural fields → NeRF
-</div>
-
----
-section: coordinate-networks
----
-
-# From Fixed Functional Models to Neural Networks
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Classical: fixed basis</div>
-    <div class="font-mono text-[.8rem] bg-white border border-gray-200 rounded px-4 py-3 mb-3">
-      $f(x) = \sum_k a_k \, \phi_k(x)$
-    </div>
-    <div class="text-[.72rem] text-gray-600">Basis functions $\phi_k$ are fixed; only coefficients $a_k$ are learned.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Neural: learned function</div>
-    <div class="font-mono text-[.8rem] bg-white border border-blue-100 rounded px-4 py-3 mb-3">
-      $f_\theta(x) = \mathrm{NN}_\theta(x)$
-    </div>
-    <div class="text-[.72rem] text-blue-800">The entire function is parameterized by network weights $\theta$.</div>
-  </div>
-</div>
-
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.82rem] text-blue-900">
-  What if the continuous function itself is parameterized by a neural network?
+<div class="bonn-section-citation">
+Figure 2(d) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
 ---
-section: coordinate-networks
+section: evaluating
+layout: bonn-two-cols-header
 ---
 
-# Coordinate-Based Neural Networks
+# Constrained by the Raw Data
 
-<div class="mt-4 text-[.82rem] text-gray-700 mb-6">
-  The most direct formulation: the input is a coordinate; the output is the signal at that coordinate.
-</div>
+“General-purpose” Earth embeddings are not tailored to any task, yet they are **fundamentally constrained by the data they are based on**.
 
-<div class="flex items-center justify-center gap-6 my-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-[.82rem] font-mono">$\mathbf{x}$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-[.82rem] font-mono">$f_\theta(\mathbf{x})$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-[.82rem] font-mono">$\mathbf{y}$</div>
-</div>
+::left::
 
-<div class="grid grid-cols-2 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-600">
-    <strong>Input:</strong> spatial coordinate $\mathbf{x} \in \mathcal{X}$
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-600">
-    <strong>Output:</strong> signal value $\mathbf{y} \in \mathcal{Y}$ at that location
-  </div>
-</div>
+### SatCLIP · multispectral satellite imagery
 
----
-section: coordinate-networks
----
+- ✓ climate zones, forest coverage
+- ✗ ocean currents
 
-# An Image as a Continuous Function
+::right::
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Discrete: pixel grid</div>
-    <!-- TODO: add pixel grid image -->
-    <div class="text-center rounded bg-gray-100 px-4 py-6 text-[.68rem] text-gray-400">[ pixel grid ]</div>
-    <div class="text-[.72rem] text-gray-600 mt-2">Store $H \times W \times 3$ values explicitly</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Continuous: neural function</div>
-    <div class="font-mono text-[.8rem] bg-white border border-blue-100 rounded px-4 py-3 mb-2 text-center">
-      $f_\theta(x, y) \rightarrow \mathrm{RGB}$
-    </div>
-    <div class="text-[.72rem] text-blue-800 mt-2">Store network weights $\theta$; evaluate at any $(x,y)$</div>
-  </div>
+### GeoCLIP · ground-level Flickr photos
+
+- ✓ patterns visible from the street
+- ✗ places where nobody takes photos
+
+::bottom::
+
+<div class="blockquote2">
+
+**Forest example:** understorey, forest age, or species mix under a closed canopy are hard to see from above. An embedding cannot encode what its inputs never observed.
+
 </div>
 
 ---
-section: coordinate-networks
+section: evaluating
+layout: bonn-two-cols-header
 ---
 
-# Fit the Samples, Query the Function
+# Spatial and Temporal Generalization
 
-<div class="grid grid-cols-2 gap-6 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Training</div>
-    <div class="font-mono text-[.76rem] bg-white border border-gray-200 rounded px-4 py-3 mb-2">
-      $\min_\theta \sum_i \| f_\theta(\mathbf{x}_i) - y_i \|^2$
-    </div>
-    <div class="text-[.72rem] text-gray-600 mt-2">Observed coordinates and values supervise the network.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Inference</div>
-    <div class="font-mono text-[.76rem] bg-white border border-blue-100 rounded px-4 py-3 mb-2">
-      $y^* = f_\theta(\mathbf{x}^*)$
-    </div>
-    <div class="text-[.72rem] text-blue-800 mt-2">Evaluate the function at any arbitrary coordinate.</div>
-  </div>
-</div>
+::left::
 
-<div class="mt-4 text-[.72rem] text-gray-500">
-  The network learns a continuous function from discrete observations — much like classical interpolation, but with a learned parametric form.
-</div>
+Today’s GeoAI benchmarks are mostly **image** benchmarks. Earth embeddings need benchmarks where **location and time are the inputs**:
 
----
-section: coordinate-networks
----
+- spatial **interpolation vs. extrapolation**
+- performance under different degrees of **spatial bias in the labels**
+- performance across **spatiotemporal scales**
+- interactions between processes (e.g., climate change ↔ migration)
+- utility for search and retrieval
 
-# Spectral Bias
+First steps: TorchSpatial, NeuCo-Bench, GeoT.
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Standard MLPs with ReLU activations preferentially fit <strong>low-frequency</strong> variation first.
-    </div>
-    <ul class="text-[.74rem] text-gray-600 space-y-2 list-disc pl-4 mb-4">
-      <li>Smooth, broad patterns are learned quickly</li>
-      <li>Fine high-frequency structure is learned slowly or not at all</li>
-    </ul>
-    <div class="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-[.74rem] text-amber-900">
-      Recall from Block 1: Fourier decomposition separates signals by frequency. Spectral bias is a neural analogue of truncating the Fourier series.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add spectral bias figure: training loss vs. frequency component over time -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ spectral bias: MLP learns low frequencies first ]</div>
-  </div>
+::right::
+
+<svg viewBox="0 0 280 170" class="w-full h-[170px]">
+<rect x="5" y="5" width="270" height="160" rx="8" fill="#f9fafb" stroke="#ddd"/>
+<g fill="#00457c"><circle cx="40" cy="40" r="4"/><circle cx="60" cy="70" r="4"/><circle cx="80" cy="45" r="4"/><circle cx="55" cy="105" r="4"/><circle cx="95" cy="90" r="4"/><circle cx="110" cy="60" r="4"/></g>
+<circle cx="75" cy="75" r="6" fill="none" stroke="#16a34a" stroke-width="2.5"/>
+<text x="40" y="140" font-size="11" fill="#16a34a">interpolation</text>
+<circle cx="225" cy="110" r="6" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+<text x="180" y="140" font-size="11" fill="#dc2626">extrapolation</text>
+</svg>
+
+*Random train/test splits measure only interpolation (generalization lecture).*
+
+<div class="blockquote2">
+
+**Forest example:** plots cluster near roads. Does the map hold in the roadless interior? Demo 1 of the tutorial tests exactly this with a leave-one-continent-out split.
+
 </div>
 
 ---
-section: coordinate-networks
+section: evaluating
+layout: bonn-two-cols-header
 ---
 
-# Positional Encoding and Fourier Features
+# Effective Resolution
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Idea: map coordinates to explicit sinusoidal features before the MLP.
-    </div>
-    <div class="font-mono text-[.75rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-3">
-      $\gamma(\mathbf{x}) = \bigl[\sin(2\pi B\mathbf{x}),\;\cos(2\pi B\mathbf{x})\bigr]$
-    </div>
-    <div class="text-[.72rem] text-gray-600 mb-2">followed by an MLP on $\gamma(\mathbf{x})$.</div>
-    <ul class="text-[.72rem] text-gray-500 space-y-1 list-disc pl-4">
-      <li>$B$: frequency matrix (random or learned)</li>
-      <li>Directly injects multiple frequency scales</li>
-      <li>Overcomes spectral bias for fine detail</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add Fourier Features figure (Tancik et al. 2020 style) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ Fourier feature encoding diagram ]<br><span class="text-gray-300">Tancik et al. 2020</span></div>
-  </div>
+::left::
+
+SatCLIP can be queried at **infinitesimal** resolution, but its **effective** resolution is coarse, limited by
+
+- the **capacity** of the location encoder,
+- the **smoothness** enforced by the location–image matching objective.
+
+> Query resolution ≠ information resolution.
+
+::right::
+
+- **Regional encoders:** train on an area of interest, e.g., a SatCLIP-style encoder for Spain only.
+- **Explicit embeddings** are bound by input availability: NAIP + Clay for log-yard mapping works only in the US and for specific years.
+- Expect more **use-case-specialised products** for specific areas, periods, and resolutions.
+
+---
+section: evaluating
+layout: bonn-two-cols-header
+---
+
+# Modality and Sampling Biases
+
+::left::
+
+Current models use the **same number of parameters everywhere** in space and time. But information density is not uniform:
+
+- a satellite tile over New York City carries far more information than one over the Pacific → global models **over-smooth heterogeneous regions**
+- modalities matter differently by place and season: **radar** in cloudy areas or in arctic winter darkness
+
+Ideas: adaptive coordinate networks (ACORN), varying capacity by location.
+
+::right::
+
+### Data curation and scaling
+
+Does the spatial distribution of pretraining data matter? What is the marginal value of one more location, time step, or sensor? Should heterogeneous areas be **over-represented** or reweighted?
+
+<div class="blockquote2">
+
+**Forest example:** a tropical forest country under persistent clouds; optical-only embeddings are weakest exactly where deforestation is highest.
+
 </div>
 
 ---
-section: coordinate-networks
+section: evaluating
+layout: bonn-two-cols-header
 ---
 
-# Why Fourier Features Help
+# Interpretability
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Raw coordinates</div>
-    <div class="font-mono text-[.75rem] bg-white border border-gray-200 rounded px-3 py-2 mb-3">
-      $(x, y) \rightarrow \mathrm{MLP}$
-    </div>
-    <div class="text-[.72rem] text-gray-600">MLP must learn all frequency content from scratch. Spectral bias limits high-frequency capacity.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Fourier-encoded coordinates</div>
-    <div class="font-mono text-[.75rem] bg-white border border-blue-100 rounded px-3 py-2 mb-3">
-      $\gamma(x, y) \rightarrow \mathrm{MLP}$
-    </div>
-    <div class="text-[.72rem] text-blue-800">Multiple frequencies are already explicit in the input. MLP only needs to combine them.</div>
-  </div>
-</div>
+::left::
 
-<div class="mt-4 text-[.72rem] text-gray-500">
-  Explicit frequency features make fine spatial variation much easier for the network to represent.
-</div>
+We usually do not know **which part of an embedding** represents a given ground condition (a tree, a building), or whether it captures that condition at all.
 
----
-section: coordinate-networks
----
+- limits use for understanding drivers of variation (seasonal vs. geographic distance)
+- complicates **high-stakes decision making**
+- which **input modality** contributed to which part of the embedding?
 
-# SIREN
+::right::
 
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Alternative approach: use sinusoidal <em>activation functions</em> inside the network.
-    </div>
-    <div class="font-mono text-[.76rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $h_{l+1} = \sin(W_l h_l + b_l)$
-    </div>
-    <div class="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-[.74rem] text-amber-900">
-      <strong>Key distinction:</strong><br>
-      Fourier features — sinusoidal <em>input encoding</em><br>
-      SIREN — sinusoidal <em>activation functions inside the network</em>
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add SIREN architecture diagram (Sitzmann et al. 2020) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ SIREN network diagram ]<br><span class="text-gray-300">Sitzmann et al. 2020</span></div>
-  </div>
+**Models** can be probed (Grad-CAM, ablations). **Databases** cannot: the vectors are all you get.
+
+> Interpretability also needs **data provenance** and reporting standards.
+
+<div class="blockquote2">
+
+**Forest example:** a forest map from embeddings is accurate on test plots, but can we tell a ministry *why* a pixel is classified as forest?
+
 </div>
 
 ---
-section: coordinate-networks
+section: evaluating
 ---
 
-# Fourier Basis, Fourier Features, SIREN
-
-<div class="grid grid-cols-3 gap-4 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Classical signal processing</div>
-    <div class="font-mono text-[.72rem] bg-white border border-gray-200 rounded px-3 py-2 mb-2">
-      $f(x) = \sum_k a_k \phi_k(x)$
-    </div>
-    <div class="text-[.68rem] text-gray-500">Fourier basis: fixed sinusoidal functions</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Neural input encoding</div>
-    <div class="font-mono text-[.72rem] bg-white border border-blue-100 rounded px-3 py-2 mb-2">
-      $\gamma(\mathbf{x}) = [\sin(B\mathbf{x}), \cos(B\mathbf{x})]$
-    </div>
-    <div class="text-[.68rem] text-blue-700">Fourier features: sinusoidal input to MLP</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-2">SIREN activations</div>
-    <div class="font-mono text-[.72rem] bg-white border border-blue-100 rounded px-3 py-2 mb-2">
-      $h_{l+1} = \sin(W_l h_l + b_l)$
-    </div>
-    <div class="text-[.68rem] text-blue-700">Sinusoidal activations inside the network</div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.76rem] text-gray-600 text-center">
-  The same idea — spatial frequency decomposition — appears at every level of the representation.
-</div>
-
----
-section: coordinate-networks
----
-
-# Continuous Neural Fields
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-5">
-  The coordinate-network idea generalizes across many signal types:
-</div>
-
-<div class="grid grid-cols-3 gap-3 mt-2">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-700">Images<br><span class="text-gray-400 font-mono text-[.65rem]">$(x,y) \rightarrow \mathrm{RGB}$</span></div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-700">Audio<br><span class="text-gray-400 font-mono text-[.65rem]">$t \rightarrow \text{amplitude}$</span></div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-700">Signed-distance functions<br><span class="text-gray-400 font-mono text-[.65rem]">$(x,y,z) \rightarrow \mathrm{SDF}$</span></div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-700">Occupancy fields<br><span class="text-gray-400 font-mono text-[.65rem]">$(x,y,z) \rightarrow \{0,1\}$</span></div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-700">Physical fields<br><span class="text-gray-400 font-mono text-[.65rem]">$\mathbf{x} \rightarrow \text{temperature}$</span></div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.72rem] text-blue-800">Radiance fields (NeRF)<br><span class="text-blue-400 font-mono text-[.65rem]">$(\mathbf{x},\mathbf{d}) \rightarrow (\sigma,\mathrm{RGB})$</span></div>
-</div>
-
----
-section: coordinate-networks
----
-
-# NeRF
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      NeRF (Neural Radiance Field) models a 3D scene as a continuous function:
-    </div>
-    <div class="font-mono text-[.76rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $(\mathbf{x}, \mathbf{d}) \rightarrow (\sigma, \mathbf{c})$
-    </div>
-    <ul class="text-[.74rem] text-gray-600 space-y-1 list-disc pl-4">
-      <li>$\mathbf{x}$: 3D position</li>
-      <li>$\mathbf{d}$: viewing direction</li>
-      <li>$\sigma$: volume density</li>
-      <li>$\mathbf{c}$: RGB color</li>
-    </ul>
-    <div class="mt-4 text-[.7rem] text-gray-500">
-      Novel views are rendered by ray-marching through the neural field.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add NeRF overview figure (Mildenhall et al. 2020) -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ NeRF scene representation ]<br><span class="text-gray-300">Mildenhall et al. 2020</span></div>
-  </div>
-</div>
-
----
-section: coordinate-networks
----
-
-# A Scene as a Continuous Neural Field
-
-<div class="mt-5 text-[.82rem] text-gray-700 mb-5">
-  The conceptual key: a 3D scene is not stored as explicit geometry or a point cloud — it is the network itself.
-</div>
-
-<div class="flex items-center justify-center gap-6 my-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-[.8rem] font-mono">$(\mathbf{x}, \mathbf{d})$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-[.8rem] font-mono">$f_\theta$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-[.8rem] font-mono">$(\sigma, \mathbf{c})$</div>
-</div>
-
-<div class="text-[.72rem] text-gray-500">
-  Any point in the scene can be queried through the neural function — no explicit mesh, voxel grid, or point set required.
-</div>
-
----
-section: coordinate-networks
----
-
-# The Same Pattern Across Domains
-
-<div class="mt-4 text-[.82rem] text-gray-700 mb-4">Common pattern:</div>
-
-<div class="flex items-center justify-center gap-4 mb-6">
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-[.78rem] font-mono">coordinate</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-[.78rem] font-mono">$f_\theta$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-[.78rem] font-mono">signal</div>
-</div>
-
-<div class="grid grid-cols-3 gap-3">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.72rem] text-gray-700 text-center">$(x,y) \rightarrow \mathrm{RGB}$</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.72rem] text-gray-700 text-center">$(x,y,z) \rightarrow \mathrm{SDF}$</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.72rem] text-gray-700 text-center">$(\mathbf{x},\mathbf{d}) \rightarrow (\sigma, \mathrm{RGB})$</div>
-</div>
-
----
-section: coordinate-networks
----
-
-# Block 2 Takeaway
-
-<div class="mt-8 rounded-xl border border-blue-200 bg-blue-50 px-6 py-5">
-  <div class="text-[.95rem] font-semibold text-blue-900">
-    Neural networks can parameterize continuous functions and model signals directly from coordinates.
-  </div>
-  <div class="mt-3 text-[.76rem] text-blue-700">
-    Spectral bias limits plain MLPs. Positional encodings (Fourier features) and sinusoidal activations (SIREN) overcome this by explicitly representing spatial frequencies — echoing Block 1's functional models.
-  </div>
-</div>
-
-<div class="mt-6 text-[.74rem] text-gray-500">
-  Next: what changes when the domain is the Earth?
-</div>
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: geographic-inr
-sectionTitle: Implicit Neural Representations of Geographic Space
----
-
-# Implicit Neural Representations of Geographic Space
-
-<div class="text-[.9rem] text-gray-700 mt-4">
-  Synthesizing Blocks 1 and 2: geometry-aware coordinate encodings meet neural continuous functions.
-</div>
-
-<div class="text-[.72rem] text-gray-500 mt-4">
-  Earth geometry → geographic coordinate encodings → spherical harmonic networks → geographic neural fields → location embeddings
-</div>
-
----
-section: geographic-inr
----
-
-# What Changes When the Domain Is the Earth?
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Euclidean image plane</div>
-    <ul class="text-[.73rem] text-gray-600 space-y-1 list-disc pl-4">
-      <li>Flat, periodic domain</li>
-      <li>Uniform distance metric</li>
-      <li>$(x, y)$ coordinates well-defined</li>
-      <li>Fourier features work directly</li>
-    </ul>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">The sphere</div>
-    <ul class="text-[.73rem] text-blue-800 space-y-1 list-disc pl-4">
-      <li>Longitude is discontinuous (−180°/+180°)</li>
-      <li>Poles have degenerate coordinates</li>
-      <li>Spherical geometry, not Euclidean</li>
-      <li>Distance in lat/lon is non-uniform</li>
-    </ul>
-  </div>
-</div>
-
-<div class="mt-4 text-[.74rem] text-gray-600">
-  Coordinate encodings designed for flat space may fail or distort when applied naively to geographic coordinates.
-</div>
-
----
-section: geographic-inr
----
-
-# Geographic Coordinates Are Not Just x and y
-
-<div class="grid grid-cols-2 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Latitude / longitude</div>
-    <div class="text-[.72rem] text-gray-600">Simple but discontinuous; non-uniform distances</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">3D Cartesian on sphere</div>
-    <div class="text-[.72rem] text-gray-600">Continuous and uniform; constrains $x^2+y^2+z^2=1$</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-1">Fourier features</div>
-    <div class="text-[.72rem] text-gray-600">Fast; may distort at poles and date line</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-1">Spherical harmonics / Laplacian</div>
-    <div class="text-[.72rem] text-blue-800">Geometry-aware; respects spherical topology</div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.72rem] text-gray-500">
-  The choice of coordinate encoding determines how well the model respects the geometry of geographic space.
-</div>
-
----
-section: geographic-inr
----
-
-# Geometry-Aware Coordinate Encodings
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Reconnecting to Block 1: spherical harmonics can serve not only as a complete field model, but also as a <strong>coordinate encoding</strong> for a neural network.
-    </div>
-    <div class="font-mono text-[.8rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-3 text-center">
-      $p \;\rightarrow\; Y_{\ell m}(p)$
-    </div>
-    <div class="text-[.73rem] text-gray-600">
-      Map geographic location $p = (\theta, \lambda)$ to a vector of spherical harmonic values as features.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add figure showing lat/lon coordinate → SH feature vector → MLP -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ geographic coord → SH encoding → MLP ]</div>
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# Spherical Harmonics + Neural Network
-
-<div class="mt-5 flex items-center justify-center gap-3 flex-wrap">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$p$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 font-mono text-[.78rem]">SH features<br>$Y_{\ell m}(p)$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 font-mono text-[.8rem]">$\mathrm{MLP}_\theta$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$y(p)$</div>
-</div>
-
-<div class="mt-8 text-[.76rem] text-gray-600">
-  The spherical harmonic encoding provides a <strong>geometry-aware</strong> positional representation that respects spherical topology before the neural network processes it.
-</div>
-
-<div class="mt-3 text-[.7rem] text-gray-400">
-  <!-- TODO: cite relevant papers (e.g. Rußwurm et al., SatCLIP, or geographic field prediction with SH encodings) -->
-</div>
-
----
-section: geographic-inr
----
-
-# Spherical Harmonics + SIREN
-
-<div class="mt-5 flex items-center justify-center gap-3 flex-wrap">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$p$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 font-mono text-[.78rem]">$Y_{\ell m}(p)$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 font-mono text-[.8rem]">$\mathrm{SIREN}_\theta$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$y(p)$</div>
-</div>
-
-<div class="grid grid-cols-2 gap-4 mt-6">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.72rem] text-gray-600">
-    <strong>Spherical harmonics</strong><br>
-    Geometry-aware positional features; respect spherical topology
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.72rem] text-blue-800">
-    <strong>SIREN</strong><br>
-    Nonlinear high-frequency modeling capacity beyond the SH basis
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# Residual Implicit Networks
-
-<div class="mt-5 text-[.82rem] text-gray-700 mb-5">
-  Residual coordinate network variants (e.g. ResIREN) extend the basic SIREN with skip connections:
-</div>
-
-<div class="flex items-center justify-center gap-3 my-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.78rem]">$p$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.78rem]">encoding</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.78rem]">residual SIREN</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.78rem]">$y(p)$</div>
-</div>
-
-<div class="text-[.74rem] text-gray-500">
-  <!-- TODO: add figure comparing SIREN vs ResIREN convergence curves or frequency response -->
-</div>
-
----
-section: geographic-inr
----
-
-# One Global Network or Many Local Networks?
-
-<div class="grid grid-cols-2 gap-4 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">One global MLP</div>
-    <div class="text-[.72rem] text-gray-600">Single network for the entire Earth. Simple but may lack local resolution.</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Multiple local MLPs</div>
-    <div class="text-[.72rem] text-gray-600">One network per tile or region. High resolution; costly to scale.</div>
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Hierarchical / multi-scale</div>
-    <div class="text-[.72rem] text-gray-600">Coarse global + fine local network. Balanced capacity and resolution.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Mixture-of-experts</div>
-    <div class="text-[.72rem] text-blue-800">Dynamic routing to specialized sub-networks per location or scale.</div>
-  </div>
-</div>
-
-<div class="mt-4 text-[.72rem] text-gray-500">
-  Scaling continuous neural fields to large geographic domains is an active research direction.
-</div>
-
----
-section: geographic-inr
----
-
-# Geographic Neural Fields
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      General supervised formulation:
-    </div>
-    <div class="font-mono text-[.76rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $(p_i, y_i) \;\rightarrow\; f_\theta(p) \rightarrow y$
-    </div>
-    <div class="text-[.74rem] text-gray-600 mb-3">Possible output signals:</div>
-    <ul class="text-[.72rem] text-gray-600 space-y-1 list-disc pl-4">
-      <li>Climate variables</li>
-      <li>Elevation</li>
-      <li>Land cover / land use</li>
-      <li>Population density</li>
-      <li>Ecological observations</li>
-    </ul>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add example: global temperature or elevation neural field prediction map -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ predicted geographic signal map ]</div>
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# Species Observations as a Spatial Signal
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div>
-    <div class="text-[.78rem] text-gray-700 mb-4">
-      Biodiversity observations (e.g. iNaturalist) provide sparse, presence-only spatial data:
-    </div>
-    <div class="font-mono text-[.76rem] bg-gray-50 border border-gray-200 rounded px-4 py-3 mb-4">
-      $\text{location} \rightarrow P(\text{species} \mid \text{location})$
-    </div>
-    <div class="text-[.74rem] text-gray-600">
-      A geographic neural field can estimate species distribution continuously from irregular observations.
-    </div>
-  </div>
-  <div class="flex items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <!-- TODO: add iNaturalist observation map + predicted species distribution -->
-    <div class="text-[.68rem] text-gray-400 text-center">[ species observation points → predicted distribution ]</div>
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# From Signal Prediction to Location Representation
-
-<div class="grid grid-cols-2 gap-6 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Signal model</div>
-    <div class="font-mono text-[.8rem] bg-white border border-gray-200 rounded px-4 py-3 mb-3">
-      $f_\theta(p) \rightarrow y$
-    </div>
-    <div class="text-[.72rem] text-gray-600">Predict one specific output (temperature, species, elevation) at any location.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-5">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Location encoder</div>
-    <div class="font-mono text-[.8rem] bg-white border border-blue-100 rounded px-4 py-3 mb-3">
-      $p \;\xrightarrow{e_\theta}\; z(p) \rightarrow y$
-    </div>
-    <div class="text-[.72rem] text-blue-800">Learn a <em>reusable</em> representation $z(p)$ that can support many downstream tasks.</div>
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# Location Encoders
-
-<div class="mt-4 flex items-center justify-center gap-4 my-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 font-mono text-[.8rem]">$p$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 font-mono text-[.8rem]">$e_\theta$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 font-mono text-[.8rem]">$z(p) \in \mathbb{R}^d$</div>
-</div>
-
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-5 py-4 text-[.82rem] text-blue-900">
-  The output is a <strong>reusable representation</strong> of geographic location, rather than a prediction for one particular signal.
-</div>
-
-<div class="mt-4 text-[.74rem] text-gray-600">
-  This is analogous to how image encoders learn general visual features rather than predicting a fixed label. The downstream task uses $z(p)$ as input rather than the raw coordinate.
-</div>
-
----
-section: geographic-inr
----
-
-# GeoCLIP-Like Location Representations
-
-<div class="mt-5 text-[.82rem] text-gray-700 mb-5">
-  Multimodal and contrastive learning approaches train location encoders by aligning geographic coordinates with other modalities (images, text, remote sensing).
-</div>
-
-<div class="flex items-center justify-center gap-4 my-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.78rem]">Location $p$</div>
-  <div class="text-gray-400 text-xl">→</div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[.78rem]">$z(p)$</div>
-  <div class="text-gray-400 text-xl">↕ align</div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-[.78rem]">Image / text embedding</div>
-</div>
-
-<div class="text-[.72rem] text-gray-500">
-  Contrastive learning details are covered in a later lecture. Here the key point is that the location encoder output is a general-purpose geographic embedding.
-  <!-- TODO: cite GeoCLIP, SatCLIP, or related works -->
-</div>
-
----
-section: geographic-inr
----
-
-# Signal Model or Representation Model?
-
-<div class="grid grid-cols-3 gap-4 mt-5">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-gray-500 mb-3">Implicit signal model</div>
-    <div class="font-mono text-[.78rem] bg-white border border-gray-200 rounded px-3 py-2 mb-2 text-center">
-      $p \rightarrow y$
-    </div>
-    <div class="text-[.68rem] text-gray-500">One network, one output type. Train and use for a specific signal.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Location encoder</div>
-    <div class="font-mono text-[.78rem] bg-white border border-blue-100 rounded px-3 py-2 mb-2 text-center">
-      $p \rightarrow z$
-    </div>
-    <div class="text-[.68rem] text-blue-700">Reusable embedding of location. Downstream task uses $z$.</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-600 mb-3">Downstream task</div>
-    <div class="font-mono text-[.78rem] bg-white border border-blue-100 rounded px-3 py-2 mb-2 text-center">
-      $z \rightarrow y$
-    </div>
-    <div class="text-[.68rem] text-blue-700">Lightweight head applied to the fixed location representation.</div>
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# Design Space of Geographic INRs
-
-<div class="grid grid-cols-3 gap-3 mt-4 text-[.7rem]">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="font-bold text-gray-500 uppercase tracking-wide text-[.6rem] mb-1">Domain</div>
-    plane · sphere · manifold
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="font-bold text-gray-500 uppercase tracking-wide text-[.6rem] mb-1">Coordinate encoding</div>
-    raw lat/lon · Fourier · spherical harmonics · Laplacian
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="font-bold text-gray-500 uppercase tracking-wide text-[.6rem] mb-1">Neural model</div>
-    MLP · SIREN · residual network
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="font-bold text-gray-500 uppercase tracking-wide text-[.6rem] mb-1">Scale</div>
-    global · local · hierarchical
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="font-bold text-gray-500 uppercase tracking-wide text-[.6rem] mb-1">Output</div>
-    signal · probability · embedding
-  </div>
-  <div class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="font-bold text-gray-500 uppercase tracking-wide text-[.6rem] mb-1">Training</div>
-    supervised · multimodal · self-supervised
-  </div>
-</div>
-
----
-section: geographic-inr
----
-
-# Neural Fields of the Earth
-
-<div class="mt-5 flex items-center justify-center">
-  <div class="rounded-xl border border-blue-200 bg-blue-50 px-6 py-5 flex items-center gap-4 flex-wrap justify-center">
-    <div class="font-mono text-[.82rem]">Earth coordinate</div>
-    <div class="text-gray-400 text-xl">→</div>
-    <div class="font-mono text-[.82rem]">geometry-aware encoding</div>
-    <div class="text-gray-400 text-xl">→</div>
-    <div class="font-mono text-[.82rem]">neural function</div>
-    <div class="text-gray-400 text-xl">→</div>
-    <div class="rounded-xl border border-blue-300 bg-white px-4 py-3 font-mono text-[.78rem]">
-      geospatial signal<br>— or —<br>location embedding
-    </div>
-  </div>
-</div>
-
-<div class="mt-6 text-[.74rem] text-gray-500 text-center">
-  <!-- TODO: add a large diagram connecting all three blocks visually -->
-</div>
-
----
-section: geographic-inr
----
-
-# Lecture Synthesis
-
-<div class="grid grid-cols-3 gap-4 mt-4">
-  <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-gray-500 mb-2">Block 1</div>
-    <div class="text-[.72rem] font-semibold text-gray-700 mb-2">Functional Models of the Earth</div>
-    <div class="font-mono text-[.7rem] bg-white border border-gray-200 rounded px-3 py-2">
-      $p \rightarrow \phi(p) \rightarrow y$
-    </div>
-    <div class="text-[.65rem] text-gray-500 mt-2">Fixed basis; fitted coefficients</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Block 2</div>
-    <div class="text-[.72rem] font-semibold text-blue-800 mb-2">Neural Networks for Continuous Signals</div>
-    <div class="font-mono text-[.7rem] bg-white border border-blue-100 rounded px-3 py-2">
-      $p \rightarrow \gamma(p) \rightarrow f_\theta \rightarrow y$
-    </div>
-    <div class="text-[.65rem] text-blue-600 mt-2">Learned encoding; learned function</div>
-  </div>
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-600 mb-2">Block 3</div>
-    <div class="text-[.72rem] font-semibold text-blue-800 mb-2">Implicit Neural Representations of Geographic Space</div>
-    <div class="font-mono text-[.7rem] bg-white border border-blue-100 rounded px-3 py-2">
-      $p \rightarrow \text{geo encoding} \rightarrow f_\theta \rightarrow y \text{ or } z$
-    </div>
-    <div class="text-[.65rem] text-blue-600 mt-2">Geometry-aware; signal or embedding</div>
-  </div>
-</div>
-
-<div class="mt-5 rounded-xl border border-blue-100 bg-blue-50 px-5 py-3 text-[.8rem] text-blue-900">
-  Geospatial information can be stored <strong>explicitly</strong> at discrete locations, or <strong>implicitly</strong> through the parameters of a continuous function that can be queried throughout space.
-</div>
+# The Hidden Cost Is Storage, Not Compute
+
+| | Estimate |
+|---|---|
+| **Compute** | One V100 GPU, ~7 days: U-Net (EfficientNet-B7) over all land on Earth at 4.7 m (≈900,000 km²/h) → **~US$514** |
+| **Data volume** | 108 TB uncompressed PlanetScope input → **432 TB** of 64-D embeddings (1 byte per dimension) |
+| **Storage** | 432 TB in “hot” cloud storage: ~US$8,000/month → **~US$100,000/year** (Sept. 2025 prices) |
+| **AlphaEarth-like** | Multiyear 100 m database: ~475 TB for five time steps → ~US$9,500/month |
+| **Carbon** | ~50 kWh GPU / ~150 kWh facility → 10 kg (low-carbon grid) to 75 kg (world average) to >100 kg CO₂e, once; storage keeps drawing power |
+
+> **Storage and delivery**, not inference, dominate cost and sustainability → compression, caching, dynamic delivery, or **compute as a substitute for storage** (on-demand generation).
 
 <!--
-LEGACY SLIDES — original Lecture 6 opening content preserved below
+Rough estimates from the paper, section "The Computational and Environmental Costs of Earth Embeddings". This explains why precomputed embeddings remain rare outside large corporations and space agencies.
 -->
 
 ---
+section: evaluating
+layout: bonn-two-cols-header
+---
 
-# Location Encoders &amp; Spatial Embeddings
+# Openness: Weights, Code, Data, Process
 
-## Representing space continuously
+::left::
+
+The Marin foundation’s trichotomy of openness:
+
+| Level | Released |
+|---|---|
+| **Open weight** | weights, but no code or data |
+| **Open source** | weights, code, and data |
+| **Open process** | + process details and participation |
+
+::right::
+
+- Most Earth embedding releases are **open weight** or **open source**.
+- **Major TOM** is uniquely open process, with a public standard and path to contributing.
+- MOSAIKS, Tessera, Clay, Presto release **both** model and embeddings.
+- **AlphaEarth** is more restrictive: **open output** (embeddings) but no model.
+
+> The authors’ position: sufficiently open sharing is a **prerequisite** for community-driven progress.
+
+---
+section: evaluating
+layout: bonn-two-cols-header
+---
+
+# Earth Embedding Cards
+
+::left::
+
+A reporting standard drawing on **datasheets for datasets** and **model cards**, because embeddings are both data and model output.
+
+> Releases should include exact recipes: code, configurations, hashes, container images, seeds, and evaluation suites.
+
+See the “Earth Embedding Card Template” in the paper.
+
+::right::
+
+1. **Who** made them? Authors, maintainers, funders, citation.
+2. **How accessed?** Model, dataset, or both public? Licence?
+3. **How generated?** Spatiotemporal resolution; data modalities and licences; explicit or implicit?
+4. **Intended use?** Designed-for tasks; tasks they should *not* be used for; tasks needing extra validation.
+5. **Space and time:** how encoded; smoothness and other assumptions.
+6. **Costs:** compute, storage, who pays, estimated carbon emissions.
+
+---
+section: evaluating
+---
+
+# The Research Agenda: Three Calls to Action
+
+| | Call to action |
+|---|---|
+| **Applications** | Better **benchmarks**; **interpretability**; products for specific areas, resolutions, and periods; learning **planetary processes** (a step toward digital twins) |
+| **Methods** | **Model capacity** (location encoders are small; borrow from transformers); **spatiotemporal encodings** that adapt to heterogeneity; data curation and **scaling**; geo-specific **objectives** (spatial autocorrelation, temporal dynamics) |
+| **Community** | **Interdisciplinarity**; traceable, affordable **infrastructure**; shared **standards and interfaces**; **reporting** with embedding cards |
+
+> Domain scientists (ecology, geology, oceanography, atmospheric science) and practitioners are needed to tell developers what the embeddings must deliver.
 
 <!--
-Original Lecture 6 title slide — preserved for reference.
+Merges the paper's three "Call to Action" boxes and the tutorial's "Challenges & opportunities ahead" slide.
 -->
 
 ---
+section: closing
+sectionTitle: Closing
+---
 
-# In this lecture (original outline)
+# The Forest Map, One More Time
 
-- Coordinates as model inputs
-- Positional and coordinate encodings
-- Location encoders
-- Spatial embeddings
-- Implicit neural representations and continuous spatial functions
+| Block | Forest-cover map |
+|---|---|
+| **1 · Why** | One vector per location replaces pipelines of heterogeneous data and expertise |
+| **2 · How learned** | Explicit pixel embeddings (AlphaEarth) for detail; implicit location encoders (SatCLIP) for context |
+| **3 · How used** | Direct prediction from a few hundred plots with a small classifier → wall-to-wall map |
+| **4 · Where it fails** | Unseen under-canopy properties, cloudy regions, clustered plots, black-box vectors |
 
-<!--
-Original opening outline — kept for reference as the new scaffold develops.
--->
+> Earth embeddings are a new **data format** for geospatial information: compact, fused, queryable anywhere, and interoperable with other AI models, provided we know what is (and is not) inside them.
+
+---
+section: closing
+---
+
+# Discussion
+
+1. Should Earth embeddings be **public infrastructure**, like a national mapping agency’s base map? Who should pay for the storage?
+2. Would you trust a forest-cover map built on an embedding whose **model you cannot inspect** for an EU deforestation regulation decision?
+3. If you could add **one modality** to a global embedding, which would add the most information, and where?
+
+> You don’t need to be a machine-learning expert: if you can run a regression, you can use Earth embeddings.
+
+---
+layout: learning-outcomes
+mode: after
+meeting: lecture-06
+section: closing
+---
+
+# Revisit the learning outcomes
+
+---
+section: closing
+layout: bonn-two-cols-header
+---
+
+# Reading and Resources
+
+::left::
+
+### Core reading
+
+K. Klemmer, E. Rolf, M. Rußwurm, G. Camps-Valls, M. Czerkawski, S. Ermon, A. Francis, N. Jacobs, H. Kerner, L. Mackey, G. Mai, O. Mac Aodha, M. Reichstein, C. Robinson, D. Rolnick, E. Shelhamer, V. Sitzmann, D. Tuia, X. Zhu. **“Earth Embeddings: Toward artificial intelligence-centric representations of our planet.”** *IEEE Geoscience and Remote Sensing Magazine*, 2026. doi:10.1109/MGRS.2026.3710416
+
+### Hands-on
+
+ISPRS 2026 tutorial notebooks, [github.com/konstantinklemmer/isprs26-embeddings-tutorial](https://github.com/konstantinklemmer/isprs26-embeddings-tutorial). Demo 1 uses SatCLIP and AlphaEarth; Demo 2 builds MOSAIKS features and similarity maps. Both run on free Colab.
+
+::right::
+
+### Further reading
+
+- Klemmer et al., “SatCLIP: Global, general-purpose location embeddings with satellite imagery,” AAAI 2025.
+- Rußwurm et al., “Geographic location encoding with spherical harmonics and sinusoidal representation networks,” ICLR 2024.
+- Brown et al., “AlphaEarth Foundations,” arXiv:2507.22291, 2025.
+- Rolf et al., “A generalizable and accessible approach to machine learning with global satellite imagery” (MOSAIKS), *Nature Communications*, 2021.
+- TorchGeo: datasets, pretrained models, and tooling for geospatial deep learning.

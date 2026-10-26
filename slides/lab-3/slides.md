@@ -14,28 +14,122 @@ subhead: Lab 3
 home: ../../
 ---
 
-# Lab 3 — Machine Learning on Data Representations
+# Lab 3 — Build and Use the Shared Dataset
 
 <div class="mt-8 text-[.95rem] text-gray-600 font-semibold">
-How much performance comes from the model — and how much from the representation?
+Turn the files collected in Lab 2 into point queries, combine sources, then test representations.
 </div>
 
 <!--
-Bridge from Lecture 3: keep the focus on representations, features, and learning behavior.
-This is a controlled experiment, not a leaderboard competition.
+Lab 2 supplied checked files and source documentation. Lab 3 builds the code that reads them.
 -->
+
+---
+
+# Lab 3 Workflow
+
+1. Fork the supplied repository once per group and clone your fork.
+2. Connect your Lab 2 file to a download script and a PyTorch dataset.
+3. Query named values at coordinates and handle missing or outside-coverage results.
+4. Integrate your source into the combined dataset and open a pull request.
+5. Use the combined data to compare feature representations and models.
+
+<div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-[.75rem]">
+<strong>Inputs from Lab 2:</strong> the uploaded GeoTIFF, GeoJSON, or shapefile ZIP and your group's two explanatory slides.
+</div>
+
+---
+
+# Collaborating with GitHub
+
+- <strong>Fork</strong> the instructor's repository once per group.
+- <strong>Clone</strong> the group fork into your working environment.
+- Develop together; <strong>commit</strong> and <strong>push</strong> working changes.
+- Open a <strong>pull request</strong> to the central repository.
+- Review, revise, and merge with the instructor.
+
+<div class="mt-4 rounded-lg border border-gray-200 p-3 text-[.75rem]">
+Starting repository: <span class="italic text-amber-700">[ LINK TO BE PROVIDED ]</span>
+</div>
+
+<!--
+One group fork contains the source-specific implementation. Do not commit the source data into Git.
+-->
+
+---
+
+# Make Your Source Queryable
+
+1. Read your group's two Lab 2 slides and download the uploaded subset.
+2. Adapt the supplied download script to retrieve the file and cache it in <code>data/</code>.
+3. Adapt the land-cover or building example into a PyTorch dataset for your source.
+4. Return named variables for a requested latitude and longitude.
+5. Transform coordinates as needed; distinguish missing values from valid zeros.
+6. Check known locations against the original map or source data.
+
+<div class="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-[.75rem]">
+The file is downloaded when needed, then queried locally. A point query should not download it again.
+</div>
+
+---
+
+# Integrate the Group Contribution
+
+1. Agree on variable names and the point-query interface.
+2. Connect your dataset to the combined dataset script.
+3. Confirm the combined query returns your source alongside the supplied examples.
+4. Run the repository checks and inspect plausible results at known points.
+5. Push the change, open a pull request, and respond to review.
+
+<div class="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-3 text-[.75rem]">
+<strong>Technical deliverable:</strong> a reviewed contribution that makes your Lab 2 source available through the shared query.
+</div>
+
+<!--
+The instructor coordinates integration and merging. Students should not assume they have merge access.
+-->
+
+---
+
+# Combined Point Query
+
+<div class="grid grid-cols-2 gap-6 mt-4">
+
+<div>
+
+```python
+dataset.query(latitude=..., longitude=...)
+```
+
+```python
+{
+    "land_cover":    ...,
+    "building":      ...,
+    "your_modality": ...
+}
+```
+
+</div>
+
+<div class="text-sm text-gray-700">
+<p>Each source may have its own resolution, CRS, and observation date.</p>
+<p>Keep variable meanings and missing-data conventions from the Lab 2 slides.</p>
+<p>Use the repository's actual query interface; this example is illustrative.</p>
+</div>
+
+</div>
 
 ---
 
 # The Task
 
-- Classify land cover from geospatial data assembled in Lab 2
+- Classify land cover from the dataset assembled in this lab
 - Work with point-based samples from raster/geospatial layers
 - Use one dataset consistently across all experiments
 - Evaluate predictions on held-out data
 
 <div class="mt-4 rounded-lg border border-gray-200 p-3 text-[.75rem] text-gray-700">
-Implementation is yours: Python in <strong>Google Colab</strong>, <strong>VS Code</strong>, or local Jupyter. CPU is enough.
+For the model comparison, use Python in <strong>Google Colab</strong>, <strong>VS Code</strong>, or local Jupyter. CPU is enough.
 </div>
 
 <!--
@@ -116,7 +210,7 @@ Avoid deeper derivations here.
 1. Small raw feature set (e.g., Red + NIR)
 2. Raw features + engineered feature (e.g., NDVI)
 3. Several Sentinel-2 bands
-4. Bands + complementary Lab 2 variables (if available)
+4. Bands + complementary variables from the combined dataset (if available)
 
 <div class="mt-4 text-[.75rem] text-gray-600">
 Prompt: What changes when the model stays fixed but the representation changes?
