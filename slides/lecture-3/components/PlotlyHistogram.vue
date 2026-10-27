@@ -65,11 +65,9 @@ onMounted(async () => {
     },
   ]
 
-  const rect = container.value.getBoundingClientRect()
-
   const layout = {
-    width: rect.width,
-    height: rect.height,
+    width: container.value.clientWidth,
+    height: container.value.clientHeight,
     autosize: false,
     margin: { l: 44, r: 12, t: props.showLegend ? 30 : 10, b: 38 },
     font: { size: 11, color: '#222222', family: 'Arial, Helvetica, sans-serif' },
