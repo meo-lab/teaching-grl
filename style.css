@@ -403,7 +403,7 @@
 }
 
 .lecture-overview-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: .6rem;
   margin-top: 1rem;
 }
@@ -854,3 +854,35 @@ a.course-gantt-event:hover { background: #e9f0f5; }
 .course-gantt { margin-top: .85rem; }
 .course-gantt-row { min-height: 1.9rem; margin-top: .15rem; }
 .course-gantt-bar, .course-gantt-cancelled { height: 1.8rem; }
+
+/* The Bonn decks are always light. When the OS/browser prefers dark mode,
+   Slidev adds html.dark and switches code blocks, inline code and form
+   controls to dark colours, which become unreadable on our white slides.
+   Pin them to the light values for every deck (no per-deck colorSchema needed). */
+html.dark:root {
+  color-scheme: light;
+  --slidev-code-background: #f5f5f5;
+  --slidev-code-foreground: #1b1b1b;
+  --slidev-code-tab-divider: #e5e5e5;
+  --slidev-code-tab-text-color: #67676c;
+  --slidev-code-tab-active-text-color: #3c3c43;
+}
+
+html.dark:root .shiki {
+  color: var(--shiki-light, inherit);
+  --twoslash-popup-bg: var(--shiki-light-bg, inherit);
+}
+
+html.dark:root .shiki span {
+  color: var(--shiki-light);
+}
+
+/* Compact formula boxes (e.g. Lecture 3 "(Image) Statistics" slides) */
+.slidev-layout.bonn-layout .stats-boxes p {
+  margin: .2rem 0;
+  font-size: .82rem;
+}
+
+.slidev-layout.bonn-layout .stats-boxes .katex {
+  font-size: 1.12em;
+}

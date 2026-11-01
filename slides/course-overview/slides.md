@@ -95,11 +95,12 @@ Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 <div class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 2;" title="Course introduction">Intro</div>
 <CourseResource resource="lecture-1" href="./1-why-geospatial-representation-learning/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 3;" title="Lecture 1">L1</CourseResource>
 <CourseResource resource="lecture-2" href="./2-geospatial-data-images-maps-time-series/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 4;" title="Lecture 2 — October 30, HS IX (same floor)">L2*</CourseResource>
-<CourseResource resource="lecture-3" href="./3-machine-learning-on-data-representations/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lecture 3">L3</CourseResource>
-<CourseResource resource="lecture-4" href="./4-deep-representation-learning-i/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lecture 4">L4</CourseResource>
+<CourseResource resource="lecture-3" href="./3-data-representations/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 5;" title="Lecture 3">L3</CourseResource>
+<CourseResource resource="lecture-4" href="./4-machine-learning-on-data-representations/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 6;" title="Lecture 4">L4</CourseResource>
 <div class="course-gantt-cancelled" style="grid-column: 7;">No class</div>
-<CourseResource resource="lecture-5" href="./5-deep-representation-learning-ii/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 8;" title="Lecture 5">L5</CourseResource>
-<CourseResource resource="lecture-6" href="./8-geospatial-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 9;" title="Lecture 6">L6</CourseResource>
+<CourseResource resource="lecture-5" href="./5-deep-representation-learning-i/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 8;" title="Lecture 5">L5</CourseResource>
+<CourseResource resource="lecture-6" href="./6-deep-representation-learning-ii/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 9;" title="Lecture 6">L6</CourseResource>
+<CourseResource resource="lecture-7" href="./7-earth-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 10;" title="Lecture 7">L7</CourseResource>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
@@ -199,24 +200,29 @@ Interactive activities reinforce the lecture through self-directed, collaborativ
 <strong>Geospatial Data</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">What is geodata?</span>
 </CourseResource>
 
-<CourseResource resource="lecture-3" href="./3-machine-learning-on-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<CourseResource resource="lecture-3" href="./3-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
 <h3>Lecture 3</h3>
+<strong>Data Representations</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Describing places as feature vectors</span>
+</CourseResource>
+
+<CourseResource resource="lecture-4" href="./4-machine-learning-on-data-representations/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 4</h3>
 <strong>Machine Learning on Data Representations</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning on fixed representations</span>
 </CourseResource>
 
-<CourseResource resource="lecture-4" href="./4-deep-representation-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 4</h3>
+<CourseResource resource="lecture-5" href="./5-deep-representation-learning-i/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 5</h3>
 <strong>Deep Representation Learning I</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning the representation itself</span>
 </CourseResource>
 
-<CourseResource resource="lecture-5" href="./5-deep-representation-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 5</h3>
+<CourseResource resource="lecture-6" href="./6-deep-representation-learning-ii/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 6</h3>
 <strong>Deep Representation Learning II</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Learning beyond memorization</span>
 </CourseResource>
 
-<CourseResource resource="lecture-6" href="./8-geospatial-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
-<h3>Lecture 6</h3>
-<strong>Geospatial Embeddings</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Giving location a meaning</span>
+<CourseResource resource="lecture-7" href="./7-earth-embeddings/" class="phase-content-tile no-underline text-current hover:bg-gray-50">
+<h3>Lecture 7</h3>
+<strong>Earth Embeddings</strong><br><span class="text-[.58rem] leading-snug text-gray-500 italic font-normal">Giving location a meaning</span>
 </CourseResource>
 
 

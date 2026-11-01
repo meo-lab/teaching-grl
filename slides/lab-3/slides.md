@@ -197,7 +197,7 @@ Key question: How good is your representation if linear separation is all you al
 </div>
 
 <!--
-Keep this tied to Lecture 3 terminology: linear decision boundary and features.
+Keep this tied to Lecture 4 terminology: linear decision boundary and features.
 Avoid deeper derivations here.
 -->
 
@@ -284,7 +284,7 @@ Link outcomes to representation quality and decision-boundary shape.
 
 ---
 
-# Takeaway → Lecture 4
+# Takeaway → Lecture 5
 
 1. Feature engineering changes the representation.
 2. Complementary information can make classification easier.
@@ -294,11 +294,11 @@ Link outcomes to representation quality and decision-boundary shape.
   <div class="text-[.78rem] uppercase tracking-wide text-blue-700 font-semibold">Next</div>
   <div class="mt-1 text-[.95rem] font-semibold text-blue-900">
     In Lab 3 you designed representations manually.<br>
-    In Lecture 4: what if the model learns the representation itself?
+    In Lecture 5: what if the model learns the representation itself?
   </div>
 </div>
 
 <!--
 Close with explicit bridge to Deep Representation Learning I.
-This transition is the pedagogical handoff to Lecture 4.
+This transition is the pedagogical handoff to Lecture 5.
 -->

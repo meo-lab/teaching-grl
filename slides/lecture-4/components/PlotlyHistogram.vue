@@ -65,15 +65,9 @@ onMounted(async () => {
     },
   ]
 
-  // Use layout box size (offsetWidth/Height), not getBoundingClientRect: Slidev scales
-  // the whole slide with a CSS transform, and getBoundingClientRect reports the already-
-  // scaled on-screen size, which would then get scaled a second time by that transform.
-  const width = container.value.offsetWidth
-  const height = container.value.offsetHeight
-
   const layout = {
-    width,
-    height,
+    width: container.value.clientWidth,
+    height: container.value.clientHeight,
     autosize: false,
     margin: { l: 44, r: 12, t: props.showLegend ? 30 : 10, b: 38 },
     font: { size: 11, color: '#222222', family: 'Arial, Helvetica, sans-serif' },

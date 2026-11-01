@@ -18,31 +18,35 @@ const decks = [
   },
   {
     entry: 'slides/lecture-3/slides.md',
-    slug: '3-machine-learning-on-data-representations',
+    slug: '3-data-representations',
   },
   {
     entry: 'slides/lecture-4/slides.md',
-    slug: '4-deep-representation-learning-i',
+    slug: '4-machine-learning-on-data-representations',
   },
   {
     entry: 'slides/lecture-5/slides.md',
-    slug: '5-deep-representation-learning-ii',
+    slug: '5-deep-representation-learning-i',
   },
   {
     entry: 'slides/lecture-6/slides.md',
-    slug: '6-location-encoders-and-spatial-embeddings',
+    slug: '6-deep-representation-learning-ii',
   },
   {
     entry: 'slides/lecture-7/slides.md',
-    slug: '7-self-supervised-deep-learning',
+    slug: '7-earth-embeddings',
   },
   {
     entry: 'slides/lecture-8/slides.md',
-    slug: '8-geospatial-embeddings',
+    slug: '8-self-supervised-deep-learning',
   },
   {
     entry: 'slides/lecture-9/slides.md',
-    slug: '9-synthesis-choosing-the-right-representation',
+    slug: '9-geospatial-embeddings',
+  },
+  {
+    entry: 'slides/lecture-10/slides.md',
+    slug: '10-synthesis-choosing-the-right-representation',
   },
   {
     entry: 'slides/lab-1/slides.md',

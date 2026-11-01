@@ -6,6 +6,7 @@ export default {
   'lecture-4': false,
   'lecture-5': false,
   'lecture-6': false,
+  'lecture-7': false,
   'lab-1': true,
   'lab-2': true,
   'lab-3': false,

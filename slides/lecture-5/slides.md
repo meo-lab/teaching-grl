@@ -15,1260 +15,894 @@ home: ../
 ---
 
 <script setup>
-import OverfittingDemo from './components/OverfittingDemo.vue'
 import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
-import LinearHypothesisDemo from './components/LinearHypothesisDemo.vue'
-import BiasVarianceDemo from './components/BiasVarianceDemo.vue'
-import PolynomialBiasVarianceDemo from './components/PolynomialBiasVarianceDemo.vue'
-import PolynomialBiasVarianceDemo2 from './components/PolynomialBiasVarianceDemo2.vue'
-import PolynomialBiasVarianceDemo3 from './components/PolynomialBiasVarianceDemo3.vue'
+import PixelReshape from '../../components/PixelReshape.vue'
+import Lecture1AppleMatrixRepresentation from './components/Lecture1AppleMatrixRepresentation.vue'
+import PlotlyHistogram from './components/PlotlyHistogram.vue'
+import LinearDecisionBoundaryDemo from './components/LinearDecisionBoundaryDemo.vue'
+import LogisticRegressionDemo from './components/LogisticRegressionDemo.vue'
 </script>
 
+# Deep Representation Learning I
 
-# Deep Representation Learning II
-
-## How Can a Model Generalize?
+## What is Learning?
 
 <!--
-Lecture 4 ended with gradient-based learning and minimizing a training loss.
-Lecture 5 continues directly from there: what does it mean to truly learn, not just memorize?
+This lecture formalizes supervised learning on structured inputs before introducing deep learning on raw data.
 -->
 
 ---
 
-# Learning Outcomes
+# Two Questions for Lectures 4–5
 
-<div class="mt-5 flex flex-col gap-4">
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">1</div>
-    <div class="text-[.82rem] leading-snug">Explain <strong>generalization</strong> as the difference between optimizing a finite training sample and performing well on the underlying data distribution.</div>
+<div class="grid grid-cols-2 gap-8 mt-8">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-6">
+    <div class="text-[.6rem] uppercase tracking-widest text-blue-600 font-bold mb-3">Lecture 4</div>
+    <div class="text-[1.05rem] leading-snug font-semibold text-blue-900">How does a neural network learn?</div>
   </div>
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">2</div>
-    <div class="text-[.82rem] leading-snug">Explain how <strong>model capacity, data, and regularization</strong> determine underfitting and overfitting in the classical regime.</div>
-  </div>
-  <div class="flex gap-4 items-start">
-    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">3</div>
-    <div class="text-[.82rem] leading-snug">Explain why the <strong>interpolation threshold, double descent, and grokking</strong> challenge the classical bias–variance picture and motivate the modern overparameterized learning regime.</div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
+    <div class="text-[.6rem] uppercase tracking-widest text-emerald-600 font-bold mb-3">Lecture 5</div>
+    <div class="text-[1.05rem] leading-snug font-semibold text-emerald-900">Why should what it learns work beyond the training data?</div>
   </div>
 </div>
 
 <!--
-Three outcomes, two lectures worth of contrast: classical view vs. modern view.
-Outcome 1 sets up the core concept; Outcome 2 is the classical story; Outcome 3 is the modern twist.
+Set up the Lecture 4 → Lecture 5 bridge before technical detail.
+Lecture 4 asks how learning works; Lecture 5 asks why learned structure can generalize.
 -->
 
 ---
-section: approximation
-layout: bonn-two-cols-header
----
 
-# Recap Lecture 4 Deep Learning I
- 
-::left::
+# Learning Outcomes Roadmap
 
-## Deep Model Architectures
+<div class="mt-3 text-[.64rem] leading-tight whitespace-nowrap">
 
-<img
-        src="./assets/model.svg"
-        class="w-full h-[150px] object-contain"
-        alt="A deep learning model transforms an input tensor through layers into an output tensor"
-      />
+| | Learning outcome | Block |
+|---|---|---|
+| ⬜ | Explain why representation choice determines task difficulty. | Why Learn Representations? |
+| ⬜ | Interpret logistic regression as a linear decision boundary in feature space. | Why Learn Representations? |
+| ⬜ | Explain how an MLP learns transformations of feature space. | Multilayer Perceptrons |
+| ⬜ | Distinguish representation learner vs final decision layer in a network. | Multilayer Perceptrons |
+| ⬜ | Explain the roles of loss, gradient descent, and backpropagation. | Gradient Descent &amp; Backpropagation |
 
-::right::
-
-## Parameter Optimization
-
-<img
-        src="./assets/grad_descent_image.png"
-        class="w-full h-[150px] object-contain"
-        alt="Gradient descent iteratively updates parameters to reduce the training loss"
-      />
-
-::bottom::
-
-<div v-click class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-  <div class="text-[.9rem] font-semibold text-blue-900">Takeaway: We can now approximate any function with a neural network.</div>
 </div>
 
-<div v-click class="mt-3 text-[.78rem] text-gray-500">But is function approximation enough?</div>
+<!--
+This table is the map for today's three blocks.
+We will revisit it as a progress tracker while moving through the lecture.
+The ⬜ markers can be swapped to ✅ as outcomes are reached.
+-->
 
 ---
-section: approximation
-layout: bonn-two-cols-header
----
 
-::left:: 
+# Today: Lecture Structure
 
-# What is wrong here?
+<div class="text-[.85rem] text-gray-600 mb-5">Three major blocks guide the narrative.</div>
 
-<div v-click class="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
-  <div class="text-[.9rem] font-semibold text-blue-900">🧑‍🍳 Takeaway: The Pizza Baker Apprentice does not need to hold 📦 boxes to pick up a 🍕 pizza.</div>
+<div class="grid grid-cols-3 gap-4 mt-3">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">1</div>
+    <div class="text-[.78rem] font-semibold">Why Learn Representations?</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">2</div>
+    <div class="text-[.78rem] font-semibold">Multilayer Perceptrons</div>
+  </div>
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="text-[.6rem] font-bold uppercase tracking-wide text-blue-700 mb-2">3</div>
+    <div class="text-[.78rem] font-semibold">Gradient Descent &amp; Backpropagation</div>
+  </div>
 </div>
 
-::right::
+<div class="mt-4 text-[.7rem] text-gray-500">Start with representation quality and geometric separability.</div>
 
-<div class="flex flex-col items-center justify-center h-[100%] gap-6">
-  <video
-    src="./assets/pizza.mp4"
-    controls
-    class="rounded-xl shadow-lg max-h-[400px]"
-    style="max-width: 230px;"
-  ></video>
-</div>
-
----
-section: approximation
-layout: bonn-two-cols-header
----
-
-# Approximation vs Generalization
-
-::left::
-
-## Approximation
-
-When training, we minimize the empirical risk
-
-$$
-\widehat{\mathcal{R}}(\theta)
-= \frac{1}{N}\sum_{i=1}^{N}
-\mathcal{L}\bigl(f_{\theta}(\mathbf{x}_i), \mathbf{y}_i\bigr)
-$$
-
-## Generalization
-
-But in practice, we want the population (test) risk to be small
-
-$$
-\mathcal{R}(\theta)
-= \mathbb{E}_{(\mathbf{x},\mathbf{y}) \sim \mathcal{P}}
-\mathcal{L}\bigl(f_\theta(\mathbf{x}),\mathbf{y}\bigr)
-$$
-
-::right::
-
-<div class="flex flex-col justify-center">
-    <OverfittingDemo />
-</div>
-
----
-section: approximation
----
-
-# What is needed for a system to learn?
-
-<AspectsOfLearningDiagram/>
+<!--
+Zoom in on today's scope before the lecture becomes technical.
+Students should track progress across the three blocks.
+-->
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: data
-sectionTitle: Data
+section: why-learn-representations
+sectionTitle: Why Learn Representations?
 ---
 
-# Data Samples and Distributions
+# Why Learn Representations?
 
-<div class="flex flex-col items-center justify-center h-[100%] gap-6">
-  <img
-    src="./assets/window.jpg"
-  ></img>
+<div class="text-[.9rem] text-gray-700 mt-4">
+Good representations make hard problems easy.
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-6">From manual feature design to learned representations.</div>
+
+---
+section: why-learn-representations
+---
+
+# A difficult task is easy in the right form.
+
+## Recap Lecture 1
+
+<div class="grid grid-cols-[2fr_1fr] gap-6 items-start mt-5">
+
+<div class="flex flex-col gap-3">
+  <div v-click="1" class="grid grid-cols-[90px_1fr] items-center gap-5 border-b border-gray-200 pb-2">
+    <div class="text-[.55rem] font-bold uppercase tracking-wide text-gray-500">Chinese</div>
+    <div lang="zh" class="text-[1.05rem] leading-snug text-gray-800">我们的心智已经学会理解这个句子。</div>
+  </div>
+
+  <div v-click="2" class="grid grid-cols-[90px_1fr] items-center gap-5 border-b border-gray-200 pb-2">
+    <div class="text-[.55rem] font-bold uppercase tracking-wide text-gray-500">Arabic</div>
+    <div lang="ar" dir="rtl" class="text-[1.05rem] leading-snug text-gray-800">لقد تعلّم عقلنا أن يفهم هذه الجملة.</div>
+  </div>
+
+  <div v-click="3" class="grid grid-cols-[90px_1fr] items-center gap-5 border-b border-gray-200 pb-2">
+    <div class="text-[.55rem] font-bold uppercase tracking-wide text-gray-500">Hebrew</div>
+    <div lang="he" dir="rtl" class="text-[1.05rem] leading-snug text-gray-800">המוח שלנו למד להבין את המשפט הזה.</div>
+  </div>
+
+  <div v-click="4" class="grid grid-cols-[90px_1fr] items-center gap-5 border-b border-gray-200 pb-2">
+    <div class="text-[.55rem] font-bold uppercase tracking-wide text-gray-500">Korean</div>
+    <div lang="ko" class="text-[1.05rem] leading-snug text-gray-800">우리의 마음은 이 문장을 이해하는 법을 배웠습니다.</div>
+  </div>
+
+  <div v-click="5" class="grid grid-cols-[90px_1fr] items-center gap-5 pb-2">
+    <div class="text-[.55rem] font-bold uppercase tracking-wide text-gray-500">Latin</div>
+    <div lang="en" class="text-[1.05rem] leading-snug text-gray-800">Our mind has learned to understand this sentence.</div>
+  </div>
+</div>
+
+<div class="flex flex-col items-center">
+  <img src="./assets/reading.jpg" class="w-full rounded-lg object-cover max-h-[320px]" alt="A person reading a book, effortlessly parsing a complex language" />
+  <div class="text-[.5rem] text-gray-400 mt-2 text-center leading-tight">
+    Photo by <a href="https://www.pexels.com/@silverkblack/" target="_blank" rel="noopener noreferrer">Vitaly Gariev</a> on <a href="https://www.pexels.com/@silverkblack/" target="_blank" rel="noopener noreferrer">Pexels</a>
+  </div>
+</div>
+
 </div>
 
 ---
-section: data
+section: why-learn-representations
 ---
 
-# Reality → Distribution → Dataset
+# Choosing Suitable Data Representations
 
-<img src="./assets/data_1.svg">
+## Recap Lecture 1
 
----
-section: data
----
+<div class="mt-8 grid grid-cols-3 gap-5">
+  <div class="min-h-[300px] rounded-xl border p-4">
+    <h3>Images</h3>
+    <Lecture1AppleMatrixRepresentation :click-index="1" />
+  </div>
 
-# Reality → Distribution: Generative Perspective
+  <div class="min-h-[300px] rounded-xl border p-4">
+    <h3>Math</h3>
+    <div class="flex min-h-[238px] flex-col text-center">
+      <div class="flex flex-1 flex-col items-center justify-center">
+        <div v-click="2" class="rounded border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-sm tracking-wide text-gray-700">
+          XLVII + LXXVIII = ?
+        </div>
+        <div v-click="3" class="mt-5 font-mono text-sm text-blue-800">
+          47 + 78 = 125
+        </div>
+      </div>
+    </div>
+  </div>
 
-<img src="./assets/data_2.svg">
-
----
-section: data
----
-
-# Reality → Distribution: Discriminative Perspective
-
-<img src="./assets/data_3.svg">
-
----
-section: data
----
-
-# Data as Samples from a Distribution
-
-<img src="./assets/data_4.svg">
-
----
-section: data
----
-
-# Distribution → Dataset: I.I.D Assumption
-
-<img src="./assets/data_5.svg">
-
----
-section: data
----
-
-# Distribution → Dataset: In-Distribution Generalization
-
-<img src="./assets/data_6.svg">
-
----
-section: data
----
-
-# In Practice: Training, Validation, Test Data
-
-<img src="./assets/data_7.svg">
-
----
-section: data
----
-
-# Distribution → Dataset: Random Sampling
-
-<img src="./assets/data_8.svg">
-
----
-section: data
----
-
-# Real-World Models need to generalize Out-of-Distribution
-
-<img src="./assets/data_9.svg">
-
----
-section: data
----
-
-# Chanes between Development and Deployment
-
-<img src="./assets/data_10.svg">
-
----
-section: data
----
-
-# Geospatial Models Need to Generalize Out-of-Distribution
-
-<img src="./assets/data_11.svg">
-
----
-section: data
-layout: bonn-image-right
-image: ./assets/window.jpg
----
-
-# Takeaway: Data
-
-* We model our world as distributions from which we sample (i.e., collect) datasets
-* We use training data to train model weights, validation data for experimentation, and test data for final evaluation
-* Random sampling of train, val, test data measures in-distribution accuracy and is sufficient for model comparisons
-* Real-world deployments must consider distribution shifts 𝑃(𝑋│𝑌)≠𝑄(𝑋│𝑌) and assessing out-of-distribution accuracy on separately collected test data
-
-
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: classical-generalization
-sectionTitle: Classical Generalization
----
-
-# Classical Generalization Theory
-
-
-<img src="./assets/bias_variance_belkin.svg" />
+  <div class="min-h-[300px] rounded-xl border p-4">
+    <h3>Places</h3>
+    <div v-click="4" class="flex min-h-[238px] flex-col items-center text-center">
+      <div class="mt-3 text-xs uppercase tracking-wide text-gray-500">
+        Coordinates
+      </div>
+      <div class="mt-1 break-all font-mono text-sm leading-tight text-gray-700">
+        50°43′57.73″ N,<br />
+        7°06′16.63″ E
+      </div>
+      <div v-click="5" class="mt-5">
+        <div class="text-xs uppercase tracking-wide text-gray-500">
+          Place
+        </div>
+        <div class="mt-1 text-lg font-semibold text-blue-800">
+          Hofgarten, Bonn, Germany
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!--
-Block 1 placeholder. Topics to develop: finite datasets vs. underlying distribution, training vs. population loss, train/val/test splits, generalization gap, model capacity, underfitting/overfitting, bias–variance trade-off, regularization.
+Let me show this with a few examples. A computer usually sees an image as a matrix of numbers, often between 0 and 255.
+[click]
+But when we represent those numbers as intensities of light, it becomes much easier for us to see structure in the raw data. Both are valid representations of the same underlying object.
+[click]
+What is the result of this addition in Roman numerals?
+[click]
+It is much easier to do math with Arabic numerals. And the shift from Roman numerals to Arabic numerals took roughly 300 to 600 years in the Western world. That gives us a sense of how hard it can be to move to a better but unfamiliar representation.
+[click]
+Similarly, coordinates are great for databases, but they are hard to read. Place descriptions are easier for people to understand, but they can be ambiguous.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Machine Learning needs good Features
+
+## Recap Lecture 4
+
+<img
+  src="./assets/classic_ml.svg"
+  class="w-full h-[170px] object-contain -mt-4"
+  alt="The classic machine learning pipeline: raw data → feature engineering → feature vector → classifier → prediction"
+/>
+
+<div class="grid grid-cols-2 gap-3 mt-1 justify-center">
+  <div>
+    <div class="text-[.6rem] font-semibold text-gray-500 mb-1">Raw Band: Green</div>
+    <div style="height: 140px; width: 300px;">
+      <PlotlyHistogram dataset="green" x-label="Green reflectance" :show-legend="false" />
+    </div>
+  </div>
+  <div class="mx-auto w-[280px]">
+    <div class="text-[.6rem] font-semibold text-gray-500 mb-1">Engineered Feature: NDVI</div>
+    <div style="height: 140px; width: 300px;">
+      <PlotlyHistogram dataset="ndvi" x-label="NDVI" :show-legend="false" />
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3 text-[.5rem] text-gray-500" style="position: absolute; left: 72px; bottom: 22px;">
+  <div class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2ca02c"></span>Vegetation</div>
+  <div class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#d62728"></span>Urban/Built-up</div>
+</div>
+
+<!--
+Brief recap of Lecture 4 before moving to deep learning.
+In classic ML, features are hand-designed by domain experts; the model operates on those fixed representations.
+Deep learning replaces hand-crafted features with learned representations — this lecture is about how and why that works.
 -->
 
 
-
 ---
-section: classical-generalization
-layout: bonn-two-cols-header
+section: why-learn-representations
 ---
 
-# The Hypothesis Space $\mathcal H$
+# Good Representations allow for Simple Models
 
-::left::
-
-A **hypothesis** is a prediction function:
-
-$$
-h:\mathcal X\rightarrow\mathcal Y
-$$
-
-The **hypothesis space** is the set of functions the model can represent:
-
-$$
-\mathcal H=\{h_\theta:\theta\in\Theta\}
-$$
-
-- $\Theta$ is the **parameter space**
-- $\theta\in\Theta$ is one parameter choice
-- $h_\theta\in\mathcal H$ is the corresponding prediction function
-- Training selects a hypothesis from $\mathcal H$
-
-$$
-\boxed{\text{parameters }\theta
-\quad\longrightarrow\quad
-\text{hypothesis }h_\theta}
-$$
-
-::right::
-
-<img src="./assets/hypothesis_space.svg">
-
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Example $\mathcal H_\text{linear}$
-
-::left::
-
-A **hypothesis** is a prediction function:
-
-$$
-h:\mathcal X\rightarrow\mathcal Y
-$$
-
-The **hypothesis space** is the set of functions the model can represent:
-
-$$
-\mathcal H=\{h_\theta:\theta\in\Theta\}
-$$
-
-- $\Theta$ is the **parameter space**
-- $\theta\in\Theta$ is one parameter choice
-- $h_\theta\in\mathcal H$ is the corresponding prediction function
-- Training selects a hypothesis from $\mathcal H$
-
-$$
-\boxed{\text{parameters }\theta
-\quad\longrightarrow\quad
-\text{hypothesis }h_\theta}
-$$
-
-::right::
-
-<div class="flex flex-col h-full gap-2">
-
-**Example:** $\mathcal H_{\text{linear}} = \{h_{w,b}(x) = wx+b : (w,b) \in \mathbb{R}^2\}$
-
-<div class="flex-1 min-h-0">
-<LinearHypothesisDemo />
+<div class="mt-4">
+  <LinearDecisionBoundaryDemo />
 </div>
 
+<!--
+Feature space recap: NDVI vs. Green reflectance for 759 land-cover samples.
+Drag the two handles to reshape the line and watch w1, w2, b update live.
+This is the linear score w^T x + b; the sigmoid (logistic regression) comes next.
+-->
+
+---
+section: why-learn-representations
+---
+
+# Logistic Regression for Classification
+
+<div class="mt-4">
+  <LogisticRegressionDemo />
 </div>
 
+<!--
+Same feature space and boundary mechanic as the previous slide, but the linear score
+z = w^T x + b is now passed through the sigmoid to become a probability P(y=1|x).
+The boundary itself does not move: z = 0 is still exactly where P = 0.5.
+-->
 
 ---
-section: classical-generalization
-layout: bonn-two-cols-header
+section: why-learn-representations
 ---
 
-# Parameter Space and Hypothesis Space
-
-## Two parameter sets can map to the same Hypothesis
-
-::left::
-
-The **parameter space** contains the numerical values optimized during training:
-
-$$
-\theta\in\Theta
-$$
-
-The **hypothesis space** contains the prediction functions the model can represent:
-
-$$
-h_\theta\in\mathcal H
-$$
-
-A parameterization maps parameter values to hypotheses:
-
-$$
-\Phi:\Theta\rightarrow\mathcal H,
-\qquad
-\theta\mapsto h_\theta
-$$
-
-This mapping does not have to be one-to-one:
-
-$$
-\theta_1\neq\theta_2
-\qquad\text{but}\qquad
-\Phi(\theta_1)=\Phi(\theta_2)
-$$
-
-::right::
-
-<img src="./assets/parameter_hypothesis_space.svg">
-
-
-
-<div class="mt-5 rounded-lg bg-gray-100 px-4 py-3">
-
-**Training moves through parameter space, but predictions are determined by the corresponding hypothesis.**
-
-</div>
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# From Optimization to a Learned Hypothesis
-
-
-::left::
-
-## Navigate parameter space
-
-Gradient descent updates the parameters in a direction that aims to reduce the empirical risk:
-
-<img src="./assets/grad_descent_image.png" class="w-full mt-3">
-
-::right::
-
-## Induce a path through $\mathcal H$
-
-Every parameter value represents a prediction function:
-
-
-$$
-h_{\theta^{(0)}}
-\rightarrow
-h_{\theta^{(1)}}
-\rightarrow\cdots\rightarrow
-h_{\theta^{(T)}}\text{, so that } 
-\hat h_D=h_{\theta^{(T)}}\in\mathcal H
-$$
-
-<img src="./assets/optimize.svg" width="250px" class="mt-2">
-
-<div class="mt-2 rounded-lg bg-gray-100 px-3 py-2 text-center text-sm">
-
-</div>
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Occam's Razor Idea
-
-## Simpler functions should generalize better.
-
-::left::
-
-Willian of Ockham (c. 1287 – 9/10 April 1347)
-<img width="200px" src="./assets/William_of_Ockham.png">
-
-::right::
-
-<img src="./assets/occams_razor.svg">
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Bias and Variance
-
-$$
-\text{test risk}
-=
-\underbrace{\text{training risk}}_{\text{related to bias}}
-+
-\underbrace{
-\left(\text{test risk}-\text{training risk}\right)
-}_{\text{related to variance}}
-$$
-
-::left::
-
-## Bias
-
-**How systematically wrong is the model?**
-
-$$
-\operatorname{Bias}(x)
-=
-\mathbb E_D[\hat f_D(x)]-f^*(x)
-$$
-
-- Difference between the average learned model and the true function
-- Often caused by a restrictive hypothesis space
-- High bias leads to underfitting
-- Both training and test error are typically high
-
-::right::
-
-## Variance
-
-**How much does the model depend on the dataset?**
-
-$$
-\operatorname{Var}(x)
-=
-\mathbb E_D\!\left[
-\left(
-\hat f_D(x)-\mathbb E_D[\hat f_D(x)]
-\right)^2
-\right]
-$$
-
-- Measures variation across different training datasets
-- Often increases with model flexibility
-- High variance leads to overfitting
-- Test error can be much higher than training error
-
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Example: Linear Regression 
-
-<div style="height: 74%">
-  <BiasVarianceDemo />
-</div>
-
-::left::
-
-<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-  <div class="text-[.9rem] font-semibold text-blue-900">Task 1: Discuss the bias and variance of Linear Regression models.</div>
-</div>
-
-
-::right::
-
-<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-  <div class="text-[.9rem] font-semibold text-blue-900">Task 2: Increase and Decrease the dataset size N, how does the variance change?</div>
-</div>
-
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Controlling Bias and Variance
-
-::left::
-
-## Strategy 1: Introduce Inductive Bias
-
-Use domain knowledge to **restrict or prioritize** hypotheses:
-
-- choose informative features;
-- select an appropriate architecture;
-- encode known invariances;
-- regularize model complexity.
-
-## Strategy 2: Reduce Variance by more Data
-
-Use additional information to rule out hypotheses that fit only by chance:
-
-- collect more labelled data;
-- apply valid data augmentation;
-- exploit unlabelled data through pretraining.
-
-
-::right::
-
-<div class="flex items-center justify-center h-full">
-<img width=250px src="./assets/inductive_bias2.svg">
-</div>
-
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Bias Variance Trade-Off
-
-::left::
-
-- **Under-fitting of simpler models** have high bias: they do not fit the training data well. Their predictions are fairly consistent across different training sets, so they have low variance.
-
-- **Over-fitting of complex models** have lower bias: they fit the training data closely, sometimes perfectly. Their predictions depend more strongly on the training sample, so they have high variance and may perform poorly on new data.
-
-- The classical **sweet spot** balances bias and variance to minimize test risk.
-
-::right::
+# Learning Feature Representations
 
 <img
-  src="./assets/bias_variance_belkin.svg"
-  alt="Classical bias–variance trade-off"
-  class="w-full max-h-[430px] object-contain"
+  src="./assets/feature_learning.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Training data guides a deep learning model to learn feature representations for classification"
 />
 
 ---
-section: classical-generalization
-layout: bonn-two-cols-header
+section: why-learn-representations
 ---
 
-# Vapnik-Chervonenkis (VC) Dimension 
+# Timeline and Evolution of Deep Learning
 
-## How to measure the Capacity of H
-
-::left::
-
-<div class="flex flex-col h-full gap-2">
-
-<div class="compact-math text-[0.72rem] leading-snug shrink-0" style="line-height: 1.3;">
-
-A set of $n$ points is **shattered** by $\mathcal H$ if classifiers in $\mathcal H$ can realize all $2^n$ possible binary labelings. The **VC dimension** is the largest number of points that $\mathcal H$ can shatter:
-
-$$
-\operatorname{VCdim}(\mathcal H)
-=
-\max\left\{
-n:\text{some }n\text{ points are shattered by }\mathcal H
-\right\}.
-$$
-
-</div>
-
-<div class="flex-1 min-h-0 flex flex-col items-center justify-center gap-1">
-  <img src="./assets/shattered.png" class="max-w-full max-h-full object-contain" />
-  <div class="text-[0.6rem] text-gray-500 text-center">
-    Image: <a href="https://en.wikipedia.org/wiki/Vapnik%E2%80%93Chervonenkis_dimension" target="_blank" rel="noopener noreferrer">Wikipedia</a>, CC BY-SA 3.0
+<div class="mt-4">
+  <div class="flex items-center mb-4">
+    <div class="flex-1 bg-[#00457c] text-white text-[.72rem] font-semibold px-4 py-1.5 rounded-l">&lt;2012</div>
+    <div class="flex-1 bg-[#0f7d5c] text-white text-[.72rem] font-semibold px-4 py-1.5 text-center border-l border-white/30">2015 onwards</div>
+    <div class="flex-1 bg-[#6f2d7f] text-white text-[.72rem] font-semibold px-4 py-1.5 text-right rounded-r border-l border-white/30">&gt;2020 →</div>
   </div>
+
+  <table class="w-full text-[.75rem] border-collapse">
+    <thead>
+      <tr>
+        <th class="bg-[#00457c] !text-white text-left px-3 py-2 font-semibold w-1/3">Classic Machine Learning</th>
+        <th class="bg-[#0f7d5c] !text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Supervised Deep Learning</th>
+        <th class="bg-[#6f2d7f] !text-white text-left px-3 py-2 font-semibold w-1/3 border-l border-white/30">Self-Supervised Learning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 align-top bg-[#00457c]/5"><strong>Feature Design:</strong> Which features extract the most information?</td>
+        <td class="px-3 py-2 align-top border-l border-gray-200 bg-[#0f7d5c]/5"><strong>Model Design:</strong> Which architecture is best for my tensors?</td>
+        <td class="px-3 py-2 align-top border-l border-gray-200 bg-[#6f2d7f]/5"><strong>Loss Design:</strong> Which loss function or training strategy?</td>
+      </tr>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 bg-[#00457c]/10"><strong>Data:</strong> small labelled</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#0f7d5c]/10"><strong>Data:</strong> large labelled</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#6f2d7f]/10"><strong>Data:</strong> large unlabelled</td>
+      </tr>
+      <tr class="border-b border-gray-200">
+        <td class="px-3 py-2 bg-[#00457c]/5"><strong>Models:</strong> Random Forest, Boosting, Lin. Regression</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#0f7d5c]/5"><strong>Models:</strong> MLPs, CNNs, RNNs</td>
+        <td class="px-3 py-2 border-l border-gray-200 bg-[#6f2d7f]/5"><strong>Model:</strong> Transformers</td>
+      </tr>
+      <tr>
+        <td class="px-3 py-2 text-[.68rem] italic font-semibold" style="color:#00457c">Covered in Lectures 3 &amp; 4</td>
+        <td class="px-3 py-2 border-l border-gray-200 text-[.68rem] italic font-semibold" style="color:#0f7d5c">Covered in Lectures 5 &amp; 6</td>
+        <td class="px-3 py-2 border-l border-gray-200 text-[.68rem] italic font-semibold" style="color:#6f2d7f">Covered from Lecture 7 onwards</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
-
-</div>
-
-::right::
-
-<img width=300px src="./assets/vc-dimension.svg">
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Worst-Case Generalization Gap
-
-For a bounded loss, ignoring constants and logarithmic terms:
-
-$$
-\left|R(h)-\widehat R_D(h)\right|
-\lesssim
-\sqrt{\frac{d}{n}}
-$$
-
-with VC dimension $d$ and sample size $n$
-
-::left::
-
-- A larger VC dimension gives a weaker guarantee for the same sample size.
-- More training data reduces the worst-case gap approximately as $1/\sqrt n$.
-- For a target gap $\varepsilon$, the required sample size scales approximately as
-
-  $$
-  n \propto \frac{d}{\varepsilon^2}.
-  $$
-
-- The guarantee is useful only when $d\ll n$. When $d\approx n$, the bound becomes uninformative.
-
-::right::
-
-<img width="80%" src="./assets/generalization_gap.svg">
-
-<div v-click class="mt-4 text-center">
-
-**VC bounds are distribution-free and robust, but often pessimistic.**
-
-</div>
-
----
-section: classical-generalization
----
-
-# Example Polynomial Regression: 
-## Increasing Polynomial Degree D: ↓ Bias ↑ Variance
-
-<div class="h-[220px]">
-  <PolynomialBiasVarianceDemo2 />
-</div>
-
----
-section: classical-generalization
-layout: bonn-two-cols-header
----
-
-# Takeaways Classical Generalization Theory
-
-::left::
-
-- Training minimizes **training risk**, while the goal is low **testing risk**.
-- Simpler models are more stable but may underfit because of high bias.
-- More flexible models reduce bias but may overfit because of high variance.
-- When overfitting, reduce model complexity, increase regularization, or use more data.
-- When underfitting, increase model capacity or reduce regularization.
-- Use validation data to find the model complexity that best balances bias and variance.
-
-::right::
-
-<img width=300px src="./assets/bias_variance_belkin.svg">
-
----
-layout: bonn-section-image-right
-sectionColor: "#00457c"
-section: modern-generalization
-sectionTitle: Modern Generalization
-image: ./assets/sailor.jpg
----
-
-# Generalization beyond the Interpolation Threshold
-
-<div class="bonn-section-citation">
-<a href="https://www.pexels.com/@ludvighedenborg/" target="_blank" rel="noopener noreferrer">
-Photo by Ludvig Hedenborg, Pexels License
-</a>
-</div>
-
----
-section: modern-generalization
----
-
-# Beyond the Threshold: Double Descent in Polynomial Regression
-
-<div class="h-[220px]">
-  <PolynomialBiasVarianceDemo3 />
-</div>
-
----
-section: modern-generalization
----
-
-# Polynomial Regression in Interpolation Regime
-
-<div class="grid grid-cols-3 gap-6 mt-4 text-center">
-
-<div>
-
-Underfitting — Degree 3
-
-<div class="h-[220px] flex items-center justify-center">
-  <img src="./assets/polyreg_d3.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
-</div>
-
-</div>
-
-<div>
-
-Overfitting — Degree 20
-
-<div class="h-[220px] flex items-center justify-center">
-  <img src="./assets/polyreg_d20.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
-</div>
-
-</div>
-
-<div v-click>
-
-Interpolating — Degree 1000
-
-<div class="h-[220px] flex items-center justify-center">
-  <img src="./assets/polyreg_d1000.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
-</div>
-
-</div>
-
-</div>
-
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Credit: Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
-</div>
-
----
-section: modern-generalization
----
-
-# Double Descent Phenomenon
-
-## Overparamterized Models Improve Again after Overfitting
-
-<div class="flex items-center justify-center">
-<img width=80% src="./assets/interpolation_regime_belkin.svg">
-</div>
-
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Credit: Belkin et al., 2019. <a href="https://arxiv.org/abs/1812.11118">Reconciling modern machine learning practice and the bias-variance trade-off</a>
-</div>
-
----
-section: modern-generalization
-layout: bonn-two-cols-header
----
-
-# The Simple + Spiky Hypothesis
-
-::left::
-
-<div class="h-[220px] flex items-center justify-center">
-  <img src="./assets/polyreg_d1000.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
-</div>
-
-::right::
-
-$$
-\boxed{
-\text{learned model}
-=
-\underbrace{\text{“simple”}}_{\text{predictive component}}
-+
-\underbrace{\text{“spiky”}}_{\text{overfitting / memorization component}}
-}
-$$
-
-<div class="mt-4 text-[0.65rem] text-gray-500">
-Belkin, Rakhlin &amp; Tsybakov, 2018. <a href="https://arxiv.org/abs/1806.09471" target="_blank" rel="noopener noreferrer">Does data interpolation contradict statistical optimality?</a>
-</div>
-
-::bottom::
-
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Credit: Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
-</div>
-
----
-section: modern-generalization
-layout: bonn-two-cols-header
----
-
-# Neural Networks Interpolate and Generalize
-
-## The same hypothesis class can memorize noise and learn structure
-
-::left::
-
-## The experiment
-
-**Inception on CIFAR-10**
-
-| Training labels | Train accuracy | Test accuracy |
-|---|---:|---:|
-| **True labels** | 100% | 85.75% |
-| **Random labels** | 100% | 9.78% |
-
-::right::
-
-<div class="text-center mt-5 mb-5">
-  <img width="180px" src="./assets/cifar-10.png" class="mx-auto">
-</div>
-
-## The VC bound becomes vacuous and does not explain Deep Networks' generalization
-
-* **No contradiction:** The VC bound remains valid, but it is too pessimistic to distinguish the two learned solutions.
-
-
-::bottom::
-
-
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Zhang et al. (2017). <em>Understanding Deep Learning Requires Rethinking Generalization.</em> ICLR. <a href="https://arxiv.org/abs/1611.03530">arXiv:1611.03530</a>
-</div>
-
----
-section: modern-generalization
-layout: bonn-two-cols-header
----
-
-# How to measure the Model Complexity now??
-
-::left::
-
-## By the number of distinct functions the model can represent? (VC-dimension)
-
-→ **No.** Not helpful — the generalization bound is too pessimistic. Following classical theory, neural networks should not generalize.
-
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Slide from Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
-</div>
-
-
-<div v-click=2 class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-  <div class="text-[.9rem] font-semibold text-blue-900">Why parameter count alone doesn't determine generalization for deep learning is still an open question.</div>
-</div>
-
-::right::
-
-## By the number of parameters in a neural network?
-
-<div v-click=1 class="flex flex-col gap-1 text-[0.78rem] leading-snug">
-
-
-<img src="./assets/two_nns.png" class="object-contain mx-auto" style="max-width: 100%; max-height: 200px;" />
-
-Consider $h(x) = 10^{-100} f(x) + (1 - 10^{-100}) g(x)$. How many parameters does it have? Does it matter? **Not really.**
-
-</div>
-
----
-section: modern-generalization
-layout: bonn-two-cols-header
----
-
-# "Effective" Model Capacity
-
-<div class="flex items-center justify-center">
-<img width=80% src="./assets/interpolation_regime_belkin_modified.svg">
-</div>
-
-<div v-click class="mt-4 rounded-lg bg-gray-100 px-5 py-3 text-center">
-<b>“Capacity” is intentionally abstract.</b> Parameter count may indicate when interpolation becomes possible, but it does not determine the complexity of the learned solution or its test performance.
-</div>
-
-
----
-section: modern-generalization
-layout: bonn-two-cols-header
----
-
-# Recap So Far
-
-::left::
-
-<div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">What we observed</div>
-
-<div class="mt-1 text-[0.66rem] leading-tight space-y-1">
-
-**Deep networks generalize.**  
-They make accurate predictions on inputs that were not part of the training data.
-
-**Deep networks also interpolate.**  
-The same architectures can perfectly fit true labels and random labels.
-
-**Training fit alone cannot explain generalization.**  
-Zero training error does not distinguish learning useful structure from memorizing the sample.
-
-</div>
-
-::right::
-
-<div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">What this implies</div>
-
-<div class="mt-1 text-[0.66rem] leading-tight space-y-1">
-
-**Generalization requires inductive bias.**  
-Training must favor some interpolating solutions over many others that fit the data equally well.
-
-**Worst-case capacity is insufficient.**  
-Parameter count and VC dimension describe the entire hypothesis space, but their bounds become vacuous for highly expressive neural networks.
-
-**The selected solution matters.**  
-Architecture, optimization, regularization, and data properties all influence which solution training finds.
-
-</div>
-
-::bottom::
-
-<div class="mt-1 rounded-lg bg-gray-100 px-5 py-1.5 text-center">
-
-**Next question:** Which inductive biases make interpolating neural networks generalize?
-
-</div>
-
-<div class="mt-1 text-[0.6rem] text-gray-500 text-center">
-Slide from Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
-</div>
-
-
----
-section: modern-generalization
-layout: bonn-two-cols-header
----
-
-# Version Space
-
-::left::
-
-The **version space** contains all hypotheses that fit the training data perfectly:
-
-$$
-\mathcal V_{\mathcal H}(D)
-=
-\left\{
-h\in\mathcal H:
-\widehat R_D(h)=0
-\right\}.
-$$
-
-- In overparameterized models, many hypotheses belong to this set.
-- Some generalize to unseen data, while others merely memorize.
-- Training error cannot distinguish between them.
-
-<div class="mt-5 rounded-lg bg-gray-100 px-4 py-3 text-center">
-
-**Deep models do generalize. Therefore, the training system must favor generalizing hypotheses within the version space.**
-
-</div>
-
-::right::
-
-<img width=100% src="./assets/version_space.svg">
 
 <!--
----
-section: modern-generalization
----
-
-# Phillip Isola - MIT Lecture Generalization (2024)
-
-<div class="flex flex-col h-full gap-1">
-
-<div class="flex-1 min-h-0">
-  <iframe width="100%" height="100%" src="https://www.youtube.com/embed/EiO8BBa-xdc?si=VBaY9A3PfJe9_F2x&amp;start=3911&amp;end=3971" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
-
-<div class="text-[0.6rem] text-gray-500 text-center shrink-0">
-Excerpt from &ldquo;Lec 06: Generalization Theory,&rdquo; Philip Isola, MIT 6.7960 Deep Learning, Fall 2024. MIT OpenCourseWare. Licensed under CC BY-NC-SA 4.0. <a href="https://www.youtube.com/watch?v=EiO8BBa-xdc&t=3651s" target="_blank" rel="noopener noreferrer">Source</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">License</a>
-</div>
-
-</div>
+Historical framing: three eras of machine learning, defined by the central design question.
+Classic ML: features are hand-designed. Supervised DL: architecture is the design choice. Self-supervised: the loss/training strategy is the key decision.
 -->
+
 ---
-section: modern-generalization
-layout: bonn-two-cols-header
+section: multilayer-perceptrons
 ---
 
-# Inductive Biases Select Interpolating Solutions
+# Image Classification
 
-::left::
+<img
+  src="./assets/classification.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An image classification model maps an image tensor to a vector of class probabilities"
+/>
 
-## Sources of inductive bias
+---
+section: multilayer-perceptrons
+---
 
-- **Architecture:** locality, parameter sharing, recurrence, and equivariance
-- **Parameterization:** makes some functions easier to represent and reach
-- **Initialization:** influences the path taken through parameter space
-- **Optimization and loss:** SGD, batch size, learning rate, and loss function
-- **Explicit regularization:** weight decay, dropout, and early stopping
-- **Data and augmentation:** encode structure, invariances, and prior knowledge
+# Image Segmentation
 
-::right::
+<img
+  src="./assets/segmentation.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An image segmentation model maps an image tensor to class predictions at each pixel"
+/>
 
-## What does “simpler” mean?
+---
+section: multilayer-perceptrons
+---
 
-<div class="mt-3 rounded-lg bg-gray-100 px-4 py-3">
+# Object Detection
 
-<strong>Not necessarily fewer parameters.</strong>
+<img
+  src="./assets/object_detection.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An object detection model maps an image tensor to bounding boxes described by position, height, and width"
+/>
 
-Depending on the setting, training may favor solutions with:
+---
+section: multilayer-perceptrons
+---
 
-- low norm or large margin
-- smoothness or invariance
-- compressible representations
+# Time Series Classification
+
+<img
+  src="./assets/time_series.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Models classify time series and image time series using their temporal and channel dimensions"
+/>
+
+
+---
+section: multilayer-perceptrons
+---
+
+# Overview: Deep Model Architectures
+
+## Lab 4 Content
+
+<img src="./assets/architectures.svg" />
+
+---
+section: why-learn-representations
+---
+
+# Recap: Learned Representations
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<ul class="flex flex-col gap-4 text-[.85rem] leading-snug">
+  <li>Good representations make difficult problems easier.</li>
+  <li>In classic machine learning, we manually select data and engineer features to be a good representation of the problem.</li>
+  <li>Deep learning models learn a feature representation that is then well-suited for a final linear classification with logistic regression.</li>
+</ul>
+
+<img
+  src="./assets/model.svg"
+  class="w-full h-[300px] object-contain"
+  alt="A deep learning model transforms an input tensor through layers into an output tensor"
+/>
 
 </div>
 
-There is no single universal measure of the effective complexity of a deep network.
 
-::bottom::
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: multilayer-perceptrons
+sectionTitle: Multilayer Perceptrons
+---
 
-<div class="mt-3 text-[0.62rem] text-gray-500 text-center">
-For concrete proposed theories, check Phillip Isola.
-<a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_mp4/" target="_blank">
-<em>Lecture 6: Generalization Theory</em>
-</a>.
-MIT 6.7960 Deep Learning, Fall 2024.
+# Multilayer Perceptrons
+
+<img src="./assets/mlp_cover.svg" alt="An illustration of a multilayer perceptron neural network" />
+
+<div class="text-[.9rem] text-gray-700 mt-4">
+Learning the representation.
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-6">From linear decisions on fixed features to learned feature-space transformations.</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Transformation
+
+<img
+  src="./assets/linear_transformation.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Transformation with Bias
+
+<img
+  src="./assets/linear_transformation_bias.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Transformation from 3D to 2D
+
+<div class="grid grid-cols-2 gap-4 mt-2 items-center">
+
+<img
+  src="./assets/linear_transformation_2-3D.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+<video
+  src="./assets/2d_plot.mov"
+  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Transformation from 2D to 3D
+
+<div class="grid grid-cols-2 gap-4 mt-2 items-center">
+
+<img
+  src="./assets/linear_projection_2d_to_3d.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+<video
+  src="./assets/3d_plot.mov"
+  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Biological Interpretation of Adding Signals
+
+<img
+  src="./assets/biological_interpretation.svg"
+  class="w-full h-[360px] object-contain"
+/>
+
+---
+section: multilayer-perceptrons
+---
+
+# Activation Functions – Biological Interpretation
+
+<img
+  src="./assets/biological_interpretation_activation_functions.svg"
+  class="w-full h-[360px] object-contain"
+/>
+
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Alebra: Stacking Layers
+
+## A 2D→3D Linear Projection moves data into 3D representation space
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/2d-3d-figure-lef.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<img
+  src="./assets/2d-3d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+
+# Linear Alebra: Stacking Layers
+
+## Two Linear projections 2D→3D→2D in a 2-Layer network
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/2d-3d-2d-figure-left.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<img
+  src="./assets/2d-3d-2d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Alebra: Stacking Layers
+
+## Two Linear projections 2D→3D→2D without non-linearity is a single 2D → 2D projection
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/2d-2d-figure-left.png"
+  class="w-full h-[260px] object-contain"
+/>
+
+
+<img
+  src="./assets/2d-2d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# Linear Alebra: Stacking Layers
+## Non-linear functions like ReLU are needed to transform feature space
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/relu.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+
+<video
+  src="./assets/relu.mov"
+  class="w-full h-[250px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+section: multilayer-perceptrons
+---
+
+# More layers → more complex transformations
+
+<img
+  src="./assets/transformations_in_an_MLP.png"
+  class="w-full h-[360px] object-contain"
+/>
+
+---
+section: multilayer-perceptrons
+---
+
+# Multi-Layer Perceptron - Implementation
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./assets/MLP_summary.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<style>
+.mlp-impl-code pre { font-size: 9.5px !important; line-height: 1.4 !important; }
+</style>
+
+<div class="mlp-impl-code">
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class MLPClassifier(nn.Module):
+    def __init__(
+        self, input_dim, hidden_dim, num_classes
+    ):
+        super(MLPClassifier, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))      # 1st layer ReLU
+        x = F.relu(self.fc2(x))      # 2nd layer ReLU
+        x = F.sigmoid(self.fc3(x))   # Output (probs)
+        return x
+```
+
+</div>
+
+</div>
+
+
+---
+section: multilayer-perceptrons
+---
+
+# Demo: Multi-Layer Perceptron Feature Space
+
+<MlpFeatureSpaceDemo />
+
+<div class="mt-1 text-xs text-gray-500">
+Inspired by Andrej Karpathy's <a href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html" target="_blank" rel="noopener noreferrer">ConvNetJS Classify2D</a> demo. Implemented with Claude and Codex.
 </div>
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: ai-acceleration
-sectionTitle: Modern AI Acceleration
+section: gradient-descent-backpropagation
+sectionTitle: Gradient Descent & Backpropagation
 ---
 
-# The Modern AI Acceleration
+# Gradient Descent & Backpropagation
 
+<div class="text-[.9rem] text-gray-700 mt-4">
+Learning the parameters.
+</div>
+
+<div class="text-[.72rem] text-gray-500 mt-6">parameters → prediction → loss → gradient → update</div>
 
 ---
-section: ai-acceleration
-layout: bonn-two-cols-header
+section: gradient-descent-backpropagation
 ---
 
-# Scaling Laws for Transformers
+# Training: Adjusting Weights to Minimize Loss
 
-## Held-out loss follows power laws of compute, data, and model size
+## Finding good parameters W
 
-<div class="mt-1 text-center">
-  <img width="94%" class="mx-auto" src="./assets/kaplan_scaling_laws.svg">
-</div>
-
-<div class="grid grid-cols-3 gap-6 text-center">
-
-<div>
-
-**Compute**
-
-$$
-L(C_{\min})
-=
-\left(
-\frac{C_{\min}}{2.3\times10^{8}}
-\right)^{-0.050}
-$$
-
-</div>
-
-<div>
-
-**Training data**
-
-$$
-L(D)
-=
-\left(
-\frac{D}{5.4\times10^{13}}
-\right)^{-0.095}
-$$
-
-</div>
-
-<div>
-
-**Model size**
-
-$$
-L(N)
-=
-\left(
-\frac{N}{8.8\times10^{13}}
-\right)^{-0.076}
-$$
-
-</div>
-
-</div>
-
-::bottom::
-
-<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
-Kaplan et al. (2020).
-<a href="https://arxiv.org/abs/2001.08361">
-<em>Scaling Laws for Neural Language Models.</em>
-</a>
-</div>
-
+<img
+  src="./assets/Loss-weights.svg"
+  class="w-full h-[360px] object-contain"
+  alt="A training dataset passes through the model f(x;W) to produce predictions, which are compared against the true labels by a loss function; the weights W are adjusted to minimize this loss"
+/>
 
 ---
-section: ai-acceleration
-layout: bonn-two-cols-header
+section: gradient-descent-backpropagation
 ---
 
-# Modern AI Acceleration
+# The Learning Objective: argmin
 
-<img width="100%" src="./assets/20260918-epoch-ml-trends-2.svg">
-
-<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
-Epoch AI Database provided with CC-BY License
-<a href="https://epoch.ai/data/ai-models">
-</a>
-</div>
+<img
+  src="./assets/argmin.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input tensor passes through the model to produce a predicted tensor, which is compared to the target to compute an error or loss; training finds the model that minimizes this loss (argmin)"
+/>
 
 ---
-section: ai-acceleration
-layout: bonn-two-cols-header
+section: gradient-descent-backpropagation
 ---
 
-# Larger Datasets and More Parameters
+# Loss Function: Mean Squared Error
 
-<img width="100%" src="./assets/20260918-epoch-ml-trends.svg">
-
-<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
-Epoch AI Database provided with CC-BY License
-<a href="https://epoch.ai/data/ai-models">
-</a>
-</div>
+<img
+  src="./assets/MSE.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Mean squared error penalizes the squared difference between the predicted value and the correct value, giving a low error when predictions are close and a high error when they are far off"
+/>
 
 ---
-section: ai-acceleration
-layout: bonn-two-cols-header
+section: gradient-descent-backpropagation
 ---
 
-# LLMs and Next Token Prediction
+# Loss Function: Cross-Entropy
 
-::left::
+<img
+  src="./assets/cross_entropy.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Cross-entropy loss compares a predicted class probability vector against the true class vector, giving a low error for a confident correct prediction and a high error for a confident incorrect one"
+/>
 
-Recap - LLMs are Transformers trained with ordinary cross entropy to predict the next token.
+---
+section: gradient-descent-backpropagation
+---
 
-<div class="flex flex-col items-center justify-center h-[100%] gap-6">
-<img width=100% src="./assets/Transformers.svg">
-</div>
+# Loss Function: Cross-Entropy
 
-::right::
+<img
+  src="./assets/gradient_descent2.png"
+  class="w-full h-[360px] object-contain"
+/>
 
-<div v-click class="flex flex-col items-center justify-center h-[100%] gap-6">
-  <video
-    src="./assets/sutskever_detective.mp4"
-    controls
-    class="rounded-xl shadow-lg max-h-[400px]"
-    style="max-width: 150px;"
-  ></video>
-</div>
+---
+section: gradient-descent-backpropagation
+---
 
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Copyright NVIDIA: <a href="https://resources.nvidia.com/en-us-summer-of-learning-for-students/gtcspring23-s52092" rel="noopener noreferrer">NVIDIA Fireside Chat with Ilya Sutskever</a>
-</div>
+# Loss Surfaces
+
+<img
+  src="./assets/loss_surface.png"
+  class="w-full h-[360px] object-contain"
+/>
 
 
 ---
-section: ai-acceleration
-layout: bonn-two-cols-header
+section: gradient-descent-backpropagation
 ---
 
-# ... and the murderer is ___!
+# Gradient Descent vs Backpropagation
 
-## Prediction requires more than memorization
-
-::left::
-
-Modern AI models **approximate** large corpora of training data while also **generalizing** by combining learned patterns into simple, plausible solutions for new inputs.
-
-<div class="mt-2 text-center">
-<img width="200" class="mx-auto" src="./assets/polyreg_d1000.png">
+<div class="grid grid-cols-2 gap-5 mt-4 text-[.8rem]">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="font-semibold text-blue-900 mb-2">Gradient Descent</div>
+    <div>How to update parameters once gradients are known.</div>
+    <img src="./assets/grad_descent_image.png"/>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+    <div class="font-semibold text-emerald-900 mb-2">Backpropagation</div>
+    <div>How to compute gradients efficiently through many layers.</div>
+    <img src="./assets/backprop_6.svg"/>
+  </div>
 </div>
 
-<strong v-click>Outlook: Lecture 6 will focus on self-supervised training objectives for modern AI models.</strong>
+<div class="mt-4 text-[.72rem] text-gray-600">Backprop gives the gradients; gradient descent uses them to step the parameters.</div>
 
-::right::
+<!--
+Clarify the common confusion: optimization rule vs gradient-computation algorithm.
+-->
 
+---
+section: gradient-descent-backpropagation
+---
 
-<div class="flex flex-col items-center justify-center h-[100%] gap-6">
-  <video
-    src="./assets/sutskever2.mp4"
-    controls
-    class="rounded-xl shadow-lg max-h-[400px]"
-    style="max-width: 250px;"
-  ></video>
-</div>
+# Backpropagation 1
 
+<img
+  src="./assets/backprop_1.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 1: the network computes a forward pass from input to prediction"
+/>
 
+---
+section: gradient-descent-backpropagation
+---
 
-<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
-Copyright NVIDIA: <a href="https://resources.nvidia.com/en-us-summer-of-learning-for-students/gtcspring23-s52092" rel="noopener noreferrer">NVIDIA Fireside Chat with Ilya Sutskever</a>
-</div>
+# Backpropagation 2
+
+<img
+  src="./assets/backprop_2.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 2: the loss compares the prediction to the true label"
+/>
+
+---
+section: gradient-descent-backpropagation
+---
+
+# Backpropagation 3
+
+<img
+  src="./assets/backprop_3.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 3: the gradient of the loss with respect to the output layer is computed"
+/>
+
+---
+section: gradient-descent-backpropagation
+---
+
+# Backpropagation 4
+
+<img
+  src="./assets/backprop_4.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 4: the gradient is propagated backward through the network layer by layer using the chain rule"
+/>
+
+---
+section: gradient-descent-backpropagation
+---
+
+# Backpropagation 5
+
+<img
+  src="./assets/backprop_5.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 5: each layer's weight gradients are computed from the gradient flowing back from the layer above"
+/>
+
+---
+section: gradient-descent-backpropagation
+---
+
+# Backpropagation 6
+
+<img
+  src="./assets/backprop_6.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 6: gradients of earlier layers require only the gradient from the previous layer, so no recomputation of later layers is needed"
+/>
+
+---
+section: gradient-descent-backpropagation
+---
+
+# Backpropagation 7
+
+<img
+  src="./assets/backprop_7.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 7: the same computation expressed in code as loss = MSE(y_pred, y), loss.backward(), and optimizer.step()"
+/>

@@ -13,13 +13,14 @@ This checklist tracks the remaining work required to prepare the course.
 
 - [x] Lecture 1 — Representations
 - [x] Lecture 2 — Geospatial Data
-- [x] Lecture 3 — Machine Learning on Data Representations
-- [x] Lecture 4 — Deep Representation Learning I
-- [x] Lecture 5 — Deep Representation Learning II
-- [ ] Lecture 6 — Implicit Neural Representations
-- [ ] Lecture 7 — Self-Supervised Deep Learning
-- [ ] Lecture 8 — Geospatial Embeddings
-- [ ] Lecture 9 — Synthesis: Choosing the Right Representation (confirm course scope)
+- [x] Lecture 3 — Data Representations
+- [x] Lecture 4 — Machine Learning on Data Representations
+- [x] Lecture 5 — Deep Representation Learning I
+- [x] Lecture 6 — Deep Representation Learning II
+- [ ] Lecture 7 — Earth Embeddings
+- [ ] Lecture 8 — Self-Supervised Deep Learning (placeholder)
+- [ ] Lecture 9 — Geospatial Embeddings (placeholder)
+- [ ] Lecture 10 — Synthesis: Choosing the Right Representation (placeholder, confirm course scope)
 
 ## Labs
 
@@ -53,7 +54,7 @@ This checklist tracks the remaining work required to prepare the course.
 All deck sources live under `slides/`:
 
 - `course-overview/slides.md` — course landing deck
-- `lecture-1/slides.md` through `lecture-9/slides.md`
+- `lecture-1/slides.md` through `lecture-10/slides.md`
 - `lab-1/slides.md` through `lab-8/slides.md`
 - `paper-analysis/slides.md`
 

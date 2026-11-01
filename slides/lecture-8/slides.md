@@ -14,24 +14,24 @@ subhead: Lecture 8
 home: ../
 ---
 
-# Geospatial Embeddings
+# Self-Supervised Deep Learning
 
-## Representing places and the Earth
+## Learning representations without labels
 
 <!--
-This lecture turns general representation learning into Earth-specific embeddings for downstream geospatial use.
+This lecture explicitly contrasts with Lecture 6 by removing manual labels and learning through structure in the data.
 -->
 
 ---
 
 # In this lecture
 
-- Location embeddings
-- Image and remote-sensing embeddings
-- Temporal and multimodal embeddings
-- General-purpose place representations
-- Similarity, retrieval, and downstream applications
+- Why learn without manually provided labels?
+- Self-supervised representation learning
+- Contrastive learning
+- Similarity objectives with positive and negative pairs
+- Transformers and attention as modern architectures
 
 <!--
-Students connect embedding types to concrete geospatial tasks without committing to one model family.
+This sets up the representation-centric view used in geospatial embeddings and retrieval tasks.
 -->

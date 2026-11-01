@@ -14,24 +14,24 @@ subhead: Lecture 9
 home: ../
 ---
 
-# Synthesis
+# Geospatial Embeddings
 
-## Choosing the right representation
+## Representing places and the Earth
 
 <!--
-This capstone lecture compares representation choices and focuses on model-data-task alignment.
+This lecture turns general representation learning into Earth-specific embeddings for downstream geospatial use.
 -->
 
 ---
 
 # In this lecture
 
-- Explicit vs implicit representations
-- Structured vs raw data
-- Supervised vs self-supervised learning
-- Task-specific vs general-purpose representations
-- Choosing representations for geospatial problems
+- Location embeddings
+- Image and remote-sensing embeddings
+- Temporal and multimodal embeddings
+- General-purpose place representations
+- Similarity, retrieval, and downstream applications
 
 <!--
-This lecture closes Phase 1 by giving a decision framework students can reuse in projects and paper analysis.
+Students connect embedding types to concrete geospatial tasks without committing to one model family.
 -->

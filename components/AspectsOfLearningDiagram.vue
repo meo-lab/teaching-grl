@@ -17,7 +17,7 @@
         </svg>
         <h3>Experiences</h3>
         <p>Examples from the environment</p>
-        <span class="aol-chip aol-chip-l5">Lecture 5 &middot; Data</span>
+        <span class="aol-chip aol-chip-l5">Lecture 6 &middot; Data</span>
       </div>
 
       <!-- connector: experiences -> model -->
@@ -47,7 +47,7 @@
         </svg>
         <h3>Learnable model</h3>
         <p>Can adapt its internal parameters</p>
-        <span class="aol-chip aol-chip-strong">Lecture 4 &middot; Deep Representation Learning I</span>
+        <span class="aol-chip aol-chip-strong">Lecture 5 &middot; Deep Representation Learning I</span>
       </div>
 
       <!-- connector: model -> generalization -->
@@ -64,7 +64,7 @@
         </svg>
         <h3>Generalization</h3>
         <p>Performs well in new, unseen situations</p>
-        <span class="aol-chip aol-chip-l5-outline">Lecture 5 &middot; Deep Representation Learning II</span>
+        <span class="aol-chip aol-chip-l5-outline">Lecture 6 &middot; Deep Representation Learning II</span>
       </div>
 
       <!-- Learning algorithm loop (beneath model) -->
@@ -81,7 +81,7 @@
         </svg>
         <h3>Learning algorithm</h3>
         <p>Uses experience to adjust the model</p>
-        <span class="aol-chip aol-chip-strong">Lecture 4 &middot; Deep Representation Learning I</span>
+        <span class="aol-chip aol-chip-strong">Lecture 5 &middot; Deep Representation Learning I</span>
       </div>
 
       <!-- Ingredients vs. success criterion -->
@@ -96,7 +96,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* Lecture 4 uses the standard Bonn blue; Lecture 5 gets its own green accent
+  /* Lecture 5 uses the standard Bonn blue; Lecture 6 gets its own green accent
      so the two lecture groups are distinguishable at a glance, not just by label. */
   --aol-l5: #0f7d5c;
   --aol-l5-tint: #eaf5f1;

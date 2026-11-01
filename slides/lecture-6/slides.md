@@ -14,1660 +14,1261 @@ subhead: Lecture 6
 home: ../
 ---
 
-# Earth Embeddings
+<script setup>
+import OverfittingDemo from './components/OverfittingDemo.vue'
+import AspectsOfLearningDiagram from '../../components/AspectsOfLearningDiagram.vue'
+import LinearHypothesisDemo from './components/LinearHypothesisDemo.vue'
+import BiasVarianceDemo from './components/BiasVarianceDemo.vue'
+import PolynomialBiasVarianceDemo from './components/PolynomialBiasVarianceDemo.vue'
+import PolynomialBiasVarianceDemo2 from './components/PolynomialBiasVarianceDemo2.vue'
+import PolynomialBiasVarianceDemo3 from './components/PolynomialBiasVarianceDemo3.vue'
+</script>
 
-## Toward AI-centric representations of our planet
+
+# Deep Representation Learning II
+
+## How Can a Model Generalize?
 
 <!--
-This lecture closely follows the perspective paper
-Klemmer, Rolf, Rußwurm, et al. (2026), "Earth Embeddings: Toward artificial intelligence-centric representations of our planet", IEEE Geoscience and Remote Sensing Magazine, doi:10.1109/MGRS.2026.3710416 (CC BY 4.0).
-It is complemented by material from the ISPRS 2026 tutorial "Towards Geospatial Embeddings" (Klemmer, Fuller, Shelhamer, Rolf, Rußwurm).
-
-Structure: four blocks, each answering one question.
-1. What are Earth embeddings?  2. How do we learn them?  3. How do we use them?  4. How do we evaluate and improve them?
-Running example throughout: mapping forest cover from a handful of field labels.
+Lecture 5 ended with gradient-based learning and minimizing a training loss.
+Lecture 6 continues directly from there: what does it mean to truly learn, not just memorize?
 -->
 
 ---
-layout: learning-outcomes
-mode: before
-meeting: lecture-06
-section: opening
-sectionTitle: Opening
----
 
-# Learning outcomes
+# Learning Outcomes
 
-<LearningOutcome id="define-earth-embeddings">
-<strong>Define</strong> Earth embeddings and <strong>distinguish</strong> them from the geospatial foundation models that produce them.
-</LearningOutcome>
-
-<LearningOutcome id="explicit-implicit">
-<strong>Explain</strong> how explicit feature extraction and implicit neural representations put geographic information into a vector.
-</LearningOutcome>
-
-<LearningOutcome id="use-earth-embeddings">
-<strong>Choose</strong> a suitable way to use Earth embeddings (prediction, conditioning, retrieval, synthesis) for a given task.
-</LearningOutcome>
-
-<LearningOutcome id="evaluate-earth-embeddings">
-<strong>Assess</strong> the limits of an Earth embedding product: resolution, bias, interpretability, cost, and openness.
-</LearningOutcome>
-
----
-section: opening
----
-
-# Today: Four Questions
-
-| Block | Question | Content |
-|---|---|---|
-| **1 · Concept** | What are Earth embeddings? | Places as vectors, and why we want them |
-| **2 · Methods** | How do we learn them? | Explicit vs. implicit, encodings, objectives, AlphaEarth, SatCLIP |
-| **3 · Applications** | How do we use them? | Prediction, conditioning, retrieval, synthesis |
-| **4 · Agenda** | How do we evaluate and improve them? | Generalization, bias, cost, openness |
-
-<div class="blockquote2">
-
-**Running example:** we want a **forest-cover map** of a whole country, but only have a few hundred labelled field plots. We return to this problem in every block.
-
-</div>
-
-<div class="slide-citation">
-Based on K. Klemmer, E. Rolf, M. Rußwurm, et al., “Earth Embeddings: Toward artificial intelligence-centric representations of our planet,” <em>IEEE Geoscience and Remote Sensing Magazine</em>, 2026, and the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
+<div class="mt-5 flex flex-col gap-4">
+  <div class="flex gap-4 items-start">
+    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">1</div>
+    <div class="text-[.82rem] leading-snug">Explain <strong>generalization</strong> as the difference between optimizing a finite training sample and performing well on the underlying data distribution.</div>
+  </div>
+  <div class="flex gap-4 items-start">
+    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">2</div>
+    <div class="text-[.82rem] leading-snug">Explain how <strong>model capacity, data, and regularization</strong> determine underfitting and overfitting in the classical regime.</div>
+  </div>
+  <div class="flex gap-4 items-start">
+    <div class="text-[.7rem] font-bold text-blue-700 w-5 shrink-0 mt-0.5">3</div>
+    <div class="text-[.82rem] leading-snug">Explain why the <strong>interpolation threshold, double descent, and grokking</strong> challenge the classical bias–variance picture and motivate the modern overparameterized learning regime.</div>
+  </div>
 </div>
 
 <!--
-Concept → methods → applications → research agenda: the same progression as the paper.
+Three outcomes, two lectures worth of contrast: classical view vs. modern view.
+Outcome 1 sets up the core concept; Outcome 2 is the classical story; Outcome 3 is the modern twist.
 -->
+
+---
+section: approximation
+layout: bonn-two-cols-header
+---
+
+# Recap Lecture 5 Deep Learning I
+ 
+::left::
+
+## Deep Model Architectures
+
+<img
+        src="./assets/model.svg"
+        class="w-full h-[150px] object-contain"
+        alt="A deep learning model transforms an input tensor through layers into an output tensor"
+      />
+
+::right::
+
+## Parameter Optimization
+
+<img
+        src="./assets/grad_descent_image.png"
+        class="w-full h-[150px] object-contain"
+        alt="Gradient descent iteratively updates parameters to reduce the training loss"
+      />
+
+::bottom::
+
+<div v-click class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">Takeaway: We can now approximate any function with a neural network.</div>
+</div>
+
+<div v-click class="mt-3 text-[.78rem] text-gray-500">But is function approximation enough?</div>
+
+---
+section: approximation
+layout: bonn-two-cols-header
+---
+
+::left:: 
+
+# What is wrong here?
+
+<div v-click class="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">🧑‍🍳 Takeaway: The Pizza Baker Apprentice does not need to hold 📦 boxes to pick up a 🍕 pizza.</div>
+</div>
+
+::right::
+
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <video
+    src="./assets/pizza.mp4"
+    controls
+    class="rounded-xl shadow-lg max-h-[400px]"
+    style="max-width: 230px;"
+  ></video>
+</div>
+
+---
+section: approximation
+layout: bonn-two-cols-header
+---
+
+# Approximation vs Generalization
+
+::left::
+
+## Approximation
+
+When training, we minimize the empirical risk
+
+$$
+\widehat{\mathcal{R}}(\theta)
+= \frac{1}{N}\sum_{i=1}^{N}
+\mathcal{L}\bigl(f_{\theta}(\mathbf{x}_i), \mathbf{y}_i\bigr)
+$$
+
+## Generalization
+
+But in practice, we want the population (test) risk to be small
+
+$$
+\mathcal{R}(\theta)
+= \mathbb{E}_{(\mathbf{x},\mathbf{y}) \sim \mathcal{P}}
+\mathcal{L}\bigl(f_\theta(\mathbf{x}),\mathbf{y}\bigr)
+$$
+
+::right::
+
+<div class="flex flex-col justify-center">
+    <OverfittingDemo />
+</div>
+
+---
+section: approximation
+---
+
+# What is needed for a system to learn?
+
+<AspectsOfLearningDiagram/>
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: what
-sectionTitle: What are they?
+section: data
+sectionTitle: Data
 ---
 
-# What are Earth embeddings?
+# Data Samples and Distributions
 
-<img class="bonn-section-image bonn-section-image-sm" src="./assets/earth-embeddings/fig1-earth-embeddings.png" alt="A globe coloured by Earth embeddings with one location expanded into an embedding vector" />
-
-<div class="bonn-section-citation">
-Figure 1 (detail) from Klemmer et al. (2026), CC BY 4.0
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <img
+    src="./assets/window.jpg"
+  ></img>
 </div>
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# We Are Drowning in Earth Data
+# Reality → Distribution → Dataset
 
-::left::
-
-| Volume | What |
-|---|---|
-| **~800 PB** | of Earth observation data exist today |
-| **~4 TB** | of new Sentinel-2 imagery, every day |
-| **100s** | of satellites continuously imaging the planet |
-
-Almost none of it is **labelled**.
-
-::right::
-
-### How AI unlocks this data
-
-| Challenge | AI answer |
-|---|---|
-| **Large-scale:** petabytes no single team can process | Neural networks scale to huge datasets |
-| **Multimodal:** images, sensors, text, tables | Fuse and access everything by location and time |
-| **Unlabelled:** almost no ground truth | Self-supervised learning needs no labels |
-
-<div class="slide-citation">
-Numbers and framing from the ISPRS 2026 tutorial “Towards Geospatial Embeddings” (A. Fuller).
-</div>
-
-<!--
-Order-of-magnitude figures from the tutorial; check the latest archive statistics before quoting them precisely.
-The tutorial compares this to LLM training corpora; I left that out because the training-data size of commercial LLMs is not public.
--->
+<img src="./assets/data_1.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# Running Example: Mapping Forest Cover
+# Reality → Distribution: Generative Perspective
 
-::left::
-
-Task: produce a **wall-to-wall forest-cover map** of a country.
-
-**What we have:**
-
-- a few hundred **labelled field plots** (forest / no forest)
-- petabytes of **optical, radar, and elevation** data
-- maybe photos, text, and inventories tagged with coordinates
-
-**The classical workflow:**
-
-- download and preprocess each source (clouds, mosaics, co-registration)
-- hand-craft features (NDVI, texture, slope …)
-- train a model on a few hundred samples
-
-::right::
-
-<div class="blockquote4">
-
-**The problem:** most of the effort goes into **data handling and expertise**, not into the forest question. And it is repeated for every new task.
-
-</div>
-
-<v-click>
-
-> **The idea:** what if someone had already turned all of that data into **one vector per location**, and we only had to look it up?
-
-</v-click>
-
-<!--
-The paper: Earth embeddings are "a powerful alternative to existing geospatial workflows that rely on heterogeneous data, hard-to-acquire expertise, and significant computation by the user."
--->
+<img src="./assets/data_2.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
-columns: "minmax(0, 1.3fr) minmax(0, 1fr)"
+section: data
 ---
 
-# All Geospatial Data Share One Index
+# Reality → Distribution: Discriminative Perspective
 
-::left::
-
-![A globe with a satellite image of San Francisco, a geotagged flood tweet from Annapolis, and a temperature map of Brazil, each labelled with latitude, longitude, and time](./assets/tutorial/shared-index.png)
-
-::right::
-
-Satellite images, social-media posts, and climate maps look completely different…
-
-> …but every observation is a **snapshot at a location and a time**: (latitude, longitude, time).
-
-Geospatial data support disaster response, weather forecasting, transport, forest and wildfire management, water quality, and disease modelling.
-
-<div class="slide-citation">
-Figure from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
-</div>
-
-<!--
-The spatiotemporal index is the common key that lets us fuse heterogeneous data.
--->
+<img src="./assets/data_3.svg">
 
 ---
-section: what
+section: data
 ---
 
-# From Heterogeneous Data to One Reusable Representation
+# Data as Samples from a Distribution
 
-<img src="./assets/earth-embeddings/fig1.png" class="w-full max-h-[260px] object-contain" alt="Figure 1: multimodal observations of the Earth are encoded by an embedding model into Earth embeddings" />
-
-**Earth embeddings** are vector representations of geospatial data at specific locations in space and time. They capture similarities and differences among locations according to their local features, in a **lightweight, compact** format.
-
-<div class="slide-citation">
-Figure 1 from Klemmer et al. (2026), CC BY 4.0
-</div>
-
-<!--
-Distinguish throughout: the embedding MODEL (left of the arrow) and the EMBEDDINGS (right).
--->
+<img src="./assets/data_4.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# Formal Definition
+# Distribution → Dataset: I.I.D Assumption
 
-An Earth embedding model $E$ maps a continuous location input (longitude, latitude, optionally elevation, and time) to a $d$-dimensional vector:
-
-$$
-E : (\text{location}) \;\longrightarrow\; \mathbf{emb} \in \mathbb{R}^d
-$$
-
-::left::
-
-### Explicit model
-
-$$
-\mathbf{emb} = E_{\text{explicit}}(\text{data}_{\text{location}})
-$$
-
-Extracts the embedding from **raw data** (e.g., a satellite image) associated with the location. Example: a vision model + a global image database.
-
-::right::
-
-### Implicit model
-
-$$
-\mathbf{emb} = E_{\text{implicit}}(\text{location})
-$$
-
-Takes **only the location** as input; the information is stored in the **weights** of a location encoder network.
-
-<!--
-This distinction is the backbone of Block 2.
--->
+<img src="./assets/data_5.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# Earth Embeddings Are Learned Measurements
+# Distribution → Dataset: In-Distribution Generalization
 
-::left::
-
-### Sensed measurement
-
-What an instrument physically records: reflectance in each spectral band.
-
-`[0.07, 0.12, 0.31, …]` (bands)
-
-Raw, large, **sensor-specific**.
-
-::right::
-
-### Learned measurement
-
-What a model learns to represent: a vector that captures the **character of a place**.
-
-$\mathbf{emb} \in \mathbb{R}^d$
-
-Compact, comparable, **reusable** across many tasks.
-
-::bottom::
-
-> Same goal as remote sensing, describing a location, but the description is **learned**, not directly sensed. Embeddings form a new data layer: optical, SAR, weather, elevation, text → **Earth embedding** → land cover, crops, species, poverty, similarity search.
-
-<div class="slide-citation">
-Framing from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
-</div>
+<img src="./assets/data_6.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# From Words to Places
+# In Practice: Training, Validation, Test Data
 
-::left::
-
-### Word embeddings
-
-Word2Vec and GloVe showed that vectors capture **meaning, not spelling**:
-
-$$
-\mathbf{v}_{\text{king}} - \mathbf{v}_{\text{man}} + \mathbf{v}_{\text{woman}} \approx \mathbf{v}_{\text{queen}}
-$$
-
-Distance in embedding space ≈ difference in meaning. Large language models build on the same idea.
-
-::right::
-
-### Earth embeddings
-
-The same arithmetic, applied to places:
-
-<div class="grid grid-cols-3 gap-2 items-center">
-
-![Aerial view of a road winding through a forest](./assets/tutorial/analogy-road.jpg)
-
-![Aerial view of a river meandering through fields](./assets/tutorial/analogy-river.jpg)
-
-![Aerial view of a bridge crossing a lake](./assets/tutorial/analogy-bridge.jpg)
-
-</div>
-
-**road + river ≈ bridge**
-
-<div class="slide-citation">
-Images from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
-</div>
-
-<!--
-Paper box "The Origin of 'Embeddings' in NLP": Word2Vec and GloVe; distance between words is used in LLMs.
-The road + river ≈ bridge analogy is illustrative: it shows what we would like the geometry of an embedding space to look like.
--->
+<img src="./assets/data_7.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# Places That Are Alike Are Close
+# Distribution → Dataset: Random Sampling
 
-::left::
-
-### Similarity across space
-
-An embedding of **urban New York City** may resemble that of **urban Delhi** more than that of **rural Arkansas**.
-
-Functional, not geographic, similarity.
-
-::right::
-
-### Similarity across time
-
-Summer and winter embeddings of **equatorial Costa Rica** may be nearly identical, while those of **seasonal Alaska** differ strongly.
-
-A built-in signal of environmental change.
-
-::bottom::
-
-<div class="blockquote2">
-
-**Forest example:** two forest plots 1000 km apart should be *closer* in embedding space than a forest plot and the field next to it. That is what makes a few labels go a long way.
-
-</div>
+<img src="./assets/data_8.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# Earth Embeddings ≠ Geospatial Foundation Models
+# Real-World Models need to generalize Out-of-Distribution
 
-::left::
-
-### Geospatial foundation models (GeoFMs)
-
-Large multimodal deep networks trained on diverse geospatial data, meant to be **fine-tuned** for downstream tasks (e.g., segmentation). Architecture and objective decisions are made here.
-
-Clay, Prithvi, Galileo, Smarties, DOFA, SkySense
-
-::right::
-
-### Earth embeddings
-
-Interoperable, **location-indexed data outputs** that can be stored, shared, and queried independently of the model that created them.
-
-AlphaEarth Foundations, Tessera, Major TOM (databases) · SatCLIP, GeoCLIP, SINR (location encoders)
-
-::bottom::
-
-> A GeoFM is the **factory**; Earth embeddings are the **product** you take home. Often a by-product of GeoFMs, but the part users actually touch.
-
-<!--
-Paper box "Earth Embeddings and Geospatial Foundation Models": GeoFMs are large-scale modeling and learning frameworks, whereas Earth embeddings constitute the interoperable location-indexed data outputs.
--->
+<img src="./assets/data_9.svg">
 
 ---
-section: what
+section: data
 ---
 
-# The Four Central Functions
+# Chanes between Development and Deployment
 
-<img src="./assets/earth-embeddings/fig2.png" class="w-full max-h-[290px] object-contain" alt="Figure 2: compression, integration with other foundation models, fusion, and interpolation" />
-
-**Compression** · **Fusion** · **Interpolation** · **Interoperability**: current approaches serve one or more of these.
-
-<div class="slide-citation">
-Figure 2 from Klemmer et al. (2026), CC BY 4.0
-</div>
+<img src="./assets/data_10.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
 ---
 
-# Compression and Fusion
+# Geospatial Models Need to Generalize Out-of-Distribution
 
-::left::
-
-![Compressing geospatial big data into a short vector](./assets/earth-embeddings/fig2-a-compression.png)
-
-**Compression:** distil high-dimensional, multimodal data (images, text) into a small vector. Lossy, but geospatial data are highly redundant and spatiotemporally structured.
-
-Current embeddings are correlated, with low intrinsic dimension → dedicated compression models are still needed.
-
-::right::
-
-![Fusing audio, photo, image, and text into one embedding](./assets/earth-embeddings/fig2-c-fusion.png)
-
-**Fusion:** combine modalities into a joint embedding space, using their shared location and time.
-
-E.g., one embedding for the satellite image *and* the social-media posts at a place: MMEarth, DOFA, Galileo, Smarties, SkySense.
-
-<div class="slide-citation">
-Figure 2 (a, c) from Klemmer et al. (2026), CC BY 4.0
-</div>
+<img src="./assets/data_11.svg">
 
 ---
-section: what
-layout: bonn-two-cols-header
+section: data
+layout: bonn-image-right
+image: ./assets/window.jpg
 ---
 
-# Interpolation and Interoperability
+# Takeaway: Data
 
-::left::
+* We model our world as distributions from which we sample (i.e., collect) datasets
+* We use training data to train model weights, validation data for experimentation, and test data for final evaluation
+* Random sampling of train, val, test data measures in-distribution accuracy and is sufficient for model comparisons
+* Real-world deployments must consider distribution shifts 𝑃(𝑋│𝑌)≠𝑄(𝑋│𝑌) and assessing out-of-distribution accuracy on separately collected test data
 
-![Interpolating embeddings to unseen locations](./assets/earth-embeddings/fig2-d-interpolation.png)
-
-**Interpolation:** location encoders learn a smooth surface in embedding space, so **any** location (in continuous space and time) can be queried, even if it was not in the training data. SatCLIP, SINR, GeoCLIP.
-
-::right::
-
-![Integrating Earth embeddings with other AI models](./assets/earth-embeddings/fig2-b-integrating.png)
-
-**Interoperability:** embeddings act as **“location tokens”** for other foundation models, e.g., LLMs: “What are similar locations to (lon, lat)?” Location encoders also plug into image synthesis and super-resolution.
-
-<div class="slide-citation">
-Figure 2 (b, d) from Klemmer et al. (2026), CC BY 4.0
-</div>
-
----
-section: what
----
-
-# Forest Example: What Does an Embedding Buy Us?
-
-| Function | For our forest map |
-|---|---|
-| **Compression** | A 64-D vector per pixel instead of years of multispectral time series |
-| **Fusion** | Optical + radar (sees through clouds) + elevation, already combined |
-| **Interpolation** | A value for every location, including where there is no plot |
-| **Interoperability** | The same vectors serve the biodiversity team next door |
-
-<v-click>
-
-> Earth embeddings turn geospatial analytics from **fragmented, task-specific modelling** into a **reusable, general** framework. The paper posits they will become a dominant format of geospatial data in the AI age.
-
-</v-click>
-
-<!--
-Next: how does geographic information actually get into that vector?
--->
 
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: learning
-sectionTitle: How to learn?
+section: classical-generalization
+sectionTitle: Classical Generalization
 ---
 
-# How do we learn Earth embeddings?
+# Classical Generalization Theory
 
-<img class="bonn-section-image" src="./assets/earth-embeddings/fig4-a-methods.png" alt="Explicit feature extraction versus implicit neural representation" />
+
+<img src="./assets/bias_variance_belkin.svg" />
+
+<!--
+Block 1 placeholder. Topics to develop: finite datasets vs. underlying distribution, training vs. population loss, train/val/test splits, generalization gap, model capacity, underfitting/overfitting, bias–variance trade-off, regularization.
+-->
+
+
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# The Hypothesis Space $\mathcal H$
+
+::left::
+
+A **hypothesis** is a prediction function:
+
+$$
+h:\mathcal X\rightarrow\mathcal Y
+$$
+
+The **hypothesis space** is the set of functions the model can represent:
+
+$$
+\mathcal H=\{h_\theta:\theta\in\Theta\}
+$$
+
+- $\Theta$ is the **parameter space**
+- $\theta\in\Theta$ is one parameter choice
+- $h_\theta\in\mathcal H$ is the corresponding prediction function
+- Training selects a hypothesis from $\mathcal H$
+
+$$
+\boxed{\text{parameters }\theta
+\quad\longrightarrow\quad
+\text{hypothesis }h_\theta}
+$$
+
+::right::
+
+<img src="./assets/hypothesis_space.svg">
+
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Example $\mathcal H_\text{linear}$
+
+::left::
+
+A **hypothesis** is a prediction function:
+
+$$
+h:\mathcal X\rightarrow\mathcal Y
+$$
+
+The **hypothesis space** is the set of functions the model can represent:
+
+$$
+\mathcal H=\{h_\theta:\theta\in\Theta\}
+$$
+
+- $\Theta$ is the **parameter space**
+- $\theta\in\Theta$ is one parameter choice
+- $h_\theta\in\mathcal H$ is the corresponding prediction function
+- Training selects a hypothesis from $\mathcal H$
+
+$$
+\boxed{\text{parameters }\theta
+\quad\longrightarrow\quad
+\text{hypothesis }h_\theta}
+$$
+
+::right::
+
+<div class="flex flex-col h-full gap-2">
+
+**Example:** $\mathcal H_{\text{linear}} = \{h_{w,b}(x) = wx+b : (w,b) \in \mathbb{R}^2\}$
+
+<div class="flex-1 min-h-0">
+<LinearHypothesisDemo />
+</div>
+
+</div>
+
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Parameter Space and Hypothesis Space
+
+## Two parameter sets can map to the same Hypothesis
+
+::left::
+
+The **parameter space** contains the numerical values optimized during training:
+
+$$
+\theta\in\Theta
+$$
+
+The **hypothesis space** contains the prediction functions the model can represent:
+
+$$
+h_\theta\in\mathcal H
+$$
+
+A parameterization maps parameter values to hypotheses:
+
+$$
+\Phi:\Theta\rightarrow\mathcal H,
+\qquad
+\theta\mapsto h_\theta
+$$
+
+This mapping does not have to be one-to-one:
+
+$$
+\theta_1\neq\theta_2
+\qquad\text{but}\qquad
+\Phi(\theta_1)=\Phi(\theta_2)
+$$
+
+::right::
+
+<img src="./assets/parameter_hypothesis_space.svg">
+
+
+
+<div class="mt-5 rounded-lg bg-gray-100 px-4 py-3">
+
+**Training moves through parameter space, but predictions are determined by the corresponding hypothesis.**
+
+</div>
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# From Optimization to a Learned Hypothesis
+
+
+::left::
+
+## Navigate parameter space
+
+Gradient descent updates the parameters in a direction that aims to reduce the empirical risk:
+
+<img src="./assets/grad_descent_image.png" class="w-full mt-3">
+
+::right::
+
+## Induce a path through $\mathcal H$
+
+Every parameter value represents a prediction function:
+
+
+$$
+h_{\theta^{(0)}}
+\rightarrow
+h_{\theta^{(1)}}
+\rightarrow\cdots\rightarrow
+h_{\theta^{(T)}}\text{, so that } 
+\hat h_D=h_{\theta^{(T)}}\in\mathcal H
+$$
+
+<img src="./assets/optimize.svg" width="250px" class="mt-2">
+
+<div class="mt-2 rounded-lg bg-gray-100 px-3 py-2 text-center text-sm">
+
+</div>
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Occam's Razor Idea
+
+## Simpler functions should generalize better.
+
+::left::
+
+Willian of Ockham (c. 1287 – 9/10 April 1347)
+<img width="200px" src="./assets/William_of_Ockham.png">
+
+::right::
+
+<img src="./assets/occams_razor.svg">
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Bias and Variance
+
+$$
+\text{test risk}
+=
+\underbrace{\text{training risk}}_{\text{related to bias}}
++
+\underbrace{
+\left(\text{test risk}-\text{training risk}\right)
+}_{\text{related to variance}}
+$$
+
+::left::
+
+## Bias
+
+**How systematically wrong is the model?**
+
+$$
+\operatorname{Bias}(x)
+=
+\mathbb E_D[\hat f_D(x)]-f^*(x)
+$$
+
+- Difference between the average learned model and the true function
+- Often caused by a restrictive hypothesis space
+- High bias leads to underfitting
+- Both training and test error are typically high
+
+::right::
+
+## Variance
+
+**How much does the model depend on the dataset?**
+
+$$
+\operatorname{Var}(x)
+=
+\mathbb E_D\!\left[
+\left(
+\hat f_D(x)-\mathbb E_D[\hat f_D(x)]
+\right)^2
+\right]
+$$
+
+- Measures variation across different training datasets
+- Often increases with model flexibility
+- High variance leads to overfitting
+- Test error can be much higher than training error
+
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Example: Linear Regression 
+
+<div style="height: 74%">
+  <BiasVarianceDemo />
+</div>
+
+::left::
+
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">Task 1: Discuss the bias and variance of Linear Regression models.</div>
+</div>
+
+
+::right::
+
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">Task 2: Increase and Decrease the dataset size N, how does the variance change?</div>
+</div>
+
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Controlling Bias and Variance
+
+::left::
+
+## Strategy 1: Introduce Inductive Bias
+
+Use domain knowledge to **restrict or prioritize** hypotheses:
+
+- choose informative features;
+- select an appropriate architecture;
+- encode known invariances;
+- regularize model complexity.
+
+## Strategy 2: Reduce Variance by more Data
+
+Use additional information to rule out hypotheses that fit only by chance:
+
+- collect more labelled data;
+- apply valid data augmentation;
+- exploit unlabelled data through pretraining.
+
+
+::right::
+
+<div class="flex items-center justify-center h-full">
+<img width=250px src="./assets/inductive_bias2.svg">
+</div>
+
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Bias Variance Trade-Off
+
+::left::
+
+- **Under-fitting of simpler models** have high bias: they do not fit the training data well. Their predictions are fairly consistent across different training sets, so they have low variance.
+
+- **Over-fitting of complex models** have lower bias: they fit the training data closely, sometimes perfectly. Their predictions depend more strongly on the training sample, so they have high variance and may perform poorly on new data.
+
+- The classical **sweet spot** balances bias and variance to minimize test risk.
+
+::right::
+
+<img
+  src="./assets/bias_variance_belkin.svg"
+  alt="Classical bias–variance trade-off"
+  class="w-full max-h-[430px] object-contain"
+/>
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Vapnik-Chervonenkis (VC) Dimension 
+
+## How to measure the Capacity of H
+
+::left::
+
+<div class="flex flex-col h-full gap-2">
+
+<div class="compact-math text-[0.72rem] leading-snug shrink-0" style="line-height: 1.3;">
+
+A set of $n$ points is **shattered** by $\mathcal H$ if classifiers in $\mathcal H$ can realize all $2^n$ possible binary labelings. The **VC dimension** is the largest number of points that $\mathcal H$ can shatter:
+
+$$
+\operatorname{VCdim}(\mathcal H)
+=
+\max\left\{
+n:\text{some }n\text{ points are shattered by }\mathcal H
+\right\}.
+$$
+
+</div>
+
+<div class="flex-1 min-h-0 flex flex-col items-center justify-center gap-1">
+  <img src="./assets/shattered.png" class="max-w-full max-h-full object-contain" />
+  <div class="text-[0.6rem] text-gray-500 text-center">
+    Image: <a href="https://en.wikipedia.org/wiki/Vapnik%E2%80%93Chervonenkis_dimension" target="_blank" rel="noopener noreferrer">Wikipedia</a>, CC BY-SA 3.0
+  </div>
+</div>
+
+</div>
+
+::right::
+
+<img width=300px src="./assets/vc-dimension.svg">
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Worst-Case Generalization Gap
+
+For a bounded loss, ignoring constants and logarithmic terms:
+
+$$
+\left|R(h)-\widehat R_D(h)\right|
+\lesssim
+\sqrt{\frac{d}{n}}
+$$
+
+with VC dimension $d$ and sample size $n$
+
+::left::
+
+- A larger VC dimension gives a weaker guarantee for the same sample size.
+- More training data reduces the worst-case gap approximately as $1/\sqrt n$.
+- For a target gap $\varepsilon$, the required sample size scales approximately as
+
+  $$
+  n \propto \frac{d}{\varepsilon^2}.
+  $$
+
+- The guarantee is useful only when $d\ll n$. When $d\approx n$, the bound becomes uninformative.
+
+::right::
+
+<img width="80%" src="./assets/generalization_gap.svg">
+
+<div v-click class="mt-4 text-center">
+
+**VC bounds are distribution-free and robust, but often pessimistic.**
+
+</div>
+
+---
+section: classical-generalization
+---
+
+# Example Polynomial Regression: 
+## Increasing Polynomial Degree D: ↓ Bias ↑ Variance
+
+<div class="h-[220px]">
+  <PolynomialBiasVarianceDemo2 />
+</div>
+
+---
+section: classical-generalization
+layout: bonn-two-cols-header
+---
+
+# Takeaways Classical Generalization Theory
+
+::left::
+
+- Training minimizes **training risk**, while the goal is low **testing risk**.
+- Simpler models are more stable but may underfit because of high bias.
+- More flexible models reduce bias but may overfit because of high variance.
+- When overfitting, reduce model complexity, increase regularization, or use more data.
+- When underfitting, increase model capacity or reduce regularization.
+- Use validation data to find the model complexity that best balances bias and variance.
+
+::right::
+
+<img width=300px src="./assets/bias_variance_belkin.svg">
+
+---
+layout: bonn-section-image-right
+sectionColor: "#00457c"
+section: modern-generalization
+sectionTitle: Modern Generalization
+image: ./assets/sailor.jpg
+---
+
+# Generalization beyond the Interpolation Threshold
 
 <div class="bonn-section-citation">
-Figure 4(a) from Klemmer et al. (2026), CC BY 4.0
+<a href="https://www.pexels.com/@ludvighedenborg/" target="_blank" rel="noopener noreferrer">
+Photo by Ludvig Hedenborg, Pexels License
+</a>
 </div>
 
 ---
-section: learning
+section: modern-generalization
+---
+
+# Beyond the Threshold: Double Descent in Polynomial Regression
+
+<div class="h-[220px]">
+  <PolynomialBiasVarianceDemo3 />
+</div>
+
+---
+section: modern-generalization
+---
+
+# Polynomial Regression in Interpolation Regime
+
+<div class="grid grid-cols-3 gap-6 mt-4 text-center">
+
+<div>
+
+Underfitting — Degree 3
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d3.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
+
+</div>
+
+<div>
+
+Overfitting — Degree 20
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d20.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
+
+</div>
+
+<div v-click>
+
+Interpolating — Degree 1000
+
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d1000.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
+
+</div>
+
+</div>
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Credit: Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+---
+section: modern-generalization
+---
+
+# Double Descent Phenomenon
+
+## Overparamterized Models Improve Again after Overfitting
+
+<div class="flex items-center justify-center">
+<img width=80% src="./assets/interpolation_regime_belkin.svg">
+</div>
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Credit: Belkin et al., 2019. <a href="https://arxiv.org/abs/1812.11118">Reconciling modern machine learning practice and the bias-variance trade-off</a>
+</div>
+
+---
+section: modern-generalization
 layout: bonn-two-cols-header
 ---
 
-# Two Routes into a Vector
-
-<img src="./assets/earth-embeddings/fig4-a-methods.png" class="w-full max-h-[240px] object-contain" alt="Figure 4a: explicit feature extraction encodes images from a database; implicit neural representation encodes coordinates" />
+# The Simple + Spiky Hypothesis
 
 ::left::
 
-**Explicit:** look up the data at (lon, lat, time) in a database, then encode the **data** with an image (or time-series) encoder.
+<div class="h-[220px] flex items-center justify-center">
+  <img src="./assets/polyreg_d1000.png" class="max-w-full max-h-[220px] object-contain rounded-lg" />
+</div>
 
 ::right::
 
-**Implicit:** encode the **coordinates themselves**; the knowledge about that place lives in the encoder’s weights.
+$$
+\boxed{
+\text{learned model}
+=
+\underbrace{\text{“simple”}}_{\text{predictive component}}
++
+\underbrace{\text{“spiky”}}_{\text{overfitting / memorization component}}
+}
+$$
 
-<div class="slide-citation">
-Figure 4(a) from Klemmer et al. (2026), CC BY 4.0
+<div class="mt-4 text-[0.65rem] text-gray-500">
+Belkin, Rakhlin &amp; Tsybakov, 2018. <a href="https://arxiv.org/abs/1806.09471" target="_blank" rel="noopener noreferrer">Does data interpolation contradict statistical optimality?</a>
+</div>
+
+::bottom::
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Credit: Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
 </div>
 
 ---
-section: learning
+section: modern-generalization
 layout: bonn-two-cols-header
 ---
 
-# Explicit Feature Extraction
+# Neural Networks Interpolate and Generalize
+
+## The same hypothesis class can memorize noise and learn structure
 
 ::left::
 
-![Explicit feature extraction pipeline](./assets/earth-embeddings/fig4-a-explicit.png)
+## The experiment
 
-Embed geospatial data directly with architectures and objectives from computer vision or time-series analysis. Since the inputs are geolocated, so are the embeddings.
+**Inception on CIFAR-10**
 
-<div class="slide-citation">
-Figure 4(a, top) from Klemmer et al. (2026), CC BY 4.0
+| Training labels | Train accuracy | Test accuracy |
+|---|---:|---:|
+| **True labels** | 100% | 85.75% |
+| **Random labels** | 100% | 9.78% |
+
+::right::
+
+<div class="text-center mt-5 mb-5">
+  <img width="180px" src="./assets/cifar-10.png" class="mx-auto">
+</div>
+
+## The VC bound becomes vacuous and does not explain Deep Networks' generalization
+
+* **No contradiction:** The VC bound remains valid, but it is too pessimistic to distinguish the two learned solutions.
+
+
+::bottom::
+
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Zhang et al. (2017). <em>Understanding Deep Learning Requires Rethinking Generalization.</em> ICLR. <a href="https://arxiv.org/abs/1611.03530">arXiv:1611.03530</a>
+</div>
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# How to measure the Model Complexity now??
+
+::left::
+
+## By the number of distinct functions the model can represent? (VC-dimension)
+
+→ **No.** Not helpful — the generalization bound is too pessimistic. Following classical theory, neural networks should not generalize.
+
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Slide from Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+
+<div v-click=2 class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+  <div class="text-[.9rem] font-semibold text-blue-900">Why parameter count alone doesn't determine generalization for deep learning is still an open question.</div>
 </div>
 
 ::right::
 
-Three families, from simple to large:
+## By the number of parameters in a neural network?
 
-1. **Random features:** MOSAIKS
-2. **Self-supervised encoders:** contrastive or masked models trained on BigEarthNet or SSL4EO Sentinel-2 imagery
-3. **Multimodal GeoFMs:** DOFA, Smarties, MMEarth, Galileo, AlphaEarth
+<div v-click=1 class="flex flex-col gap-1 text-[0.78rem] leading-snug">
+
+
+<img src="./assets/two_nns.png" class="object-contain mx-auto" style="max-width: 100%; max-height: 200px;" />
+
+Consider $h(x) = 10^{-100} f(x) + (1 - 10^{-100}) g(x)$. How many parameters does it have? Does it matter? **Not really.**
+
+</div>
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# "Effective" Model Capacity
+
+<div class="flex items-center justify-center">
+<img width=80% src="./assets/interpolation_regime_belkin_modified.svg">
+</div>
+
+<div v-click class="mt-4 rounded-lg bg-gray-100 px-5 py-3 text-center">
+<b>“Capacity” is intentionally abstract.</b> Parameter count may indicate when interpolation becomes possible, but it does not determine the complexity of the learned solution or its test performance.
+</div>
+
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# Recap So Far
+
+::left::
+
+<div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">What we observed</div>
+
+<div class="mt-1 text-[0.66rem] leading-tight space-y-1">
+
+**Deep networks generalize.**  
+They make accurate predictions on inputs that were not part of the training data.
+
+**Deep networks also interpolate.**  
+The same architectures can perfectly fit true labels and random labels.
+
+**Training fit alone cannot explain generalization.**  
+Zero training error does not distinguish learning useful structure from memorizing the sample.
+
+</div>
+
+::right::
+
+<div class="text-[.58rem] font-bold uppercase tracking-wide text-gray-400">What this implies</div>
+
+<div class="mt-1 text-[0.66rem] leading-tight space-y-1">
+
+**Generalization requires inductive bias.**  
+Training must favor some interpolating solutions over many others that fit the data equally well.
+
+**Worst-case capacity is insufficient.**  
+Parameter count and VC dimension describe the entire hypothesis space, but their bounds become vacuous for highly expressive neural networks.
+
+**The selected solution matters.**  
+Architecture, optimization, regularization, and data properties all influence which solution training finds.
+
+</div>
+
+::bottom::
+
+<div class="mt-1 rounded-lg bg-gray-100 px-5 py-1.5 text-center">
+
+**Next question:** Which inductive biases make interpolating neural networks generalize?
+
+</div>
+
+<div class="mt-1 text-[0.6rem] text-gray-500 text-center">
+Slide from Philip Isola, MIT 6.7960 Deep Learning (Fall 2024), Lecture 6: NN Generalization, <a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_captions_vtt/" target="_blank" rel="noopener noreferrer">MIT OpenCourseWare</a>
+</div>
+
+
+---
+section: modern-generalization
+layout: bonn-two-cols-header
+---
+
+# Version Space
+
+::left::
+
+The **version space** contains all hypotheses that fit the training data perfectly:
+
+$$
+\mathcal V_{\mathcal H}(D)
+=
+\left\{
+h\in\mathcal H:
+\widehat R_D(h)=0
+\right\}.
+$$
+
+- In overparameterized models, many hypotheses belong to this set.
+- Some generalize to unseen data, while others merely memorize.
+- Training error cannot distinguish between them.
+
+<div class="mt-5 rounded-lg bg-gray-100 px-4 py-3 text-center">
+
+**Deep models do generalize. Therefore, the training system must favor generalizing hypotheses within the version space.**
+
+</div>
+
+::right::
+
+<img width=100% src="./assets/version_space.svg">
 
 <!--
-Recall the deep-learning lectures: any encoder that maps an image patch to a vector is an explicit Earth embedding model once the patch has coordinates.
+---
+section: modern-generalization
+---
+
+# Phillip Isola - MIT Lecture Generalization (2024)
+
+<div class="flex flex-col h-full gap-1">
+
+<div class="flex-1 min-h-0">
+  <iframe width="100%" height="100%" src="https://www.youtube.com/embed/EiO8BBa-xdc?si=VBaY9A3PfJe9_F2x&amp;start=3911&amp;end=3971" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
+
+<div class="text-[0.6rem] text-gray-500 text-center shrink-0">
+Excerpt from &ldquo;Lec 06: Generalization Theory,&rdquo; Philip Isola, MIT 6.7960 Deep Learning, Fall 2024. MIT OpenCourseWare. Licensed under CC BY-NC-SA 4.0. <a href="https://www.youtube.com/watch?v=EiO8BBa-xdc&t=3651s" target="_blank" rel="noopener noreferrer">Source</a> · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener noreferrer">License</a>
+</div>
+
+</div>
 -->
-
 ---
-section: learning
----
-
-# Simplest Explicit Embedding: MOSAIKS
-
-<img src="./assets/tutorial/mosaiks-rcf.png" class="w-full max-h-[190px] object-contain" alt="MOSAIKS: sample K random patches, convolve them over each image, apply a nonlinearity, and average over pixels into a K-dimensional feature vector" />
-
-- Draw $K$ random patches from the image set and use them as **fixed convolution filters**: no training at all.
-- Convolve, apply a nonlinearity, average over pixels → a $K$-dimensional vector per image.
-- A **linear model** on top predicts forest cover, income, population, and more.
-
-> Even **random** features turn imagery into useful vectors: a strong baseline for every learned embedding.
-
-<div class="slide-citation">
-Rolf et al. (2021), “A generalizable and accessible approach to machine learning with global satellite imagery,” <em>Nature Communications</em>. Figure via the ISPRS 2026 tutorial.
-</div>
-
-<!--
-Demo 2 of the tutorial builds MOSAIKS random convolutional features from scratch and compares them with a pretrained SSL4EO-S12 ResNet-18.
--->
-
----
-section: learning
+section: modern-generalization
 layout: bonn-two-cols-header
 ---
 
-# Learned Features: Self-Supervised Encoders
-
-Instead of designing or sampling features, **learn** them on large unlabelled archives.
+# Inductive Biases Select Interpolating Solutions
 
 ::left::
 
-![Masked autoencoder: most image patches are masked, an encoder processes the visible ones, and a decoder reconstructs the image](./assets/tutorial/mae.png)
+## Sources of inductive bias
 
-**Masked autoencoder (MAE):** hide most patches, reconstruct them; the encoder output is the embedding.
-
-<div class="slide-citation">
-He et al. (2022), “Masked autoencoders are scalable vision learners,” CVPR.
-</div>
-
-::right::
-
-![MMEarth: one encoder, several decoders reconstructing optical, radar, elevation, land-cover and climate modalities](./assets/tutorial/mmearth.png)
-
-**Cross-modal autoencoding (MMEarth):** reconstruct *other* modalities (radar, elevation, land cover, climate) from one input → **fusion** built in.
-
-<div class="slide-citation">
-Nedungadi et al. (2024), “MMEarth: Exploring multi-modal pretext tasks for geospatial representation learning,” ECCV.
-</div>
-
-<!--
-Self-supervised learning is covered in more depth in its own lecture; here we only need the idea that the pretext task produces a general-purpose encoder.
--->
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Explicit Embeddings: Resolution and Modality
-
-::left::
-
-### Resolution
-
-- **Patch level:** one vector per image or tile (Clay, MMEarth)
-- **Pixel level:** one vector per pixel, e.g., 64-D every 10 m (AlphaEarth, Tessera)
-
-The embedding inherits the **extent**, **ground sample distance**, and **acquisition time** of its input.
-
-### Modality
-
-Which sensors went in? Optical-only vs. multimodal (radar, climate, elevation) can decide a task such as crop mapping.
+- **Architecture:** locality, parameter sharing, recurrence, and equivariance
+- **Parameterization:** makes some functions easier to represent and reach
+- **Initialization:** influences the path taken through parameter space
+- **Optimization and loss:** SGD, batch size, learning rate, and loss function
+- **Explicit regularization:** weight decay, dropout, and early stopping
+- **Data and augmentation:** encode structure, invariances, and prior knowledge
 
 ::right::
 
-<div class="blockquote2">
+## What does “simpler” mean?
 
-✓ Well suited for geosemantic search and fine-grained prediction (land cover, land use)
+<div class="mt-3 rounded-lg bg-gray-100 px-4 py-3">
 
-</div>
+<strong>Not necessarily fewer parameters.</strong>
 
-<div class="blockquote4">
+Depending on the setting, training may favor solutions with:
 
-✗ Less suited for geographic conditioning and data synthesis
-
-</div>
-
-> **Match the embedding to the task:** field boundaries need high resolution and the right modalities; a broad climate gradient may only need coarse, optical embeddings.
-
----
-section: learning
----
-
-# Worked Example: AlphaEarth Foundations (1/2)
-
-<img src="./assets/tutorial/alphaearth-architecture.png" class="w-full max-h-[230px] object-contain" alt="AlphaEarth Foundations architecture: multi-source inputs are encoded over time into a per-pixel embedding field and decoded back into the sources" />
-
-- An **embedding field model**: assimilates several sources (optical, radar, LiDAR, climate, …) over a time window into **one 64-D vector per 10 m pixel**.
-- Trained, among other objectives, to **reconstruct** its input sources from the embedding, so the vector summarises what was observed at that place in that year.
-- Designed for **sparse-label mapping**: a light classifier on top maps at scale.
-
-<div class="slide-citation">
-Brown et al. (2025), “AlphaEarth Foundations: An embedding field model for accurate and efficient global mapping from sparse label data,” arXiv:2507.22291.
-</div>
-
-<!--
-The explicit counterpart to the SatCLIP worked example later in this block.
--->
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Worked Example: AlphaEarth Foundations (2/2)
-
-::left::
-
-![Google Earth Engine catalogue entry for the Satellite Embedding V1 dataset with availability, provider and code snippet](./assets/tutorial/alphaearth-gee.png)
-
-<div class="slide-citation">
-Google Earth Engine data catalogue, via the ISPRS 2026 tutorial.
-</div>
-
-::right::
-
-Released as a **precomputed dataset**, not as a model:
-
-```js
-ee.ImageCollection(
-  "GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL")
-```
-
-- annual global layers, one 64-band image per year
-- users only **look up** vectors; no GPU, no imagery pipeline
-- the model weights are **not** released (more on openness in Block 4)
-
-<div class="blockquote2">
-
-**Forest example:** query the 64-D vector at each plot, train a classifier, apply it to every pixel.
+- low norm or large margin
+- smoothness or invariance
+- compressible representations
 
 </div>
 
----
-section: learning
-layout: bonn-two-cols-header
----
+There is no single universal measure of the effective complexity of a deep network.
 
-# Implicit Neural Representations
+::bottom::
 
-::left::
-
-![Implicit neural representation: coordinates to location encoder to embedding](./assets/earth-embeddings/fig4-a-implicit.png)
-
-A **location encoder** takes coordinates (and possibly time) as input and outputs an embedding. Inspired by implicit neural representations in computer vision (SIREN, NeRF).
-
-<div class="slide-citation">
-Figure 4(a, bottom) from Klemmer et al. (2026), CC BY 4.0
+<div class="mt-3 text-[0.62rem] text-gray-500 text-center">
+For concrete proposed theories, check Phillip Isola.
+<a href="https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/resources/mit6_7960f24_lec06_mp4/" target="_blank">
+<em>Lecture 6: Generalization Theory</em>
+</a>.
+MIT 6.7960 Deep Learning, Fall 2024.
 </div>
-
-::right::
-
-Two parts:
-
-1. **Positional encoding** $\mathrm{PE}(\lambda,\phi,t)$: a fixed function that expands coordinates into many features.
-2. **Neural network** $\mathrm{NN}_\theta$: a small MLP or SIREN that maps those features to $\mathbf{emb}$.
-
-$$
-\mathbf{emb} = \mathrm{NN}_\theta\big(\mathrm{PE}(\lambda,\phi,t)\big)
-$$
-
-Lightweight, open source, queryable anywhere. Examples: SatCLIP, GeoCLIP, SINR, Climplicit.
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Spatial Encodings: Respecting a Sphere
-
-::left::
-
-Raw (lon, lat) are a poor input: the network must learn that −180° and 180° are the same place, and a flat grid distorts the poles.
-
-**Spherical harmonics** $Y_\ell^m$ are the Fourier basis on the sphere:
-
-$$
-\mathrm{PE}(\lambda,\phi) = \big[\,Y_\ell^m(\lambda,\phi)\,\big]_{\ell=0,\dots,L;\; m=-\ell,\dots,\ell}
-$$
-
-$(L+1)^2$ features, smooth everywhere on the globe.
-
-::right::
-
-> **The degree $L$ sets the scale.** Low $L$ → only continent-scale patterns. High $L$ → finer detail, but harder to train and prone to overfitting.
-
-The encoding lets users **define the resolution** at which dynamics are modelled (metre vs. kilometre scale).
-
-Alternatives: multi-scale sinusoidal (Space2Vec, Sphere2Vec), random Fourier features (GeoCLIP).
-
-<div class="slide-citation">
-Rußwurm et al. (2024), “Geographic location encoding with spherical harmonics and sinusoidal representation networks,” ICLR.
-</div>
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Temporal Encodings: Periodic Processes
-
-::left::
-
-Many Earth processes are **periodic**: seasons (annual scale), day vs. night (daily scale).
-
-Encode time with Fourier functions of the relevant periods $P$:
-
-$$
-\mathrm{PE}(t) = \Big[\sin\tfrac{2\pi t}{P},\; \cos\tfrac{2\pi t}{P}\Big]_{P\,\in\,\{1\,\text{day},\,1\,\text{year},\,\dots\}}
-$$
-
-31 December and 1 January end up next to each other.
-
-::right::
-
-<svg viewBox="0 0 300 150" class="w-full h-[150px]">
-<line x1="10" y1="75" x2="290" y2="75" stroke="#ccc"/>
-<path d="M10.0,75.0 L12.8,71.5 L15.6,68.1 L18.4,64.7 L21.2,61.3 L24.0,58.0 L26.8,54.8 L29.6,51.6 L32.4,48.5 L35.2,45.5 L38.0,42.7 L40.8,39.9 L43.6,37.3 L46.4,34.9 L49.2,32.6 L52.0,30.5 L54.8,28.6 L57.6,26.8 L60.4,25.2 L63.2,23.9 L66.0,22.7 L68.8,21.7 L71.6,21.0 L74.4,20.4 L77.2,20.1 L80.0,20.0 L82.8,20.1 L85.6,20.4 L88.4,21.0 L91.2,21.7 L94.0,22.7 L96.8,23.9 L99.6,25.2 L102.4,26.8 L105.2,28.6 L108.0,30.5 L110.8,32.6 L113.6,34.9 L116.4,37.3 L119.2,39.9 L122.0,42.7 L124.8,45.5 L127.6,48.5 L130.4,51.6 L133.2,54.8 L136.0,58.0 L138.8,61.3 L141.6,64.7 L144.4,68.1 L147.2,71.5 L150.0,75.0 L152.8,78.5 L155.6,81.9 L158.4,85.3 L161.2,88.7 L164.0,92.0 L166.8,95.2 L169.6,98.4 L172.4,101.5 L175.2,104.5 L178.0,107.3 L180.8,110.1 L183.6,112.7 L186.4,115.1 L189.2,117.4 L192.0,119.5 L194.8,121.4 L197.6,123.2 L200.4,124.8 L203.2,126.1 L206.0,127.3 L208.8,128.3 L211.6,129.0 L214.4,129.6 L217.2,129.9 L220.0,130.0 L222.8,129.9 L225.6,129.6 L228.4,129.0 L231.2,128.3 L234.0,127.3 L236.8,126.1 L239.6,124.8 L242.4,123.2 L245.2,121.4 L248.0,119.5 L250.8,117.4 L253.6,115.1 L256.4,112.7 L259.2,110.1 L262.0,107.3 L264.8,104.5 L267.6,101.5 L270.4,98.4 L273.2,95.2 L276.0,92.0 L278.8,88.7 L281.6,85.3 L284.4,81.9 L287.2,78.5 L290.0,75.0" fill="none" stroke="#00457c" stroke-width="2.5"/>
-<path d="M10.0,20.0 L12.8,20.1 L15.6,20.4 L18.4,21.0 L21.2,21.7 L24.0,22.7 L26.8,23.9 L29.6,25.2 L32.4,26.8 L35.2,28.6 L38.0,30.5 L40.8,32.6 L43.6,34.9 L46.4,37.3 L49.2,39.9 L52.0,42.7 L54.8,45.5 L57.6,48.5 L60.4,51.6 L63.2,54.8 L66.0,58.0 L68.8,61.3 L71.6,64.7 L74.4,68.1 L77.2,71.5 L80.0,75.0 L82.8,78.5 L85.6,81.9 L88.4,85.3 L91.2,88.7 L94.0,92.0 L96.8,95.2 L99.6,98.4 L102.4,101.5 L105.2,104.5 L108.0,107.3 L110.8,110.1 L113.6,112.7 L116.4,115.1 L119.2,117.4 L122.0,119.5 L124.8,121.4 L127.6,123.2 L130.4,124.8 L133.2,126.1 L136.0,127.3 L138.8,128.3 L141.6,129.0 L144.4,129.6 L147.2,129.9 L150.0,130.0 L152.8,129.9 L155.6,129.6 L158.4,129.0 L161.2,128.3 L164.0,127.3 L166.8,126.1 L169.6,124.8 L172.4,123.2 L175.2,121.4 L178.0,119.5 L180.8,117.4 L183.6,115.1 L186.4,112.7 L189.2,110.1 L192.0,107.3 L194.8,104.5 L197.6,101.5 L200.4,98.4 L203.2,95.2 L206.0,92.0 L208.8,88.7 L211.6,85.3 L214.4,81.9 L217.2,78.5 L220.0,75.0 L222.8,71.5 L225.6,68.1 L228.4,64.7 L231.2,61.3 L234.0,58.0 L236.8,54.8 L239.6,51.6 L242.4,48.5 L245.2,45.5 L248.0,42.7 L250.8,39.9 L253.6,37.3 L256.4,34.9 L259.2,32.6 L262.0,30.5 L264.8,28.6 L267.6,26.8 L270.4,25.2 L273.2,23.9 L276.0,22.7 L278.8,21.7 L281.6,21.0 L284.4,20.4 L287.2,20.1 L290.0,20.0" fill="none" stroke="#B08900" stroke-width="2.5" stroke-dasharray="5 4"/>
-<text x="200" y="18" font-size="11" fill="#00457c">sin</text><text x="240" y="18" font-size="11" fill="#B08900">cos</text>
-<text x="12" y="145" font-size="11" fill="#555">Jan</text><text x="265" y="145" font-size="11" fill="#555">Dec</text>
-</svg>
-
-*Day of year as (sin, cos): every date gets a unique, periodic code.*
-
-<div class="blockquote2">
-
-**Forest example:** deciduous vs. evergreen forest differ mainly in their *seasonal* signal → time matters.
-
-</div>
-
----
-section: learning
----
-
-# Learning Objectives
-
-What signal teaches the encoder what makes a place distinctive?
-
-| | Supervised | Self-supervised (geolocalization) |
-|---|---|---|
-| **Idea** | Regress a location-specific value and interpolate between training points | Match a location to what is observed there: learn what makes a place **unique** |
-| **Examples** | Sea-ice thickness, housing prices, species presence (**SINR**) | **GeoCLIP** (ground-level Flickr photos), **SatCLIP**, **CSP** (satellite imagery) |
-| **Result** | Intermediate layers still encode general semantics (topography, biome boundaries) | General-purpose embeddings for many downstream tasks |
-
-Explicit models mostly *borrow* objectives from computer vision and NLP (masked autoencoding, contrastive learning). Objectives that exploit spatial autocorrelation or temporal dynamics are largely unexplored (Block 4).
-
----
-section: learning
----
-
-# Worked Example: SatCLIP (1/3) — Setup
-
-<img src="./assets/tutorial/satclip-contrastive.png" class="w-full max-h-[230px] object-contain" alt="SatCLIP: satellite images and their coordinates are encoded by an image encoder and a location encoder, and contrastive learning matches the two embeddings" />
-
-- **SatCLIP** (Klemmer et al., AAAI 2025): *Satellite Contrastive Location–Image Pretraining*. CLIP, with “caption” replaced by “coordinate”.
-- **Data:** ~100k Sentinel-2 tiles sampled across the global landmass (S2-100K), each with its centre coordinate.
-- **Encoders:** a pretrained image encoder $f$ (ResNet / ViT) and a location encoder $g$ (spherical harmonics + SIREN). After training, $f$ is discarded: **$g$ is the Earth embedding model**.
-
-<div class="slide-citation">
-Klemmer et al. (2025), “SatCLIP: Global, general-purpose location embeddings with satellite imagery,” AAAI. Figure from the ISPRS 2026 tutorial.
-</div>
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Worked Example: SatCLIP (2/3) — Contrastive Objective
-
-::left::
-
-For a batch of $B$ image–location pairs, with scaled cosine similarity $s_{ij} = \langle z^{\text{img}}_i, z^{\text{loc}}_j\rangle / \tau$:
-
-$$
-\mathcal{L} = -\frac{1}{B}\sum_{i=1}^{B}\log\frac{\exp(s_{ii})}{\sum_{j=1}^{B}\exp(s_{ij})}
-$$
-
-(symmetrised over images and locations, as in CLIP)
-
-::right::
-
-- **Positive pair:** an image and *its own* location.
-- **Negatives:** all other locations in the batch.
-
-> To pick its own image out of the batch, $g$ must learn **what the place looks like from space**: climate, vegetation, terrain, built-up area.
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Worked Example: SatCLIP (3/3) — What You Get
-
-::left::
-
-- A **global, continuous embedding field**: query any (lon, lat), even unseen locations.
-- Captures what large-scale overhead imagery shows: **climate zones, forest coverage**.
-- Does **not** capture what the imagery cannot see, e.g., **ocean currents** (and it was trained on land tiles only).
-- Low vs. high $L$ trades smoothness against detail.
-
-::right::
-
-<div class="blockquote2">
-
-**Forest example:** SatCLIP knows “this region is boreal / temperate / tropical”: a good **prior**. It cannot delineate a single forest stand; its effective resolution is far too coarse.
-
-</div>
-
-**Counterpart:** GeoCLIP is trained on ground-level Flickr images and captures patterns visible from the *street*. Same recipe, different data → different embedding.
-
-<!--
-Key lesson from the paper: general-purpose embeddings are fundamentally constrained by the raw data they are based on.
--->
-
----
-section: learning
----
-
-# Explicit vs. Implicit: A Comparison
-
-<div class="compact-table">
-
-| | Explicit feature extraction | Implicit neural representation |
-|---|---|---|
-| **Input at inference** | Data at the location (image, time series) | Coordinates (+ time) only |
-| **Where knowledge lives** | In the input data | In the network weights |
-| **Resolution** | High, native resolution of the input | Low, smooth field |
-| **Coverage** | Where and when data exist | Continuous in space and time |
-| **Model size** | Large, compute-intensive | Small, lightweight |
-| **Usual interface** | Database of precomputed vectors | Model |
-| **Best for** | Retrieval, fine-grained prediction (land cover) | Conditioning, synthesis, large-scale prediction (air quality, disease) |
-| **Examples** | MOSAIKS, Clay, MMEarth, AlphaEarth, Tessera | SatCLIP, GeoCLIP, SINR, CSP, Climplicit |
-
-</div>
-
----
-section: learning
-layout: bonn-two-cols-header
----
-
-# Hybrid Approaches
-
-Combine high-resolution explicit features with low-resolution implicit context.
-
-::left::
-
-### Simple: concatenation
-
-$[\,\mathbf{emb}_{\text{explicit}} \,\|\, \mathbf{emb}_{\text{implicit}}\,]$ won the NeuCo-Bench challenge at the 2025 CVPR EarthVision workshop.
-
-### Advanced: retrieval augmentation
-
-**RANGE** uses implicit embeddings as queries to retrieve suitable high-resolution image features.
-
-::right::
-
-> Good results in practice, at the cost of more methodological complexity.
-
-<div class="blockquote2">
-
-**Forest example:** pixel embeddings say “there are trees here”; the location embedding says “this is the boreal zone”. Together they help separate, e.g., plantations from natural forest.
-
-</div>
-
----
-section: learning
----
-
-# Check: Which Embedding for Our Forest Map?
-
-| Option | Embedding |
-|---|---|
-| **A** | SatCLIP embeddings at each plot |
-| **B** | 10 m pixel embeddings from a precomputed explicit database (e.g., AlphaEarth) |
-| **C** | Both, concatenated |
-
-<v-click>
-
-> **B** is the minimum: forest cover is a fine-grained, visual task → explicit, high-resolution features. **C** can help when the classes depend on regional context. **A** alone is too coarse to draw forest edges.
-
-</v-click>
-
-<!--
-Next: what do we actually do with the vectors once we have them?
--->
-
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: using
-sectionTitle: How to use?
+section: ai-acceleration
+sectionTitle: Modern AI Acceleration
 ---
 
-# How do we use Earth embeddings?
+# The Modern AI Acceleration
 
-<img class="bonn-section-image" src="./assets/earth-embeddings/fig3-a-direct-prediction.png" alt="Earth embeddings used as input to predictive models of forest cover and population density" />
-
-<div class="bonn-section-citation">
-Figure 3(a) from Klemmer et al. (2026), CC BY 4.0
-</div>
 
 ---
-section: using
----
-
-# Four Ways to Use Earth Embeddings
-
-<img src="./assets/earth-embeddings/fig3.png" class="w-full max-h-[300px] object-contain" alt="Figure 3: direct prediction, conditioning predictive models, data synthesis and simulation, geosemantic search and retrieval" />
-
-Because embeddings are lightweight, all of this works **without processing or analysing raw data**.
-
-<div class="slide-citation">
-Figure 3 from Klemmer et al. (2026), CC BY 4.0
-</div>
-
----
-section: using
+section: ai-acceleration
 layout: bonn-two-cols-header
 ---
 
-# 1 · Direct Prediction
+# Scaling Laws for Transformers
 
-::left::
+## Held-out loss follows power laws of compute, data, and model size
 
-![Direct prediction of forest cover and population density from Earth embeddings](./assets/earth-embeddings/fig3-a-direct-prediction.png)
-
-<div class="slide-citation">
-Figure 3(a) from Klemmer et al. (2026), CC BY 4.0
+<div class="mt-1 text-center">
+  <img width="94%" class="mx-auto" src="./assets/kaplan_scaling_laws.svg">
 </div>
 
-::right::
+<div class="grid grid-cols-3 gap-6 text-center">
 
-Use embeddings as the **input features** of a model for a spatially distributed outcome:
+<div>
+
+**Compute**
 
 $$
-\hat{y}(\text{loc}) = h_\psi\big(E(\text{loc})\big)
+L(C_{\min})
+=
+\left(
+\frac{C_{\min}}{2.3\times10^{8}}
+\right)^{-0.050}
 $$
 
-- temperature, species presence, population density, **forest cover**
-- competitive with hand-crafted features (e.g., random forests for tree-species identification)
-- **cheap:** preprocessing is already done, a linear model, $k$-NN or random forest often suffices, and no raw-data archive has to be queried
-
-> One embedding product → many task-specific heads $h_\psi$.
-
-<!--
-Recall the generalization lecture: few parameters + a good representation → better generalization from few labels.
-With a few hundred plots, a deep CNN on raw Sentinel-2 would overfit; a random forest on 64-D embeddings trains in seconds on a laptop.
--->
-
----
-section: using
-layout: bonn-two-cols-header
-columns: "minmax(0, 1.1fr) minmax(0, 1fr)"
----
-
-# Direct Prediction in Practice: Elevation from AlphaEarth
-
-::left::
-
-![Four maps: reference elevation and heights inferred from AlphaEarth embeddings with ridge regression, a U-Net, and a U-Net++](./assets/tutorial/aef-elevation.png)
-
-::right::
-
-- Target: a **reference elevation model**
-- Inputs: only the 64-D **AlphaEarth embeddings** per pixel
-- Models: from **ridge regression** to U-Net / U-Net++
-
-Even ridge regression recovers much of the terrain; deeper decoders mainly sharpen the details.
-
-> Lesson: before training a deep model on raw data, try a **simple head on embeddings**.
-
-<div class="slide-citation">
-Hamoudzadeh et al. (2026), arXiv. Figure via the ISPRS 2026 tutorial.
 </div>
 
-<!--
-Ask students: which panel is the reference, and which is the linear model? What does the linear model miss?
--->
+<div>
 
----
-section: using
-layout: bonn-two-cols-header
----
+**Training data**
 
-# 2 · Geographic Conditioning
+$$
+L(D)
+=
+\left(
+\frac{D}{5.4\times10^{13}}
+\right)^{-0.095}
+$$
 
-::left::
-
-![A location embedding conditions an image classifier to recognise an arctic fox](./assets/earth-embeddings/fig3-b-conditioning.png)
-
-<div class="slide-citation">
-Figure 3(b) from Klemmer et al. (2026), CC BY 4.0
 </div>
 
-::right::
+<div>
 
-Earth embeddings as **geographic priors**: an auxiliary input that gives a model context about *where* it is operating.
-
-- **Fine-grained classification:** white fox in a snowy photo, arctic fox or pale red fox? Location disambiguates.
-- **Domain transfer:** helps a segmentation model trained in the USA work in Somalia.
-- **Limited labels and domain shift:** extra context boosts performance when data are scarce.
-
----
-section: using
-layout: bonn-two-cols-header
----
-
-# How Conditioning Works
-
-::left::
-
-### As a prior (late fusion)
-
-Combine an image classifier with a location model, assuming image and location are conditionally independent given the class:
+**Model size**
 
 $$
-p(y \mid \text{img}, \text{loc}) \;\propto\; p(y \mid \text{img})\; p(y \mid \text{loc})
+L(N)
+=
+\left(
+\frac{N}{8.8\times10^{13}}
+\right)^{-0.076}
 $$
 
-Mac Aodha et al. (2019): presence-only geographical priors for fine-grained classification.
+</div>
 
-::right::
-
-### As a feature (early fusion)
-
-Concatenate or add the location embedding to intermediate image features:
-
-$$
-\hat{y} = h\big([\, f(\text{img}) \,\|\, E(\text{loc}) \,]\big)
-$$
-
-Location encoders are small and differentiable → they can be trained end-to-end with the main model.
+</div>
 
 ::bottom::
 
-<div class="blockquote2">
-
-**Forest example:** condition the pixel classifier on SatCLIP → a dark-green patch in the Amazon and one in Scandinavia get different priors on forest type.
-
+<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
+Kaplan et al. (2020).
+<a href="https://arxiv.org/abs/2001.08361">
+<em>Scaling Laws for Neural Language Models.</em>
+</a>
 </div>
 
----
-section: using
----
-
-# Conditioning in Practice: Super-Resolution
-
-<img src="./assets/tutorial/satclip-superres.png" class="w-full max-h-[250px] object-contain" alt="Super-resolution network: a Sentinel-2 image is upsampled by a RRDB network whose features are modulated by a SatCLIP location embedding" />
-
-- A super-resolution network turns **Sentinel-2** into a sharper image.
-- The **SatCLIP embedding** of the image’s coordinates is injected into the network as extra context.
-- Knowing *where* the image is (desert town vs. temperate farmland) helps it hallucinate **plausible local detail**.
-
-<div class="slide-citation">
-Panangian &amp; Bittner (2025), “Can location embeddings enhance super-resolution of satellite imagery?” WACV. Figure via the ISPRS 2026 tutorial.
-</div>
 
 ---
-section: using
+section: ai-acceleration
 layout: bonn-two-cols-header
 ---
 
-# 3 · Geosemantic Search and Retrieval
+# Modern AI Acceleration
+
+<img width="100%" src="./assets/20260918-epoch-ml-trends-2.svg">
+
+<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
+Epoch AI Database provided with CC-BY License
+<a href="https://epoch.ai/data/ai-models">
+</a>
+</div>
+
+---
+section: ai-acceleration
+layout: bonn-two-cols-header
+---
+
+# Larger Datasets and More Parameters
+
+<img width="100%" src="./assets/20260918-epoch-ml-trends.svg">
+
+<div class="mt-4 text-[0.65rem] text-gray-500 text-center">
+Epoch AI Database provided with CC-BY License
+<a href="https://epoch.ai/data/ai-models">
+</a>
+</div>
+
+---
+section: ai-acceleration
+layout: bonn-two-cols-header
+---
+
+# LLMs and Next Token Prediction
 
 ::left::
 
-![An anchor location is used to retrieve similar locations in embedding space](./assets/earth-embeddings/fig3-d-retrieval.png)
+Recap - LLMs are Transformers trained with ordinary cross entropy to predict the next token.
 
-<div class="slide-citation">
-Figure 3(d) from Klemmer et al. (2026), CC BY 4.0
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+<img width=100% src="./assets/Transformers.svg">
 </div>
 
 ::right::
 
-A **“queryable Earth”**: embeddings as a lookup table for specific concepts.
-
-1. Take the embedding of an image containing a **solar farm**.
-2. Compute the similarity to all other embeddings.
-3. Return the locations with the highest scores.
-
-Embeddings aligned with text spaces allow **text queries**. Their small size makes **global search** feasible, which would be infeasible on raw imagery.
-
----
-section: using
-layout: bonn-two-cols-header
----
-
-# Search in Practice: “Where Else Looks Like This?”
-
-::left::
-
-### Query by example or by concept
-
-<div class="grid grid-cols-3 gap-2">
-
-![Satellite image of the Arizona desert](./assets/tutorial/desert-arizona.jpg)
-
-![Satellite image of the Sahara desert](./assets/tutorial/desert-sahara.jpg)
-
-![Satellite image of the Arabian desert](./assets/tutorial/desert-arabian.jpg)
-
+<div v-click class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <video
+    src="./assets/sutskever_detective.mp4"
+    controls
+    class="rounded-xl shadow-lg max-h-[400px]"
+    style="max-width: 150px;"
+  ></video>
 </div>
 
-Arizona, Sahara, and Arabian desert land close together, and close to the text embedding of **“desert”**.
-
-Matching is just vector similarity: **global results in seconds**, and a wall-to-wall similarity map from a single reference point.
-
-::right::
-
-<video src="./assets/tutorial/earth-search-demo.mp4" controls muted class="w-full rounded"></video>
-
-Natural-language search over Earth embeddings: “Find new solar panels in Texas”.
-
-<div class="slide-citation">
-Images and demo video (LGND, lgnd.ai) from the ISPRS 2026 tutorial “Towards Geospatial Embeddings”.
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Copyright NVIDIA: <a href="https://resources.nvidia.com/en-us-summer-of-learning-for-students/gtcspring23-s52092" rel="noopener noreferrer">NVIDIA Fireside Chat with Ilya Sutskever</a>
 </div>
 
+
 ---
-section: using
+section: ai-acceleration
 layout: bonn-two-cols-header
 ---
 
-# 4 · Data Synthesis and Simulation
+# ... and the murderer is ___!
+
+## Prediction requires more than memorization
 
 ::left::
 
-![A generative model synthesises an image at time t+1 from an image at time t and an Earth embedding](./assets/earth-embeddings/fig3-c-synthesis.png)
+Modern AI models **approximate** large corpora of training data while also **generalizing** by combining learned patterns into simple, plausible solutions for new inputs.
 
-Earth embeddings as the **conditioning signal of generative models**: image synthesis reflecting ground conditions (e.g., flooding), geography-aware super-resolution, building blocks for **simulators**, forecasting, and scenario generation.
-
-<div class="slide-citation">
-Figure 3(c) from Klemmer et al. (2026), CC BY 4.0
+<div class="mt-2 text-center">
+<img width="200" class="mx-auto" src="./assets/polyreg_d1000.png">
 </div>
 
+<strong v-click>Outlook: Lecture 7 will focus on self-supervised training objectives for modern AI models.</strong>
+
 ::right::
 
-![GeoSynth: a latent diffusion model with ControlNet branches, conditioned on text, OpenStreetMap and SatCLIP location embeddings](./assets/tutorial/geosynth.png)
 
-**GeoSynth:** a diffusion model conditioned on text, OpenStreetMap, and a **SatCLIP location embedding** generates context-aware satellite imagery.
-
-> Embedding-conditioned simulators of physical processes **do not exist yet**: the goal is to integrate observations *and* scientific knowledge.
-
-<div class="slide-citation">
-Sastry et al. (2024), “GeoSynth: Contextually-aware high-resolution satellite image synthesis,” CVPR EarthVision Workshop.
+<div class="flex flex-col items-center justify-center h-[100%] gap-6">
+  <video
+    src="./assets/sutskever2.mp4"
+    controls
+    class="rounded-xl shadow-lg max-h-[400px]"
+    style="max-width: 250px;"
+  ></video>
 </div>
 
----
-section: using
----
 
-# Embeddings as Data: Who Needs Which Expertise?
 
-<img src="./assets/tutorial/schindler-pipeline.png" class="w-full max-h-[215px] object-contain" alt="A frozen foundation model turns a geospatial raster database into an embedding raster database once; downstream tasks only need linear regression or k-NN on top" />
-
-- **Once, by deep-learning experts:** load remote-sensing data, run a frozen foundation model, store compressed embeddings $e[\lambda,\phi]$.
-- **Many times, by domain experts:** linear regression or $k$-NN on top of the embedding database.
-
-<div class="slide-citation">
-Figure from the ISPRS 2026 tutorial, inspired by Konrad Schindler’s talk on foundation models at the ESA Living Planet Symposium 2025.
+<div class="mt-5 text-[0.65rem] text-gray-500 text-center">
+Copyright NVIDIA: <a href="https://resources.nvidia.com/en-us-summer-of-learning-for-students/gtcspring23-s52092" rel="noopener noreferrer">NVIDIA Fireside Chat with Ilya Sutskever</a>
 </div>
-
----
-section: using
-layout: bonn-two-cols-header
----
-
-# Interfaces: Embedding Models vs. Embedding Databases
-
-::left::
-
-![Embedding model versus embedding database](./assets/earth-embeddings/fig4-b-interfaces.png)
-
-<div class="slide-citation">
-Figure 4(b) from Klemmer et al. (2026), CC BY 4.0
-</div>
-
-::right::
-
-### Embedding model
-
-Ship code + weights. You run inference yourself (ideally on a GPU). SatCLIP, Climplicit, GeoCLIP, AnySat, MMEarth, Galileo, MOSAIKS.
-
-### Embedding database
-
-Ship precomputed vectors at set locations. You query by location, as files or via Google Earth Engine. AlphaEarth, Tessera, Major TOM, MOSAIKS.
-
-> A location encoder is both: the model *is* the database.
-
----
-section: using
----
-
-# Model or Database? Trade-offs
-
-| | Embedding model | Embedding database |
-|---|---|---|
-| **User needs** | Deep-learning know-how, data pipeline, GPU | Only a location query |
-| **Flexibility** | Embed any self-compiled dataset; query any new point | Fixed locations, times, resolution |
-| **Inspect / adapt** | Grad-CAM, fine-tuning → often higher accuracy | Cannot run, alter, or inspect the model |
-| **Cost carried by** | The user (compute) | The producer (storage, bandwidth) |
-| **Typical for** | Small implicit location encoders | Large explicit models, expensive to run |
-
-> Databases open Earth embeddings to a **broad user base** beyond machine-learning experts, at the price of being static.
-
----
-section: using
-layout: bonn-two-cols-header
-columns: "minmax(0, .8fr) minmax(0, 1.2fr)"
----
-
-# Worked Workflow: From Sparse Labels to a Map
-
-::left::
-
-1. **Labels:** ~500 field plots (lon, lat, forest ∈ {0, 1}).
-2. **Look up** the embedding at every plot.
-3. **Train** a small classifier $h_\psi$ on (embedding, label).
-4. **Validate** with *spatial* cross-validation (blocks, not random splits).
-5. **Predict** on the embedding of every pixel → wall-to-wall map.
-6. **Inspect** errors: where does the map fail, and why?
-
-::right::
-
-```python
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import GroupKFold, cross_val_score
-
-X = lookup_embeddings(plots)          # (500, 64)
-y = plots["forest"]
-blocks = spatial_blocks(plots, size_km=50)
-
-clf = RandomForestClassifier(n_estimators=300)
-print(cross_val_score(clf, X, y, groups=blocks,
-                      cv=GroupKFold(5)).mean())
-
-clf.fit(X, y)
-forest_map = clf.predict_proba(lookup_embeddings(grid))[:, 1]
-```
-
-`lookup_embeddings` and `spatial_blocks` are placeholders. **Demo 1** of the ISPRS 2026 tutorial runs this workflow end to end on free Colab: SatCLIP for biomes, AlphaEarth for crop types, leave-one-continent-out transfer.
-
-<style>
-.slidev-code { font-size: .58rem !important; line-height: 1.4 !important; }
-</style>
-
----
-section: using
----
-
-# Which Embedding Should I Use?
-
-| If you… | then… |
-|---|---|
-| want **a value per location** | direct prediction |
-| want to **improve an existing model** | conditioning |
-| want **a set of places** | retrieval |
-| want **new data or scenarios** | synthesis |
-| need **fine detail or search** | explicit (AlphaEarth, Clay): higher resolution localises features |
-| need **any-point queries** | implicit (SatCLIP, SINR): interpolates to places without data |
-| have **no GPU or ML pipeline** | an embeddings-as-data product you can download and query |
-| depend on **specific sensors** | check the modalities: optical-only vs. multimodal |
-
-> Always ask: **was the phenomenon I care about visible in the data the embedding was built from?**
-
----
-section: using
----
-
-# Exercise: Pick the Use Mode
-
-In pairs (3 min): for each task, choose **prediction, conditioning, retrieval, or synthesis**, and **explicit or implicit** embeddings.
-
-1. Find all open-pit mines in a continent, starting from one example.
-2. Improve a bird-sound classifier that knows where each recording was made.
-3. Map average air quality at 1 km for a country from 200 sensors.
-4. Generate a plausible post-flood image of a town for an emergency drill.
-
-<v-click>
-
-| Task | Use mode | Embedding |
-|---|---|---|
-| 1 | Retrieval | Explicit (fine-grained, visual objects) |
-| 2 | Conditioning | Implicit (location prior, e.g., SINR / SatCLIP) |
-| 3 | Direct prediction | Implicit or hybrid (smooth, large-scale field) |
-| 4 | Synthesis | Explicit image + implicit conditioning |
-
-</v-click>
-
-<!--
-Answers follow the paper's guidance on which embedding families suit which tasks. Several answers are defensible; ask students to justify.
--->
-
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: evaluating
-sectionTitle: Evaluate & improve
----
-
-# How do we evaluate and improve them?
-
-<img class="bonn-section-image bonn-section-image-sm" src="./assets/earth-embeddings/fig2-d-interpolation.png" alt="Interpolating Earth embeddings to unseen locations" />
-
-<div class="bonn-section-citation">
-Figure 2(d) from Klemmer et al. (2026), CC BY 4.0
-</div>
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Constrained by the Raw Data
-
-“General-purpose” Earth embeddings are not tailored to any task, yet they are **fundamentally constrained by the data they are based on**.
-
-::left::
-
-### SatCLIP · multispectral satellite imagery
-
-- ✓ climate zones, forest coverage
-- ✗ ocean currents
-
-::right::
-
-### GeoCLIP · ground-level Flickr photos
-
-- ✓ patterns visible from the street
-- ✗ places where nobody takes photos
-
-::bottom::
-
-<div class="blockquote2">
-
-**Forest example:** understorey, forest age, or species mix under a closed canopy are hard to see from above. An embedding cannot encode what its inputs never observed.
-
-</div>
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Spatial and Temporal Generalization
-
-::left::
-
-Today’s GeoAI benchmarks are mostly **image** benchmarks. Earth embeddings need benchmarks where **location and time are the inputs**:
-
-- spatial **interpolation vs. extrapolation**
-- performance under different degrees of **spatial bias in the labels**
-- performance across **spatiotemporal scales**
-- interactions between processes (e.g., climate change ↔ migration)
-- utility for search and retrieval
-
-First steps: TorchSpatial, NeuCo-Bench, GeoT.
-
-::right::
-
-<svg viewBox="0 0 280 170" class="w-full h-[170px]">
-<rect x="5" y="5" width="270" height="160" rx="8" fill="#f9fafb" stroke="#ddd"/>
-<g fill="#00457c"><circle cx="40" cy="40" r="4"/><circle cx="60" cy="70" r="4"/><circle cx="80" cy="45" r="4"/><circle cx="55" cy="105" r="4"/><circle cx="95" cy="90" r="4"/><circle cx="110" cy="60" r="4"/></g>
-<circle cx="75" cy="75" r="6" fill="none" stroke="#16a34a" stroke-width="2.5"/>
-<text x="40" y="140" font-size="11" fill="#16a34a">interpolation</text>
-<circle cx="225" cy="110" r="6" fill="none" stroke="#dc2626" stroke-width="2.5"/>
-<text x="180" y="140" font-size="11" fill="#dc2626">extrapolation</text>
-</svg>
-
-*Random train/test splits measure only interpolation (generalization lecture).*
-
-<div class="blockquote2">
-
-**Forest example:** plots cluster near roads. Does the map hold in the roadless interior? Demo 1 of the tutorial tests exactly this with a leave-one-continent-out split.
-
-</div>
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Effective Resolution
-
-::left::
-
-SatCLIP can be queried at **infinitesimal** resolution, but its **effective** resolution is coarse, limited by
-
-- the **capacity** of the location encoder,
-- the **smoothness** enforced by the location–image matching objective.
-
-> Query resolution ≠ information resolution.
-
-::right::
-
-- **Regional encoders:** train on an area of interest, e.g., a SatCLIP-style encoder for Spain only.
-- **Explicit embeddings** are bound by input availability: NAIP + Clay for log-yard mapping works only in the US and for specific years.
-- Expect more **use-case-specialised products** for specific areas, periods, and resolutions.
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Modality and Sampling Biases
-
-::left::
-
-Current models use the **same number of parameters everywhere** in space and time. But information density is not uniform:
-
-- a satellite tile over New York City carries far more information than one over the Pacific → global models **over-smooth heterogeneous regions**
-- modalities matter differently by place and season: **radar** in cloudy areas or in arctic winter darkness
-
-Ideas: adaptive coordinate networks (ACORN), varying capacity by location.
-
-::right::
-
-### Data curation and scaling
-
-Does the spatial distribution of pretraining data matter? What is the marginal value of one more location, time step, or sensor? Should heterogeneous areas be **over-represented** or reweighted?
-
-<div class="blockquote2">
-
-**Forest example:** a tropical forest country under persistent clouds; optical-only embeddings are weakest exactly where deforestation is highest.
-
-</div>
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Interpretability
-
-::left::
-
-We usually do not know **which part of an embedding** represents a given ground condition (a tree, a building), or whether it captures that condition at all.
-
-- limits use for understanding drivers of variation (seasonal vs. geographic distance)
-- complicates **high-stakes decision making**
-- which **input modality** contributed to which part of the embedding?
-
-::right::
-
-**Models** can be probed (Grad-CAM, ablations). **Databases** cannot: the vectors are all you get.
-
-> Interpretability also needs **data provenance** and reporting standards.
-
-<div class="blockquote2">
-
-**Forest example:** a forest map from embeddings is accurate on test plots, but can we tell a ministry *why* a pixel is classified as forest?
-
-</div>
-
----
-section: evaluating
----
-
-# The Hidden Cost Is Storage, Not Compute
-
-| | Estimate |
-|---|---|
-| **Compute** | One V100 GPU, ~7 days: U-Net (EfficientNet-B7) over all land on Earth at 4.7 m (≈900,000 km²/h) → **~US$514** |
-| **Data volume** | 108 TB uncompressed PlanetScope input → **432 TB** of 64-D embeddings (1 byte per dimension) |
-| **Storage** | 432 TB in “hot” cloud storage: ~US$8,000/month → **~US$100,000/year** (Sept. 2025 prices) |
-| **AlphaEarth-like** | Multiyear 100 m database: ~475 TB for five time steps → ~US$9,500/month |
-| **Carbon** | ~50 kWh GPU / ~150 kWh facility → 10 kg (low-carbon grid) to 75 kg (world average) to >100 kg CO₂e, once; storage keeps drawing power |
-
-> **Storage and delivery**, not inference, dominate cost and sustainability → compression, caching, dynamic delivery, or **compute as a substitute for storage** (on-demand generation).
-
-<!--
-Rough estimates from the paper, section "The Computational and Environmental Costs of Earth Embeddings". This explains why precomputed embeddings remain rare outside large corporations and space agencies.
--->
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Openness: Weights, Code, Data, Process
-
-::left::
-
-The Marin foundation’s trichotomy of openness:
-
-| Level | Released |
-|---|---|
-| **Open weight** | weights, but no code or data |
-| **Open source** | weights, code, and data |
-| **Open process** | + process details and participation |
-
-::right::
-
-- Most Earth embedding releases are **open weight** or **open source**.
-- **Major TOM** is uniquely open process, with a public standard and path to contributing.
-- MOSAIKS, Tessera, Clay, Presto release **both** model and embeddings.
-- **AlphaEarth** is more restrictive: **open output** (embeddings) but no model.
-
-> The authors’ position: sufficiently open sharing is a **prerequisite** for community-driven progress.
-
----
-section: evaluating
-layout: bonn-two-cols-header
----
-
-# Earth Embedding Cards
-
-::left::
-
-A reporting standard drawing on **datasheets for datasets** and **model cards**, because embeddings are both data and model output.
-
-> Releases should include exact recipes: code, configurations, hashes, container images, seeds, and evaluation suites.
-
-See the “Earth Embedding Card Template” in the paper.
-
-::right::
-
-1. **Who** made them? Authors, maintainers, funders, citation.
-2. **How accessed?** Model, dataset, or both public? Licence?
-3. **How generated?** Spatiotemporal resolution; data modalities and licences; explicit or implicit?
-4. **Intended use?** Designed-for tasks; tasks they should *not* be used for; tasks needing extra validation.
-5. **Space and time:** how encoded; smoothness and other assumptions.
-6. **Costs:** compute, storage, who pays, estimated carbon emissions.
-
----
-section: evaluating
----
-
-# The Research Agenda: Three Calls to Action
-
-| | Call to action |
-|---|---|
-| **Applications** | Better **benchmarks**; **interpretability**; products for specific areas, resolutions, and periods; learning **planetary processes** (a step toward digital twins) |
-| **Methods** | **Model capacity** (location encoders are small; borrow from transformers); **spatiotemporal encodings** that adapt to heterogeneity; data curation and **scaling**; geo-specific **objectives** (spatial autocorrelation, temporal dynamics) |
-| **Community** | **Interdisciplinarity**; traceable, affordable **infrastructure**; shared **standards and interfaces**; **reporting** with embedding cards |
-
-> Domain scientists (ecology, geology, oceanography, atmospheric science) and practitioners are needed to tell developers what the embeddings must deliver.
-
-<!--
-Merges the paper's three "Call to Action" boxes and the tutorial's "Challenges & opportunities ahead" slide.
--->
-
----
-section: closing
-sectionTitle: Closing
----
-
-# The Forest Map, One More Time
-
-| Block | Forest-cover map |
-|---|---|
-| **1 · Why** | One vector per location replaces pipelines of heterogeneous data and expertise |
-| **2 · How learned** | Explicit pixel embeddings (AlphaEarth) for detail; implicit location encoders (SatCLIP) for context |
-| **3 · How used** | Direct prediction from a few hundred plots with a small classifier → wall-to-wall map |
-| **4 · Where it fails** | Unseen under-canopy properties, cloudy regions, clustered plots, black-box vectors |
-
-> Earth embeddings are a new **data format** for geospatial information: compact, fused, queryable anywhere, and interoperable with other AI models, provided we know what is (and is not) inside them.
-
----
-section: closing
----
-
-# Discussion
-
-1. Should Earth embeddings be **public infrastructure**, like a national mapping agency’s base map? Who should pay for the storage?
-2. Would you trust a forest-cover map built on an embedding whose **model you cannot inspect** for an EU deforestation regulation decision?
-3. If you could add **one modality** to a global embedding, which would add the most information, and where?
-
-> You don’t need to be a machine-learning expert: if you can run a regression, you can use Earth embeddings.
-
----
-layout: learning-outcomes
-mode: after
-meeting: lecture-06
-section: closing
----
-
-# Revisit the learning outcomes
-
----
-section: closing
-layout: bonn-two-cols-header
----
-
-# Reading and Resources
-
-::left::
-
-### Core reading
-
-K. Klemmer, E. Rolf, M. Rußwurm, G. Camps-Valls, M. Czerkawski, S. Ermon, A. Francis, N. Jacobs, H. Kerner, L. Mackey, G. Mai, O. Mac Aodha, M. Reichstein, C. Robinson, D. Rolnick, E. Shelhamer, V. Sitzmann, D. Tuia, X. Zhu. **“Earth Embeddings: Toward artificial intelligence-centric representations of our planet.”** *IEEE Geoscience and Remote Sensing Magazine*, 2026. doi:10.1109/MGRS.2026.3710416
-
-### Hands-on
-
-ISPRS 2026 tutorial notebooks, [github.com/konstantinklemmer/isprs26-embeddings-tutorial](https://github.com/konstantinklemmer/isprs26-embeddings-tutorial). Demo 1 uses SatCLIP and AlphaEarth; Demo 2 builds MOSAIKS features and similarity maps. Both run on free Colab.
-
-::right::
-
-### Further reading
-
-- Klemmer et al., “SatCLIP: Global, general-purpose location embeddings with satellite imagery,” AAAI 2025.
-- Rußwurm et al., “Geographic location encoding with spherical harmonics and sinusoidal representation networks,” ICLR 2024.
-- Brown et al., “AlphaEarth Foundations,” arXiv:2507.22291, 2025.
-- Rolf et al., “A generalizable and accessible approach to machine learning with global satellite imagery” (MOSAIKS), *Nature Communications*, 2021.
-- TorchGeo: datasets, pretrained models, and tooling for geospatial deep learning.
