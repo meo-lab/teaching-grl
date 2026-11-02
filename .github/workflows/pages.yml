@@ -49,13 +49,14 @@ jobs:
           for deck in \
             1-why-geospatial-representation-learning \
             2-geospatial-data-images-maps-time-series \
-            3-machine-learning-on-data-representations \
-            4-deep-representation-learning-i \
-            5-deep-representation-learning-ii \
-            6-location-encoders-and-spatial-embeddings \
-            7-self-supervised-deep-learning \
-            8-geospatial-embeddings \
-            9-synthesis-choosing-the-right-representation
+            3-data-representations \
+            4-machine-learning-on-data-representations \
+            5-deep-representation-learning-i \
+            6-deep-representation-learning-ii \
+            7-earth-embeddings \
+            8-self-supervised-deep-learning \
+            9-geospatial-embeddings \
+            10-synthesis-choosing-the-right-representation
           do
             test -f "dist/$deck/index.html"
             test -f "dist/$deck/presenter/index.html"
