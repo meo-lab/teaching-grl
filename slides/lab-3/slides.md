@@ -14,291 +14,287 @@ subhead: Lab 3
 home: ../../
 ---
 
-# Lab 3 — Build and Use the Shared Dataset
+# Lab 3 — Improve a Land-Cover Classifier
 
 <div class="mt-8 text-[.95rem] text-gray-600 font-semibold">
-Turn the files collected in Lab 2 into point queries, combine sources, then test representations.
+Start from the provided notebook and improve its accuracy.
 </div>
 
 <!--
-Lab 2 supplied checked files and source documentation. Lab 3 builds the code that reads them.
+Two-hour lab in the Lab 2 groups. Everyone starts from the same Sentinel-2 random forest notebook.
+The task: improve the accuracy by any means (more data, PCA, domain features, tuning), re-run the evaluation and report the accuracy.
+At the end, groups report their accuracies for a leaderboard.
 -->
 
 ---
 
-# Lab 3 Workflow
+# Task: Land-Cover Classification in Bonn
 
-1. Fork the supplied repository once per group and clone your fork.
-2. Connect your Lab 2 file to a download script and a PyTorch dataset.
-3. Query named values at coordinates and handle missing or outside-coverage results.
-4. Integrate your source into the combined dataset and open a pull request.
-5. Use the combined data to compare feature representations and models.
+<div class="grid grid-cols-[5fr_6fr] gap-8 mt-3 items-center">
 
-<div class="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-[.75rem]">
-<strong>Inputs from Lab 2:</strong> the uploaded GeoTIFF, GeoJSON, or shapefile ZIP and your group's two explanatory slides.
+<div>
+<img src="./figures/lc.png" class="w-full h-[300px] object-contain rounded-xl" alt="Land cover classification map of Bonn" />
 </div>
 
----
+<div class="text-[.8rem]">
 
-# Collaborating with GitHub
+Build a **random forest** that predicts the land-cover class at each location &mdash; and improve its test accuracy **by any means necessary**:
 
-- <strong>Fork</strong> the instructor's repository once per group.
-- <strong>Clone</strong> the group fork into your working environment.
-- Develop together; <strong>commit</strong> and <strong>push</strong> working changes.
-- Open a <strong>pull request</strong> to the central repository.
-- Review, revise, and merge with the instructor.
+<div class="flex flex-col gap-2 mt-3">
+<div class="rounded-lg border-2 border-[#00457c] px-3 py-1.5"><strong class="text-[#00457c]">1 &middot; More data</strong> &mdash; add geodata from Lab 2</div>
+<div class="rounded-lg border-2 border-[#00457c] px-3 py-1.5"><strong class="text-[#00457c]">2 &middot; Decorrelated data</strong> &mdash; PCA on the input variables</div>
+<div class="rounded-lg border-2 border-[#00457c] px-3 py-1.5"><strong class="text-[#00457c]">3 &middot; Domain-specific features</strong> &mdash; e.g. NDVI</div>
+<div class="rounded-lg border-2 border-[#ff7900] px-3 py-1.5"><strong class="text-[#ff7900]">4 &middot; Better-tuned random forests</strong> &mdash; hyperparameters</div>
+</div>
 
-<div class="mt-4 rounded-lg border border-gray-200 p-3 text-[.75rem]">
-Starting repository: <span class="italic text-amber-700">[ LINK TO BE PROVIDED ]</span>
+</div>
+
 </div>
 
 <!--
-One group fork contains the source-specific implementation. Do not commit the source data into Git.
+The four options follow the four sections of Lecture 3: more data, less redundant data (PCA), more descriptive data (domain knowledge), better models (random forests).
+Blue = feature side, orange = model side, as in the lecture's machine learning pipeline.
 -->
 
 ---
 
-# Make Your Source Queryable
+<script setup>
+import PlotlyHistogram from './components/PlotlyHistogram.vue'
+</script>
 
-1. Read your group's two Lab 2 slides and download the uploaded subset.
-2. Adapt the supplied download script to retrieve the file and cache it in <code>data/</code>.
-3. Adapt the land-cover or building example into a PyTorch dataset for your source.
-4. Return named variables for a requested latitude and longitude.
-5. Transform coordinates as needed; distinguish missing values from valid zeros.
-6. Check known locations against the original map or source data.
+# Dataset
 
-<div class="mt-4 rounded-lg border border-green-200 bg-green-50 p-3 text-[.75rem]">
-The file is downloaded when needed, then queried locally. A point query should not download it again.
+<div class="relative mt-1">
+
+<div v-click-hide="2" class="grid grid-cols-2 gap-8">
+
+<div>
+<div class="text-sm font-semibold text-blue-800 mb-1 text-center">Input X <span class="font-normal text-gray-500">(e.g., Sentinel-2 pixel reflectances)</span></div>
+
+<div class="relative" style="height: 195px;">
+<img v-click-hide="1" src="./figures/s2.png" class="absolute inset-0 w-full h-full object-contain rounded-xl" alt="Sentinel-2 satellite image of Bonn" />
+<img v-click="1" src="./figures/s2_pts.png" class="absolute inset-0 w-full h-full object-contain rounded-xl" alt="Sentinel-2 image with sampled points overlaid" />
 </div>
 
----
+<div v-click="1" class="compact-table mt-2">
 
-# Integrate the Group Contribution
+| Pt | Red | Green | Blue | NIR |
+|---|---|---|---|---|
+| Pt1 | 0.08 | 0.11 | 0.09 | 0.42 |
+| Pt2 | 0.21 | 0.19 | 0.15 | 0.05 |
+| &vellip; | &vellip; | &vellip; | &vellip; | &vellip; |
 
-1. Agree on variable names and the point-query interface.
-2. Connect your dataset to the combined dataset script.
-3. Confirm the combined query returns your source alongside the supplied examples.
-4. Run the repository checks and inspect plausible results at known points.
-5. Push the change, open a pull request, and respond to review.
+</div>
+</div>
 
-<div class="mt-4 rounded-lg border border-purple-200 bg-purple-50 p-3 text-[.75rem]">
-<strong>Technical deliverable:</strong> a reviewed contribution that makes your Lab 2 source available through the shared query.
+<div>
+<div class="text-sm font-semibold text-blue-800 mb-1 text-center">Target y <span class="font-normal text-gray-500">(e.g., land cover labels)</span></div>
+
+<div class="relative" style="height: 195px;">
+<img v-click-hide="1" src="./figures/lc.png" class="absolute inset-0 w-full h-full object-contain rounded-xl" alt="Land cover classification map of Bonn" />
+<img v-click="1" src="./figures/lc_pts.png" class="absolute inset-0 w-full h-full object-contain rounded-xl" alt="Land cover map with sampled points overlaid" />
+</div>
+
+<div v-click="1" class="compact-table mt-2">
+
+| Pt | Land Cover |
+|---|---|
+| Pt1 | Vegetation |
+| Pt2 | Built-up |
+| &vellip; | &vellip; |
+
+</div>
+</div>
+
+</div>
+
+<div v-click="2" class="absolute inset-0 top-0">
+
+<div class="grid grid-cols-3 gap-3 items-center">
+
+<div class="col-span-2">
+<div class="text-[.66rem] font-semibold text-gray-500 mb-1">Raw bands</div>
+
+<div class="compact-table">
+
+| Pt | Red | Green | Blue | NIR | Land Cover |
+|---|---|---|---|---|---|
+| Pt1 | 0.08 | 0.11 | 0.09 | 0.42 | **Vegetation** |
+| Pt2 | 0.21 | 0.19 | 0.15 | 0.05 | **Built-up** |
+| &vellip; | &vellip; | &vellip; | &vellip; | &vellip; | &vellip; |
+
+</div>
+</div>
+
+<div style="height: 145px;">
+<PlotlyHistogram dataset="green" x-label="Green reflectance" :height="145" />
+</div>
+
+</div>
+
+<div v-click="3" class="grid grid-cols-3 gap-3 items-center mt-4">
+
+<div class="col-span-2">
+<div class="text-[.66rem] font-semibold text-gray-500 mb-1">Engineered feature</div>
+
+<div class="text-[.68rem] text-gray-600 mb-1">
+
+$$
+\text{NDVI} = \frac{\text{NIR} - \text{Red}}{\text{NIR} + \text{Red}}
+$$
+
+</div>
+
+<div class="compact-table">
+
+| Pt | NDVI | Land Cover |
+|---|---|---|
+| Pt1 | 0.68 | **Vegetation** |
+| Pt2 | -0.62 | **Built-up** |
+| &vellip; | &vellip; | &vellip; |
+
+</div>
+</div>
+
+<div style="height: 120px;">
+<PlotlyHistogram dataset="ndvi" x-label="NDVI" :show-legend="false" :height="120" />
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 <!--
-The instructor coordinates integration and merging. Students should not assume they have merge access.
+Presenter note: This slide is the bridge from geospatial images to tabular ML data.
+Click 1: sample points on both the input image and the target map.
+Click 2: collapse both into one tabular dataset, X columns plus y column, one row per point &mdash; the format every classic ML model consumes.
+Click 3: combine red and NIR into NDVI. The new feature separates vegetation from built-up more clearly than green reflectance alone, making the classification easier.
 -->
 
 ---
 
-# Combined Point Query
+# Your Task in Four Steps
 
-<div class="grid grid-cols-2 gap-6 mt-4">
+<div class="grid grid-cols-4 gap-4 mt-6 text-[.78rem]">
+
+<div class="rounded-xl border-2 border-[#00457c] p-3">
+<div class="text-[1.4rem] font-bold text-[#00457c]">1</div>
+<strong>Study</strong> the provided notebook
+</div>
+
+<div class="rounded-xl border-2 border-[#00457c] p-3">
+<div class="text-[1.4rem] font-bold text-[#00457c]">2</div>
+<strong>Improve</strong> the classifier by any of the four means
+</div>
+
+<div class="rounded-xl border-2 border-[#00457c] p-3">
+<div class="text-[1.4rem] font-bold text-[#00457c]">3</div>
+<strong>Run</strong> the evaluation and note the accuracy
+</div>
+
+<div class="rounded-xl border-2 border-[#ff7900] p-3">
+<div class="text-[1.4rem] font-bold text-[#ff7900]">4</div>
+<strong>Report</strong> your accuracy with your group number for the leaderboard
+</div>
+
+</div>
+
+<div class="mt-6 text-[.8rem]">
+
+- **Notebook:** [Lab 3 land-cover classification notebook](https://drive.google.com/file/d/1Hie8H-nR5DAvS5pawNaKaO_DTFgiqWz6/view?usp=drive_link) &mdash; make a copy for your group
+- **Lab 3 files:** [Sentinel-2 image, land-cover raster and sample coordinates](https://drive.google.com/drive/folders/1EeJd6xvcZpgvdPJ8TgLOrogf_2n-Jg9q?usp=sharing)
+- **Additional geodata:** [Lab 2 data collection](https://drive.google.com/drive/folders/10w5toFK7Hv9QeXCRJTYN4MgWE2TDqgeT)
+
+</div>
+
+<div class="mt-3 text-[.72rem] text-gray-600">
+Stay in your Lab 2 groups. Work with pandas; a CPU runtime is sufficient.
+</div>
+
+---
+
+# Step 1 &middot; Study the Provided Notebook
+
+Open the [notebook](https://drive.google.com/file/d/1Hie8H-nR5DAvS5pawNaKaO_DTFgiqWz6/view?usp=drive_link), save a copy, and run it once from top to bottom with the [Lab 3 files](https://drive.google.com/drive/folders/1EeJd6xvcZpgvdPJ8TgLOrogf_2n-Jg9q?usp=sharing). Find out:
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-[.78rem]">
 
 <div>
 
-```python
-dataset.query(latitude=..., longitude=...)
-```
-
-```python
-{
-    "land_cover":    ...,
-    "building":      ...,
-    "your_modality": ...
-}
-```
+- **Locations:** where are the sample coordinates loaded, and which rows are <code>train</code> and <code>test</code>?
+- **Features:** how are the Sentinel-2 bands sampled at these locations?
+- **Labels:** how is the land-cover class sampled as the target?
 
 </div>
 
-<div class="text-sm text-gray-700">
-<p>Each source may have its own resolution, CRS, and observation date.</p>
-<p>Keep variable meanings and missing-data conventions from the Lab 2 slides.</p>
-<p>Use the repository's actual query interface; this example is illustrative.</p>
+<div>
+
+- **DataFrame:** which columns form the features X and the target y?
+- **Model:** how is the random forest fitted?
+- **Evaluation:** where are the test accuracy and the confusion matrix computed?
+
 </div>
 
+</div>
+
+<div class="mt-5 rounded-lg border border-gray-200 p-3 text-[.75rem]">
+Write down the <strong>baseline accuracy</strong> of the unchanged notebook. You will compare against it in Step 3.
 </div>
 
 ---
 
-# The Task
+# Step 2 &middot; Improve the Classifier
 
-- Classify land cover from the dataset assembled in this lab
-- Work with point-based samples from raster/geospatial layers
-- Use one dataset consistently across all experiments
-- Evaluate predictions on held-out data
+Try one or more of the four means &mdash; one change at a time, so you know what helped.
 
-<div class="mt-4 rounded-lg border border-gray-200 p-3 text-[.75rem] text-gray-700">
-For the model comparison, use Python in <strong>Google Colab</strong>, <strong>VS Code</strong>, or local Jupyter. CPU is enough.
+<div class="grid grid-cols-2 gap-3 mt-3 text-[.72rem]">
+
+<div class="rounded-lg border-2 border-[#00457c] px-3 py-1.5">
+<strong class="text-[#00457c]">1 &middot; More data</strong><br>
+sample sources from the <a href="https://drive.google.com/drive/folders/10w5toFK7Hv9QeXCRJTYN4MgWE2TDqgeT" target="_blank" rel="noopener noreferrer">Lab 2 data collection</a> at the same coordinates; add them as new columns, matched by <code>sample_id</code>
 </div>
 
-<!--
-Set practical scope and constraints quickly.
-Emphasize that students own implementation details, but comparison logic is fixed.
--->
+<div class="rounded-lg border-2 border-[#00457c] px-3 py-1.5">
+<strong class="text-[#00457c]">2 &middot; Decorrelated data</strong><br>
+transform the input columns with <code>sklearn.decomposition.PCA</code>; fit it on the <code>train</code> rows only
+</div>
+
+<div class="rounded-lg border-2 border-[#00457c] px-3 py-1.5">
+<strong class="text-[#00457c]">3 &middot; Domain-specific features</strong><br>
+compute indices such as NDVI from the bands; S2 bands: <strong>B2, B3, B4, B8</strong> (blue, green, red, NIR)
+</div>
+
+<div class="rounded-lg border-2 border-[#ff7900] px-3 py-1.5">
+<strong class="text-[#ff7900]">4 &middot; Better-tuned random forests</strong><br>
+e.g. <code>n_estimators</code>, <code>max_depth</code>, <code>max_features</code>; tune with cross-validation on the <code>train</code> rows
+</div>
+
+</div>
+
+<div class="mt-3 text-[.7rem] text-gray-600">
+Checks: transform coordinates to each source's CRS (S2: EPSG:32632, land cover: EPSG:4326) &middot; check missing values &middot; never use the land-cover label or the <code>test</code> rows to build features or tune the model.
+</div>
 
 ---
 
-# Experimental Questions
+# Step 3 &middot; Run the Evaluation
 
-<div class="grid grid-cols-3 gap-4 mt-3">
-  <div class="rounded-lg border border-gray-200 p-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700">Q1</div>
-    <div class="mt-1 text-[.8rem]">Does feature engineering help?</div>
-  </div>
-  <div class="rounded-lg border border-gray-200 p-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700">Q2</div>
-    <div class="mt-1 text-[.8rem]">Does complementary information help?</div>
-  </div>
-  <div class="rounded-lg border border-gray-200 p-3">
-    <div class="text-[.65rem] font-bold uppercase tracking-wide text-blue-700">Q3</div>
-    <div class="mt-1 text-[.8rem]">When do we need a nonlinear model?</div>
-  </div>
+Re-run the notebook's evaluation with your improved model.
+
+- keep the supplied <code>train</code> / <code>test</code> split unchanged
+- if your new data has gaps, evaluate the baseline and your model on the **same rows**
+
+<div class="compact-table mt-4 text-[.8rem]">
+
+| Model | Train rows | Test rows | Test accuracy |
+| --- | --- | --- | --- |
+| Baseline (Sentinel-2 only) | &hellip; | &hellip; | &hellip; |
+| Your improved model (what you changed: &hellip;) | &hellip; | &hellip; | &hellip; |
+
 </div>
 
-<div class="mt-4 text-[.78rem] text-gray-600">
-Treat this as an experiment: hold conditions fixed and change one conceptual factor at a time.
+<div class="mt-3 text-[.72rem] text-gray-600">
+Look at the confusion matrix: which classes improve, and which errors remain?
 </div>
-
-<!--
-Frame the lab as hypothesis testing.
-Students should reason about effects, not just run models.
--->
-
----
-
-# Build the Dataset Once
-
-- Choose/extract labeled sample locations
-- Build one table: <strong>rows = locations</strong>, <strong>columns = features</strong>
-- Target column: land-cover class
-- Create one fixed train / validation / test split
-
-<div class="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-[.75rem]">
-<strong>Important:</strong> Do the split once and reuse it for every experiment.
-</div>
-
-<!--
-Core scientific control: fixed split.
-This lets students attribute performance changes to representation/model choices.
--->
-
----
-
-# Baseline: Logistic Regression
-
-- Use <code>LogisticRegression</code> as the linear baseline
-- Input: feature vector per sample
-- Learns a linear decision boundary
-- Fast, simple, and interpretable reference model
-
-<div class="mt-4 text-[.82rem] font-semibold text-blue-800">
-Key question: How good is your representation if linear separation is all you allow?
-</div>
-
-<!--
-Keep this tied to Lecture 4 terminology: linear decision boundary and features.
-Avoid deeper derivations here.
--->
-
----
-
-# Change the Representation (Model Fixed)
-
-<div class="text-[.8rem] mb-2">Retrain the same <code>LogisticRegression</code> while changing features:</div>
-
-1. Small raw feature set (e.g., Red + NIR)
-2. Raw features + engineered feature (e.g., NDVI)
-3. Several Sentinel-2 bands
-4. Bands + complementary variables from the combined dataset (if available)
-
-<div class="mt-4 text-[.75rem] text-gray-600">
-Prompt: What changes when the model stays fixed but the representation changes?
-</div>
-
-<!--
-This slide expresses the feature-design learning outcome.
-Stress incremental changes rather than arbitrary feature dumping.
--->
-
----
-
-# Compare with Random Forest
-
-- Run <code>RandomForestClassifier</code> on the same representations
-- Keep the exact same train/validation/test split
-- Compare against logistic regression fairly
-
-<div class="grid grid-cols-2 gap-4 mt-4 text-[.76rem]">
-  <div class="rounded-lg border border-gray-200 p-3">
-    <strong>Logistic Regression</strong><br>
-    Linear decision boundary
-  </div>
-  <div class="rounded-lg border border-gray-200 p-3">
-    <strong>Random Forest</strong><br>
-    Nonlinear decision boundaries
-  </div>
-</div>
-
-<!--
-Interpretation frame: RF outperforming LR can indicate representation is not linearly convenient.
-Do not present RF as universally better.
--->
-
----
-
-# Ablation Table
-
-| Representation | Logistic Regression | Random Forest |
-| --- | --- | --- |
-| Raw baseline | … | … |
-| + NDVI | … | … |
-| + additional bands | … | … |
-| + complementary features | … | … |
-
-<div class="mt-3 text-[.74rem] text-gray-600">
-Use accuracy (and optionally macro-F1). Focus on interpreting changes, not maximizing one score.
-</div>
-
-<!--
-This is the central artifact students should produce.
-Same split + controlled representation changes + model comparison.
--->
-
----
-
-# Interpret the Experiment
-
-- Which representation change helped most?
-- When did logistic regression approach random-forest performance?
-- What does the model gap suggest about feature-space geometry?
-
-<div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[.75rem]">
-<strong>Caution:</strong> More dimensions are not automatically better. Useful, complementary information matters.
-</div>
-
-<!--
-Drive conceptual interpretation, not just reporting metrics.
-Link outcomes to representation quality and decision-boundary shape.
--->
-
----
-
-# Takeaway → Lecture 5
-
-1. Feature engineering changes the representation.
-2. Complementary information can make classification easier.
-3. A strong representation can make simple linear models surprisingly powerful.
-
-<div class="mt-6 rounded-xl border-2 border-blue-300 bg-blue-50 p-4 text-center">
-  <div class="text-[.78rem] uppercase tracking-wide text-blue-700 font-semibold">Next</div>
-  <div class="mt-1 text-[.95rem] font-semibold text-blue-900">
-    In Lab 3 you designed representations manually.<br>
-    In Lecture 5: what if the model learns the representation itself?
-  </div>
-</div>
-
-<!--
-Close with explicit bridge to Deep Representation Learning I.
-This transition is the pedagogical handoff to Lecture 5.
--->

@@ -15,6 +15,43 @@ home: ../
 ---
 # Data Representations
 
+---
+layout: learning-outcomes
+mode: before
+meeting: lecture-03
+section: representations
+---
+
+# Learning outcomes
+
+<LearningOutcome id="ml-pipeline">
+<strong>Understand</strong> the classic machine learning pipeline: feature design followed by a classification model.
+</LearningOutcome>
+
+<LearningOutcome id="curse-of-dimensionality">
+<strong>Understand</strong> the curse of dimensionality and why we select features.
+</LearningOutcome>
+
+<LearningOutcome id="pca-decorrelation">
+<strong>Understand</strong> how principal component analysis de-correlates data.
+</LearningOutcome>
+
+<LearningOutcome id="domain-features">
+<strong>Know</strong> examples of problem-specific features designed with domain knowledge.
+</LearningOutcome>
+
+<LearningOutcome id="decision-trees-random-forests">
+<strong>Understand</strong> the mechanisms behind decision trees and random forests.
+</LearningOutcome>
+
+<LearningOutcome id="bias-variance">
+<strong>Understand</strong> the principle of bias and variance in classification.
+</LearningOutcome>
+
+<!--
+One outcome per part of the lecture: ML pipeline (introduction), curse of dimensionality (More Data), PCA, domain-knowledge features (Better Features), decision trees & random forests, and the bias-variance trade-off (Bagging & Random Forests).
+Students rate their understanding now and again at the end of the lecture.
+-->
 
 ---
 section: representations
@@ -76,7 +113,7 @@ Presenter note: Activate prior knowledge from Lecture 2 without repeating its de
 section: representations
 ---
 
-# A Place as a Feature Vector
+# Represent a Coordinate by Geospatial Data
 
 <div class="grid grid-cols-5 gap-8 mt-4 items-center">
 
@@ -132,7 +169,118 @@ TODO: Replace the placeholder with a cube-to-vector illustration and add a provi
 section: representations
 ---
 
-# Good Data Representations for Effective ML
+# Example: Counting Trees Outside Forests
+
+<div class="grid grid-cols-[7fr_5fr] gap-6 items-center mt-3">
+
+<div>
+  <img src="./figures/brandt-2020-tree-counting.png" class="w-full h-[330px] object-contain" alt="Brandt et al. Figure 1: tree density across West African drylands and satellite-image details with individual predicted tree crowns in green; original map legends retained" />
+</div>
+
+<div class="text-[.74rem] leading-snug">
+  <div class="text-[1.65rem] font-bold text-[#00457c]">1.8 billion trees</div>
+  <div class="mt-1 text-gray-600">across 1.3 million km² of West African drylands</div>
+
+  <div class="mt-5"><strong>Land cover:</strong> isolated trees also occur outside areas classified as forest.</div>
+  <div class="mt-3"><strong>Measurement:</strong> 0.5 m satellite imagery and deep learning identify individual crowns larger than 3 m².</div>
+  <div class="mt-4 font-semibold text-[#00457c]">A land cover class and an individual-tree count describe different properties of a place.</div>
+</div>
+
+</div>
+
+<div class="text-[.51rem] text-gray-500 mt-2">Brandt et al. (2020), <em>Nature</em> 587, 78–82 · <a href="https://doi.org/10.1038/s41586-020-2824-5" target="_blank" rel="noopener noreferrer">An unexpectedly large count of trees in the West African Sahara and Sahel</a> · Fig. 1, caption cropped. Satellite imagery © DigitalGlobe, NextView licence.</div>
+
+<!--
+Presenter note: Follow WorldCover by asking: does the tree-cover class tell us how many individual trees exist? A categorical map groups pixels; a crown map resolves objects. Brandt et al. show that many trees occur outside areas represented as forests in earlier maps. This does not imply a measured error in ESA WorldCover: this paper predates the WorldCover 2021 product.
+Study scope: 1.3 million km² in the West African Sahara, Sahel and sub-humid zone, not the entire Sahara or the planet. More than 1.8 billion woody crowns >3 m², including shrubs. This is a deep-learning example, previewing later lectures rather than an example of a random forest.
+Full citation: Brandt, M., Tucker, C.J., Kariryaa, A. et al. (2020). An unexpectedly large count of trees in the West African Sahara and Sahel. Nature 587, 78–82. https://doi.org/10.1038/s41586-020-2824-5
+Figure: original Fig. 1, cropped to remove caption and surrounding article text, preserving panel labels, map legends, scale and imagery credits. Author manuscript: https://geog.umd.edu/sites/geog.umd.edu/files/pubs/An%20unexpectedly%20large%20count%20of%20trees%20in%20the%20West%20African%20Sahara%20and%20Sahel_0.pdf
+-->
+
+---
+section: representations
+---
+
+# Example: Measuring Global Urban Expansion
+
+<div class="grid grid-cols-[7fr_5fr] gap-6 items-center mt-5">
+
+<div>
+  <img src="./figures/liu-2020-urban-growth.png" class="w-full h-[245px] object-contain" alt="Liu et al. Figure 1: global urban area rises from approximately 0.36 to 0.65 million square kilometres between 1985 and 2015, with an inset of continental growth rates" />
+  <div class="text-[.58rem] text-gray-500 mt-2">Global urban area and continental growth rates, 1985–2015</div>
+</div>
+
+<div class="text-[.74rem] leading-snug">
+  <div class="text-[1.65rem] font-bold text-[#00457c]">+80% urban area</div>
+  <div class="mt-1 text-gray-600">362,747 to 653,354 km², 1985–2015</div>
+
+  <div class="mt-5"><strong>Land cover:</strong> annual maps distinguish built-up from non-urban surfaces.</div>
+  <div class="mt-3"><strong>Measurement:</strong> 30 m Landsat imagery, random forests and temporal change analysis.</div>
+  <div class="mt-4 font-semibold text-[#00457c]">Consistent land cover maps turn pixels into estimates of global change.</div>
+</div>
+
+</div>
+
+<div class="text-[.51rem] text-gray-500 mt-6">Liu et al. (2020), <em>Nature Sustainability</em> 3, 564–570 · <a href="https://doi.org/10.1038/s41893-020-0521-x" target="_blank" rel="noopener noreferrer">High-spatiotemporal-resolution mapping of global urban change from 1985 to 2015</a> · Original Fig. 1.</div>
+
+<!--
+Presenter note: The built-up class can be aggregated over space and compared over time. Here, land cover is the mapped output used to estimate urban expansion. This is not an analysis using ESA WorldCover as input. The study maps annual global urban dynamics from Landsat; locally adaptive random forests fuse urban extent maps at the endpoints, and temporal segmentation identifies change years.
+Study scope: +80% refers to global urban land area under the study's built-up definition, not urban population, all impervious surfaces, or every individual city. The study reports urban population growth of 52% over the same period. Use the dates explicitly: these are historical findings, not current totals.
+Full citation: Liu, X., Huang, Y., Xu, X. et al. (2020). High-spatiotemporal-resolution mapping of global urban change from 1985 to 2015. Nature Sustainability 3, 564–570. https://doi.org/10.1038/s41893-020-0521-x
+Figure: original publisher Fig. 1, unchanged. https://media.springernature.com/lw1200/springer-static/image/art%3A10.1038%2Fs41893-020-0521-x/MediaObjects/41893_2020_521_Fig1_HTML.png
+-->
+
+---
+section: representations
+---
+
+# Example ESA WorldCover
+
+<div class="text-[.76rem] text-gray-700 mt-1 mb-3">WorldCover classifies each 10 m pixel into one of 11 land cover classes.</div>
+
+<div class="grid grid-cols-[5fr_7fr] gap-6 items-start">
+
+<div>
+  <img src="./figures/lulc-amsterdam.png" class="w-full h-[185px] object-cover rounded-lg border border-gray-200" alt="ESA WorldCover 2021 land cover map around Amsterdam, with tree cover in dark green, grassland in yellow, cropland in pink, built-up areas in red, and water in blue" />
+  <div class="text-[.58rem] text-gray-500 mt-1">ESA WorldCover 2021 · Amsterdam detail</div>
+
+<div class="grid grid-cols-2 gap-x-2 gap-y-1 mt-3 text-[.57rem] leading-tight text-gray-700" aria-label="ESA WorldCover land cover legend">
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#006400"></span>Tree cover</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#ffbb22"></span>Shrubland</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#ffff4c"></span>Grassland</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#f096ff"></span>Cropland</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#fa0000"></span>Built-up</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#b4b4b4"></span>Bare / sparse vegetation</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#f0f0f0"></span>Snow and ice</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#0064c8"></span>Permanent water</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#0096a0"></span>Herbaceous wetland</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#00cf75"></span>Mangroves</div>
+  <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 shrink-0 border border-gray-300" style="background:#fae6a0"></span>Moss and lichen</div>
+</div>
+
+<div class="text-[.5rem] text-gray-500 mt-2">© ESA WorldCover project 2021 · <a href="https://doi.org/10.5281/zenodo.7254221" target="_blank" rel="noopener noreferrer">Zanaga et al. (2022)</a></div>
+
+</div>
+
+<div>
+  <img src="./figures/worldcover-algorithm.png" class="w-full h-[310px] object-contain object-top" alt="ESA WorldCover algorithm schematic showing Sentinel-1 and Sentinel-2 preprocessing, training data and feature extraction, model training and prediction, then expert rules and final map generation" />
+  <div class="text-[.56rem] text-gray-500 mt-1">2020 workflow: <a href="https://docs.terrascope.be/DataProducts/WorldCover/WorldCover.html" target="_blank" rel="noopener noreferrer">Terrascope, ESA WorldCover Product</a>. <a href="https://docs.terrascope.be/DataProducts/WorldCover/fig/Algorithm.png" target="_blank" rel="noopener noreferrer">Open full-size diagram</a>.</div>
+</div>
+
+</div>
+
+<!--
+Presenter note: Each output pixel is a land cover label, while the input feature vector combines observations from several sources. WorldCover v200 extracts 115 features from Sentinel-1, Sentinel-2, elevation, location, and meteorology. OpenStreetMap is auxiliary information for expert rules, not a raw satellite feature. The manual describes vegetation indices as features; NDVI is a familiar example and is explored later in this lecture.
+The 2020 technical workflow shows data preprocessing, a training branch, a prediction branch, and map generation with expert rules. The map on the left is the 2021 product, which uses a later algorithm version.
+Full citation: Zanaga, D., Van De Kerchove, R., Daems, D., De Keersmaecker, W., Brockmann, C., Kirches, G., Wevers, J., Cartus, O., Santoro, M., Fritz, S., Lesiv, M., Herold, M., Tsendbazar, N.E., Xu, P., Ramoino, F., Arino, O., 2022. ESA WorldCover 10 m 2021 v200. https://doi.org/10.5281/zenodo.7254221
+Source: https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/docs/WorldCover_PUM_V2.0.pdf
+-->
+
+---
+section: representations
+---
+
+# Machine Learning Pipeline
 
 <div class="mt-1 text-gray-700 text-[.82rem] text-center">
 Good, hand-selected features combined with a suitable model determine the quality of the result.
@@ -143,27 +291,28 @@ Good, hand-selected features combined with a suitable model determine the qualit
 <img src="./figures/classic_ml.svg" class="w-full object-contain" alt="Classic machine learning pipeline: hand-designed features such as NDVI, NDWI, and GLCM textures are extracted from an input tensor and passed to a linear/logistic regression or random forest model to produce predicted classes" />
 
 <div class="absolute" style="left: 36.2%; top: 100%; transform: translate(0, 10px);">
-<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--grl-data-orange);">
-<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--grl-data-orange);"></span>
-This lecture &middot; Data Cubes &amp; PCA
+<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--bonn-blue);">
+<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--bonn-blue);"></span>
+This lecture &middot; More Data, PCA &amp; Better Features
 </div>
 </div>
 
 <div class="absolute" style="left: 73%; top: 100%; transform: translate(0, 10px);">
-<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap text-red-600">
-<span class="w-2 h-2 rounded-full flex-shrink-0 bg-red-600"></span>
-Next lecture &middot; Linear Models &amp; Random Forests
+<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--grl-data-orange);">
+<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--grl-data-orange);"></span>
+This lecture &middot; Decision Trees &amp; Random Forests
 </div>
 </div>
 
 </div>
 
 <!--
-Presenter note: Outlook. Feature design (orange) is what we did today: data cubes, hand-designed features such as NDVI, and PCA. The model (red) is the topic of the next lecture: linear models, decision trees and random forests.
+Presenter note: Outlook. Feature design (blue): better features (e.g. NDVI) and more data (data cubes). The model (orange): decision trees and random forests at the end of this lecture; linear models follow in the next lecture.
 -->
 
 ---
 section: representations
+hide: true
 ---
 
 <script setup>
@@ -240,6 +389,36 @@ import PlotlyHistogram from './components/PlotlyHistogram.vue'
 
 </div>
 
+<div v-click="3" class="grid grid-cols-3 gap-3 items-center mt-4">
+
+<div class="col-span-2">
+<div class="text-[.66rem] font-semibold text-gray-500 mb-1">Engineered feature</div>
+
+<div class="text-[.68rem] text-gray-600 mb-1">
+
+$$
+\text{NDVI} = \frac{\text{NIR} - \text{Red}}{\text{NIR} + \text{Red}}
+$$
+
+</div>
+
+<div class="compact-table">
+
+| Pt | NDVI | Land Cover |
+|---|---|---|
+| Pt1 | 0.68 | **Vegetation** |
+| Pt2 | -0.62 | **Built-up** |
+| &vellip; | &vellip; | &vellip; |
+
+</div>
+</div>
+
+<div style="height: 120px;">
+<PlotlyHistogram dataset="ndvi" x-label="NDVI" :show-legend="false" :height="120" />
+</div>
+
+</div>
+
 </div>
 
 </div>
@@ -248,16 +427,48 @@ import PlotlyHistogram from './components/PlotlyHistogram.vue'
 Presenter note: This slide is the bridge from geospatial images to tabular ML data.
 Click 1: sample points on both the input image and the target map.
 Click 2: collapse both into one tabular dataset, X columns plus y column, one row per point &mdash; the format every classic ML model consumes.
+Click 3: combine red and NIR into NDVI. The new feature separates vegetation from built-up more clearly than green reflectance alone, making the classification easier.
+-->
+
+---
+section: representations
+clicks: 4
+---
+
+<script setup>
+import LectureOverview from './components/LectureOverview.vue'
+</script>
+
+# Lecture Overview
+
+## How to Improve Machine Learning Models?
+
+<div class="mt-6">
+<LectureOverview :clicks="$clicks" />
+</div>
+
+<div v-click="4" class="mt-4 mx-auto w-fit px-4 py-1.5 rounded-lg border-2 border-[#00457c] text-[.78rem] text-[#00457c] text-center">
+More data and better features improve machine learning &ndash; as long as the dimensions stay informative.
+</div>
+
+<!--
+Roadmap of the lecture in four blocks:
+1. More data: data cubes integrate more variables (multispectral vs. hyperspectral) and other modalities (e.g. population and urban land cover). Blessing and curse of dimensionality: we need informative dimensions.
+Click 1: PCA de-correlates correlated dimensions into a few dominant directions.
+Click 2: better features: domain knowledge (vegetation and water spectra, radar backscatter) designs informative features such as NDVI.
+Click 3: decision trees and random forests, non-linear models that learn from these features.
+Click 4: the take-home message that connects the four blocks.
+The overview returns between the blocks.
 -->
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: geospatial-data-cubes
-sectionTitle: Geospatial Data Cubes
+section: more-data
+sectionTitle: More Data
 ---
 
-# Geospatial Data Cubes - Integrating Multi-Modal Data
+# More Data - Integrating More Data Dimensions
 
 <img class="bonn-section-image-sm" src="./figures/datacube.jpg" alt="Illustration of a geospatial data cube stacking heterogeneous layers" />
 
@@ -266,12 +477,15 @@ Image by <a href="https://www.researchgate.net/profile/Miguel-Mahecha-2?_tp=eyJj
 </div>
 
 <!--
+First way to improve machine learning: more data. Two kinds:
+- more variables from the same sensor, e.g. hyperspectral instead of multispectral bands;
+- other modalities that carry complementary information, e.g. population density is closely connected to urban land cover.
 Begin with the heterogeneous layers from Lecture 2.
 This section will establish common coordinate support, stacking, and fixed feature extraction.
 -->
 
 ---
-section: geospatial-data-cubes
+section: more-data
 ---
 
 # Datacubes align Data Spatially and Temporally
@@ -283,7 +497,8 @@ Source: Kopp et al. (2019), <a href="https://www.mdpi.com/2306-5729/4/3/94" targ
 </div>
 
 ---
-section: geospatial-data-cubes
+hide: true
+section: more-data
 ---
 
 # Rasterization and Interpolation
@@ -343,26 +558,7 @@ Interpolation resamples values between misaligned grids using distance-weighted 
 -->
 
 ---
-layout: bonn-section
-sectionColor: "#c4581c"
-section: dimensionality
-sectionTitle: Dimensionality
----
-
-# Dimensionality
-
-<img class="bonn-section-image-sm" src="./figures/pca/s2-composite-red.png" alt="Sentinel-2 false-colour composite: one of many bands that can be stacked into a feature vector" />
-
-<div class="bonn-section-citation">
-Sentinel-2 scene around Wageningen (NL), false-colour composite.
-</div>
-
-<!--
-Block 3: stacking layers creates very high-dimensional vector spaces. That is a blessing and a curse, and the dimensions are often highly correlated.
--->
-
----
-section: dimensionality
+section: more-data
 clicks: 3
 ---
 
@@ -383,7 +579,8 @@ A few innocent design choices already give thousands of dimensions per data poin
 -->
 
 ---
-section: dimensionality
+hide: true
+section: more-data
 clicks: 2
 ---
 
@@ -402,7 +599,8 @@ We have <strong>N = HW</strong> pixel data points in 3 dimensions &rarr; no info
 </div>
 
 ---
-section: dimensionality
+hide: true
+section: more-data
 clicks: 2
 ---
 
@@ -421,7 +619,7 @@ We have <strong>one</strong> image data point in 48 dimensions &rarr; fewer data
 </div>
 
 ---
-section: dimensionality
+section: more-data
 clicks: 2
 ---
 
@@ -447,7 +645,7 @@ Ask: is high dimensionality a blessing or a curse?
 -->
 
 ---
-section: dimensionality
+section: more-data
 clicks: 2
 ---
 
@@ -488,7 +686,8 @@ Click 2: a single linear boundary now separates the two classes.
 -->
 
 ---
-section: dimensionality
+hide: true
+section: more-data
 clicks: 1
 ---
 
@@ -524,7 +723,7 @@ Click 1: the same 30 pixels as one 90-dimensional image: the face appears.
 -->
 
 ---
-section: dimensionality
+section: more-data
 ---
 
 # Curse of Dimensionality: Redundancy
@@ -561,7 +760,7 @@ Correlated dimensions add redundancy, not information.
 </blockquote>
 
 ---
-section: dimensionality
+section: more-data
 ---
 
 <script setup>
@@ -594,7 +793,8 @@ Demo: move the slider from d = 1 to d = 1000. The histogram of pairwise distance
 -->
 
 ---
-section: dimensionality
+hide: true
+section: more-data
 ---
 
 <script setup>
@@ -631,7 +831,7 @@ At d = 2 almost every test point finds a neighbour of its own class. Move the sl
 -->
 
 ---
-section: dimensionality
+section: more-data
 ---
 
 # Blessing and Curse of Dimensionality
@@ -650,8 +850,51 @@ section: dimensionality
 Keep as many dimensions as necessary, but as few as possible.
 </div>
 
+<div class="text-center mt-3 text-[.85rem] text-gray-700">
+&rArr; We need <strong>informative</strong> dimensions.
+</div>
+
 ---
-section: dimensionality
+section: more-data
+---
+
+<script setup>
+import LectureOverview from './components/LectureOverview.vue'
+</script>
+
+# Lecture Overview
+
+<div class="mt-6">
+<LectureOverview :next="2" />
+</div>
+
+<!--
+Block 1 done: more data brings more, but often correlated dimensions. Next: PCA to keep the informative ones.
+-->
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: pca
+sectionTitle: Less Redundant Data
+---
+
+# PCA: De-correlating Data
+
+<img class="bonn-section-image-sm rounded-full" src="./figures/pca/bonn-pca-rgb.jpg" alt="First three principal components of the Sentinel-2 scene of Bonn shown as red, green and blue" />
+
+<div class="bonn-section-citation">
+Sentinel-2 scene of Bonn, first three principal components as RGB.
+</div>
+
+<!--
+More dimensions only help if they are informative. Correlated bands repeat the same information.
+PCA is the algorithmic way to de-correlate data: it finds a few dominant directions. The full derivation is in the backup deck lecture-3-pca.
+-->
+
+---
+hide: true
+section: pca
 ---
 
 <script setup>
@@ -673,7 +916,7 @@ Every pixel is a row, every band is a column (the same X ∈ R^{N×D} as the fea
 -->
 
 ---
-section: dimensionality
+section: pca
 ---
 
 # Sentinel-2 Bands Are Highly Correlated
@@ -700,55 +943,163 @@ Many of our dimensions carry (almost) the same information.
 </div>
 
 <!--
-Keep this intuitive: red means two bands rise and fall together. The formal definition of covariance and correlation follows in the PCA block, where we remove exactly this correlation.
+Keep this intuitive: red means two bands rise and fall together. PCA (next slides) removes exactly this correlation; the full derivation is in the backup deck lecture-3-pca.
 -->
 
 ---
-section: dimensionality
+section: pca
 ---
 
-# Reducing Dimensions: Two Approaches
+<script setup>
+import PcaEmbeddingDemo from '../lecture-1/components/PcaEmbeddingDemo.vue'
+</script>
 
-<div class="mx-auto w-fit mt-3 px-4 py-1.5 rounded-lg border-2 border-[#00457c] text-[.85rem] text-[#00457c] font-semibold">
-Keep as many dimensions as necessary, but as few as possible.
+# Recap Lecture 1: PCA
+
+<div class="grid grid-cols-[auto_1fr] gap-10 mt-2 items-center">
+
+<div>
+<PcaEmbeddingDemo />
 </div>
 
-<div class="grid grid-cols-2 gap-6 mt-4 text-[.72rem]">
+<div class="text-[.8rem]">
 
-<div class="rounded-xl border-2 border-[#00457c] px-4 py-2">
+In Lecture 1, we used **Principal Component Analysis (PCA)** to **visualize** high-dimensional vectors.
 
-**1 &middot; Feature selection** <span class="text-gray-500">(domain knowledge)</span>
-
-- design features that summarise correlated bands: spectral indices (NDVI, SAVI, EVI, &hellip;), radar ratios
-- automatically select the most important features
-
-</div>
-
-<div class="rounded-xl border-2 border-[#0f7d5c] px-4 py-2">
-
-**2 &middot; Dimensionality reduction** <span class="text-gray-500">(domain-agnostic)</span>
-
-- project the data into fewer, less correlated, more informative dimensions
-- algorithms: **Principal Component Analysis (PCA)**, Minimum Noise Fraction (MNF), &hellip;
+<blockquote class="blockquote3">
+Now: PCA rotates correlated data onto its few most dominant directions.
+</blockquote>
 
 </div>
 
 </div>
 
 <!--
-Two ways to get rid of redundant, correlated dimensions:
-1. with domain knowledge: we know which bands carry which physical signal and combine them into indices (next block);
-2. algorithmically: PCA finds uncorrelated combinations from the data alone, without knowing what the bands mean (last block).
+Same demo as in Lecture 1 ("Excurse: Dimensionality Reduction"). Click "Rotate to PCA projection": the data is rotated so that the first axis follows the direction of largest spread.
+Back then PCA was a visualization tool. Here we look at why it works: correlated bands share information, and PCA turns them into a few uncorrelated directions.
+-->
+
+---
+section: pca
+---
+
+<script setup>
+import CovariancePcaDemo from './components/CovariancePcaDemo.vue'
+</script>
+
+# PCA to De-correlate Data
+
+<div class="mt-1">
+<CovariancePcaDemo />
+</div>
+
+<div class="text-[.74rem] mt-2 text-gray-700">
+PCA <strong>centres</strong> and <strong>rotates</strong> the data so that the covariances vanish. The new axes, the <strong>principal components</strong>, point along the most dominant directions of the data.
+</div>
+
+<!--
+Ask first: what covariance would we like our data to have? Then demo:
+- vary the correlation: positive / negative / no covariance
+- step 1 centres the data (translation by -μ)
+- step 2 rotates onto the principal axes: the off-diagonal entries become 0, the diagonal entries are the eigenvalues
+PC 1 is the direction of highest "explained" variance.
+The mathematics (covariance matrix, eigendecomposition) is in the backup deck lecture-3-pca.
+-->
+
+---
+section: pca
+---
+
+# PCs Are Uncorrelated &ldquo;Synthetic Bands&rdquo;
+
+<div class="grid grid-cols-[1fr_auto_1fr] gap-6 items-center mt-4">
+
+<div class="text-center">
+<div class="text-[.74rem] font-semibold text-[#00457c] mb-1">12 correlated Sentinel-2 bands</div>
+<img src="./figures/pca/s2-correlation-matrix.png" class="h-[250px] mx-auto" alt="Correlation matrix of 12 Sentinel-2 bands with large blocks of high correlation" />
+</div>
+
+<div class="flex flex-col items-center gap-1 text-[.7rem] text-[#00457c] font-semibold">
+  <div class="px-5 py-3 bg-[#00457c] text-white rounded" style="clip-path: polygon(0 0, 100% 25%, 100% 75%, 0 100%);">PCT</div>
+  principal component<br>transformation
+</div>
+
+<div class="text-center">
+<div class="text-[.74rem] font-semibold text-[#00457c] mb-1">(fewer) uncorrelated principal components</div>
+<img src="./figures/pca/pc-correlation-matrix.png" class="h-[250px] mx-auto" alt="Correlation matrix of the principal components: 1 on the diagonal, 0 elsewhere" />
+</div>
+
+</div>
+
+<div class="text-[.76rem] text-center mt-3">
+Same goal as a spectral index &ndash; remove redundancy &ndash; but found <strong>from the data alone</strong>, without knowing what the bands mean.
+</div>
+
+<!--
+This is the result we are after: the correlation matrix of the principal components is the identity. Every PC carries information that no other PC carries.
+Compare with spectral indices such as NDVI (next block): they also merge correlated bands, but we need to know the physics. PCA only needs the data.
+-->
+
+---
+section: pca
+---
+
+<script setup>
+import ScreePlotDemo from './components/ScreePlotDemo.vue'
+</script>
+
+# Few Directions Carry Most Information
+
+<div class="grid grid-cols-5 gap-8 mt-2 items-start">
+
+<div class="col-span-3">
+<ScreePlotDemo />
+</div>
+
+<div class="col-span-2 text-[.78rem]">
+
+Principal components are sorted by the **variance** they explain: PC 1 is the most dominant direction, PC 2 the next, &hellip;
+
+For the correlated Sentinel-2 bands, **2 of 12 components** keep more than 90 % of the variance.
+
+<blockquote class="blockquote3">
+The stronger the correlation, the fewer components we need.
+</blockquote>
+
+</div>
+
+</div>
+
+<!--
+Demo: compare the Sentinel-2 spectrum (2 PCs for 90 %) with weakly correlated features (many more PCs needed).
+-->
+
+---
+section: pca
+---
+
+<script setup>
+import LectureOverview from './components/LectureOverview.vue'
+</script>
+
+# Lecture Overview
+
+<div class="mt-6">
+<LectureOverview :next="3" />
+</div>
+
+<!--
+Block 2 done: PCA de-correlates data algorithmically. Next: better features designed with domain knowledge.
 -->
 
 ---
 layout: bonn-section
-sectionColor: "#6a3d9a"
-section: domain-knowledge
-sectionTitle: Domain Knowledge
+sectionColor: "#00457c"
+section: better-features
+sectionTitle: More Descriptive Data
 ---
 
-# Domain Knowledge: Feature Design
+# Choosing Better Features through Domain Knowledge
 
 <img class="bonn-section-image-sm" src="./figures/spectral/olci-chl-index-scotland.jpg" alt="Chlorophyll-a index computed from Sentinel-3 OLCI bands, showing an algal bloom off Scotland" />
 
@@ -757,11 +1108,12 @@ Chlorophyll-a index from Sentinel-3 OLCI, algal bloom off Scotland (2013-06-14).
 </div>
 
 <!--
-Approach 1 to reduce correlated dimensions: use what we know about the physics of the signal. Knowing why vegetation and algae reflect light the way they do, we combine a few bands into one meaningful index (optical) or design features and simple rules (radar).
+Second way to improve machine learning: better features. We use what we know about the physics of the signal. Knowing why vegetation and algae reflect light the way they do, we combine a few bands into one meaningful index (optical) or design features and simple rules (radar).
+Designed features separate the classes better, and they compress several correlated bands into one number.
 -->
 
 ---
-section: domain-knowledge
+section: better-features
 clicks: 1
 ---
 
@@ -801,7 +1153,7 @@ This is the domain knowledge behind NDVI (next slide).
 -->
 
 ---
-section: domain-knowledge
+section: better-features
 clicks: 1
 ---
 
@@ -809,7 +1161,7 @@ clicks: 1
 import PlotlyHistogram from './components/PlotlyHistogram.vue'
 </script>
 
-# Decorrelation by Domain Knowledge: NDVI
+# A Better Feature: NDVI
 
 <div class="grid grid-cols-3 gap-3 items-center mt-2">
 
@@ -869,7 +1221,7 @@ Click 1: NDVI combines red and NIR into a single number that separates vegetatio
 -->
 
 ---
-section: domain-knowledge
+section: better-features
 ---
 
 # Photosynthetically Active Pigments
@@ -899,7 +1251,8 @@ Source: <a href="https://www.yorku.ca/planters/photosynthesis/2014_08_15_lab_man
 </div>
 
 ---
-section: domain-knowledge
+hide: true
+section: better-features
 ---
 
 # The Red Edge Also Appears in Algae
@@ -925,7 +1278,7 @@ Descloitres, J., Minghelli, A., Steinmetz, F., Chevalier, C., Chami, M., &amp; B
 </div>
 
 ---
-section: domain-knowledge
+section: better-features
 clicks: 2
 ---
 
@@ -960,14 +1313,14 @@ Band ratios or differences around these features become dedicated indices for ha
 -->
 
 ---
-section: domain-knowledge
+section: better-features
 ---
 
 <script setup>
 import OlciChlBands from './components/OlciChlBands.vue'
 </script>
 
-# Exercise: Design a CHL-a Index
+# Example: Design a CHL-a Index
 
 <div class="grid gap-6 mt-1 items-start" style="grid-template-columns: 1.25fr 1fr">
 
@@ -1014,7 +1367,8 @@ Take-away of the block: indices are interpretable and cheap, but each one needs 
 -->
 
 ---
-section: domain-knowledge
+section: better-features
+hide: true
 ---
 
 # Radar Features: Sentinel-1 Polarizations
@@ -1052,7 +1406,8 @@ RVI uses linear (not dB) backscatter values.
 -->
 
 ---
-section: domain-knowledge
+section: better-features
+hide: true
 ---
 
 # Radar: From Speckle Filter to Water Mask
@@ -1090,801 +1445,1472 @@ The threshold (here -18 dB) comes from domain knowledge / the histogram of the s
 -->
 
 ---
-layout: bonn-section
-sectionColor: "#0f7d5c"
-section: pca
-sectionTitle: PCA
+section: better-features
 ---
 
-# PCA: Decorrelating Data Algorithmically
+<script setup>
+import LectureOverview from './components/LectureOverview.vue'
+</script>
 
-<img class="bonn-section-image-sm rounded-full" src="./figures/pca/bonn-pca-rgb.jpg" alt="First three principal components of the Sentinel-2 scene of Bonn shown as red, green and blue" />
+# Lecture Overview
+
+<div class="mt-6">
+<LectureOverview :next="4" />
+</div>
+
+<!--
+Block 3 done: domain knowledge gives informative features such as NDVI. Next: a model that learns from them.
+-->
+
+---
+section: better-features
+---
+
+# Machine Learning Pipeline
+
+<div class="mt-1 text-gray-700 text-[.82rem] text-center">
+Good, hand-selected features combined with a suitable model determine the quality of the result.
+</div>
+
+<div class="relative mt-8">
+
+<img src="./figures/classic_ml.svg" class="w-full object-contain" alt="Classic machine learning pipeline: hand-designed features such as NDVI, NDWI, and GLCM textures are extracted from an input tensor and passed to a linear/logistic regression or random forest model to produce predicted classes" />
+
+<div class="absolute" style="left: 36.2%; top: 100%; transform: translate(0, 10px);">
+<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--bonn-blue);">
+<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--bonn-blue);"></span>
+This lecture &middot; More Data, PCA &amp; Better Features
+</div>
+</div>
+
+<div class="absolute" style="left: 73%; top: 100%; transform: translate(0, 10px);">
+<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--grl-data-orange);">
+<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--grl-data-orange);"></span>
+This lecture &middot; Decision Trees &amp; Random Forests
+</div>
+</div>
+
+</div>
+
+<!--
+Back to the pipeline: we have covered the feature side (blue) - more data, PCA and better features. Now the model (orange): decision trees and random forests.
+-->
+
+---
+layout: bonn-section
+sectionColor: "#ff7900"
+section: decision-trees-and-random-forests
+sectionTitle: "Better (Non-linear) Models"
+---
+
+# Non-linear models: Decision Trees & Random Forests
+
+<img class="bonn-section-image-sm" src="./figures/decision_tree.png" alt="Illustration of a geospatial data cube stacking heterogeneous layers" />
 
 <div class="bonn-section-citation">
-Sentinel-2 scene of Bonn, first three principal components as RGB.
+Image by Bing Image Generator
 </div>
 
 <!--
-Approach 2 to reduce correlated dimensions: instead of expert knowledge, let an algorithm find new, uncorrelated combinations of the bands.
-Path through the block: measure redundancy (variance, covariance) -> remove it by translating and rotating the data -> how to compute the rotation (eigendecomposition) -> how many components to keep -> what PCA gives us in practice.
-Material adapted from the Wageningen Remote Sensing course (GRS-20306).
+From features to a model: decision trees and random forests learn non-linear decisions from the feature vectors we built in this lecture.
+Random forests also cope well with many, correlated features (random feature subsets), the situation the More Data block ended with.
+This section will end with random forests as robust predictors on fixed representations.
 -->
 
 ---
-section: pca
----
 
-<script setup>
-import StatsDataMatrix from './components/StatsDataMatrix.vue'
-import NormalCurve from './components/NormalCurve.vue'
-</script>
+# Decision Trees: The Core Idea
 
-# (Image) Statistics 1: A Single Variable
+<div class="grid grid-cols-3 gap-8 mt-4 items-center">
 
-<div class="grid grid-cols-2 gap-8 mt-2">
+<div class="col-span-2">
 
-<div class="text-[.84rem] compact-math stats-boxes">
+We categorize data through a <strong>chain of simple decisions</strong>.
 
-<div class="font-semibold text-[#00457c] mb-1">Statistical moments of one band <em>d</em></div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-**1st moment: mean**
-
-$$
-\mu_d = \frac{1}{N} \sum_{n=1}^{N} x_{n,d}
-$$
-
-</div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-**2nd moment: variance**
-
-$$
-\sigma_d^2 = \frac{1}{N-1} \sum_{n=1}^{N} (x_{n,d} - \mu_d)^2
-$$
-
-</div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2 text-gray-500">
-
-**3rd moment: skewness** &nbsp;&middot;&nbsp; **4th moment: kurtosis**
-
-</div>
+<ul>
+<li v-click>each decision is a simple test on a single feature (e.g., <em>is the temperature below 10 °C?</em>)</li>
+<li v-click>implemented in computer science as a <strong>binary tree</strong>: a graph data structure in which each node has at most two children</li>
+<li v-click>a universal tool for <strong>classification and regression</strong> of non-linear relationships</li>
+</ul>
 
 </div>
 
 <div>
-
-<div class="w-[62%] mx-auto">
-<StatsDataMatrix :dims="1" />
-</div>
-
-<div class="w-full mt-2">
-<NormalCurve />
-</div>
-
+<img src="./figures/decision_tree.png" class="w-full h-[240px] object-contain" alt="Stylized illustration of a tree whose branches form a decision tree" />
+<div class="figure-copyright">Image by Bing Image Generator</div>
 </div>
 
 </div>
 
 <!--
-Start with one band (one column of the data matrix): iterate through all N pixels.
-The mean is the centre, the variance the spread. For a normal distribution, 68 % of the pixels lie within one standard deviation.
-Skewness and kurtosis exist, but PCA only needs the first two moments.
+Part 1 of the section. Trees are the first non-linear model of the course.
+Keep the "chain of simple decisions" picture in mind for everything that follows.
 -->
 
 ---
-section: pca
----
-
-<script setup>
-import StatsDataMatrix from './components/StatsDataMatrix.vue'
-import CovarianceSketch from './components/CovarianceSketch.vue'
-</script>
-
-# (Image) Statistics 2: Two Variables
-
-<div class="grid gap-6 mt-2" style="grid-template-columns: 1fr 1.15fr">
-
-<div class="text-[.84rem] compact-math stats-boxes">
-
-<div class="font-semibold text-[#00457c] mb-1">Statistical moments of two bands <em>d</em><sub>1</sub>, <em>d</em><sub>2</sub></div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-**1st moment: mean vector**
-
-$$
-\boldsymbol{\mu} = \begin{pmatrix} \mu_{d_1} \\ \mu_{d_2} \end{pmatrix}, \quad \mu_d = \frac{1}{N} \sum_{n=1}^{N} x_{n,d}
-$$
-
-</div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-**2nd moment: covariance matrix**
-
-$$
-\mathbf{C} = \begin{pmatrix} \sigma_{d_1}^2 & \sigma_{d_1 d_2} \\ \sigma_{d_2 d_1} & \sigma_{d_2}^2 \end{pmatrix}
-$$
-
-with the **covariance**
-
-$$
-\sigma_{d_1 d_2} = \sigma_{d_2 d_1} = \frac{1}{N-1} \sum_{n=1}^{N} (x_{n,d_1} - \mu_{d_1})(x_{n,d_2} - \mu_{d_2})
-$$
-
-</div>
-
-</div>
-
-<div class="grid grid-cols-2 gap-3 items-center">
-
-<div>
-<StatsDataMatrix :dims="2" />
-</div>
-
-<div>
-<CovarianceSketch />
-</div>
-
-</div>
-
-</div>
-
-<!--
-Two bands at once: the mean becomes a vector, the variance a 2 × 2 covariance matrix.
-The diagonal holds the variances (spread along each axis); the off-diagonal holds the covariance, the diagonal spread of the cloud. It is symmetric.
-Positive covariance: both bands rise together (e.g. green and red).
--->
-
----
-section: pca
----
-
-<script setup>
-import StatsDataMatrix from './components/StatsDataMatrix.vue'
-import CovarianceSketch from './components/CovarianceSketch.vue'
-</script>
-
-# (Image) Statistics 3: Many Variables
-
-<div class="grid gap-6 mt-2" style="grid-template-columns: 1fr 1.15fr">
-
-<div class="text-[.84rem] compact-math stats-boxes">
-
-<div class="font-semibold text-[#00457c] mb-1">Statistical moments of all <em>D</em> bands</div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-**1st moment: mean vector**
-
-$$
-\boldsymbol{\mu} = (\mu_1, \mu_2, \ldots, \mu_D)
-$$
-
-</div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-It is advised to **center** the data matrix:
-
-$$
-\tilde{\mathbf{X}} = \mathbf{X} - \boldsymbol{\mu}
-$$
-
-</div>
-
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1 mb-2">
-
-**2nd moment: covariance matrix** ($D \times D$)
-
-$$
-\mathbf{C} =
-\begin{pmatrix}
-\sigma_{1}^2 & \cdots & \sigma_{1 D} \\
-\vdots & \ddots & \vdots \\
-\sigma_{D 1} & \cdots & \sigma_{D}^2
-\end{pmatrix}
-= \frac{1}{N-1} \tilde{\mathbf{X}}^\top \tilde{\mathbf{X}}
-$$
-
-</div>
-
-</div>
-
-<div class="grid grid-cols-2 gap-3 items-center">
-
-<div>
-<StatsDataMatrix dims="D" />
-</div>
-
-<div>
-<CovarianceSketch />
-<div class="text-[.62rem] text-gray-600 text-center mt-1">every pair of bands has such a covariance</div>
-</div>
-
-</div>
-
-</div>
-
-<!--
-Generalise to D bands: one mean per band, and a D × D covariance matrix with all pairwise covariances.
-After centering, the whole matrix is one matrix product: C = X̃ᵀX̃ / (N − 1). This is also why PCA is fast to compute.
--->
-
----
-section: pca
----
-
-# Covariance vs. Correlation Matrix
-
-<div class="grid grid-cols-[1fr_1fr_.9fr] gap-5 mt-2 items-start">
-
-<div class="text-center">
-<img src="./figures/pca/s2-covariance-matrix.png" class="h-[255px] mx-auto" alt="Covariance matrix of 12 Sentinel-2 bands" />
-<div class="text-[.66rem] text-gray-600 mt-1">Covariances are dominated by bands with large variance (NIR).</div>
-</div>
-
-<div class="text-center">
-<img src="./figures/pca/s2-correlation-matrix.png" class="h-[255px] mx-auto" alt="Correlation matrix of 12 Sentinel-2 bands" />
-<div class="text-[.66rem] text-gray-600 mt-1">Correlation = normalised covariance</div>
-</div>
-
-<div class="text-[.72rem]">
-
-$$
-\rho_{d_1 d_2} = \frac{\sigma_{d_1 d_2}}{\sigma_{d_1}\, \sigma_{d_2}} \in [-1, 1]
-$$
-
-Correlation is the **normalised** covariance: it removes the effect of the band variances and makes bands comparable.
-
-</div>
-
-</div>
-
----
-section: pca
----
-
-<script setup>
-import CovariancePcaDemo from './components/CovariancePcaDemo.vue'
-</script>
-
-# Which Covariance Do We Want?
-
-<div class="mt-1">
-<CovariancePcaDemo />
-</div>
-
-<div class="text-[.74rem] mt-2 text-gray-700">
-For a high <strong>information density</strong>, we want <strong>small covariances</strong>. We can <strong>translate</strong> (center) and <strong>rotate</strong> the data so that the covariances vanish: this is <strong>Principal Component Analysis</strong>.
-</div>
-
-<!--
-Ask first: what covariance would we like our data to have? Then demo:
-- vary the correlation: positive / negative / no covariance
-- step 1 centres the data (translation by -μ)
-- step 2 rotates onto the principal axes: the off-diagonal entries become 0, the diagonal entries are the eigenvalues
-PC 1 is the direction of highest "explained" variance.
--->
-
----
-section: pca
----
-
-<script setup>
-import PcaGeometry from './components/PcaGeometry.vue'
-</script>
-
-# PCA: A Linear Orthogonal Transformation
-
-<div class="grid grid-cols-2 gap-8 mt-3 items-center">
-
-<div class="text-[.8rem]">
-
-1. **translation**: $\tilde{\mathbf{X}} = \mathbf{X} - \boldsymbol{\mu}$
-2. **rotation** by angle $\alpha$
-
-$D$ original **correlated** variables $x_1, \ldots, x_D$
-
-<div class="pl-8 text-[#00457c] font-semibold">&darr; PCA</div>
-
-$D$ new **uncorrelated** variables $p_1, \ldots, p_D$
-
-<blockquote class="blockquote3">
-Translation and rotation do not lose information: with all <em>D</em> components, the data can be fully reconstructed.
-</blockquote>
-
-</div>
-
-<div>
-<PcaGeometry />
-</div>
-
-</div>
-
----
-section: pca
----
-
-# PCs Are Uncorrelated &ldquo;Synthetic Bands&rdquo;
-
-<div class="grid grid-cols-[1fr_auto_1fr] gap-6 items-center mt-4">
-
-<div class="text-center">
-<div class="text-[.74rem] font-semibold text-[#00457c] mb-1">12 correlated Sentinel-2 bands</div>
-<img src="./figures/pca/s2-correlation-matrix.png" class="h-[250px] mx-auto" alt="Correlation matrix of 12 Sentinel-2 bands with large blocks of high correlation" />
-</div>
-
-<div class="flex flex-col items-center gap-1 text-[.7rem] text-[#00457c] font-semibold">
-  <div class="px-5 py-3 bg-[#00457c] text-white rounded" style="clip-path: polygon(0 0, 100% 25%, 100% 75%, 0 100%);">PCT</div>
-  principal component<br>transformation
-</div>
-
-<div class="text-center">
-<div class="text-[.74rem] font-semibold text-[#0f7d5c] mb-1">(fewer) uncorrelated principal components</div>
-<img src="./figures/pca/pc-correlation-matrix.png" class="h-[250px] mx-auto" alt="Correlation matrix of the principal components: 1 on the diagonal, 0 elsewhere" />
-</div>
-
-</div>
-
-<div class="text-[.76rem] text-center mt-3">
-Same goal as a spectral index &ndash; remove redundancy &ndash; but found <strong>from the data alone</strong>, without knowing what the bands mean.
-</div>
-
-<!--
-This is the result we are after: the correlation matrix of the principal components is the identity. Every PC carries information that no other PC carries.
-Compare with the domain-knowledge block: NDVI also merges correlated bands, but we had to know the physics. PCA only needs the covariance matrix. How to compute the rotation: next slides.
--->
-
----
-section: pca
----
-
-<script setup>
-import EigenTransformDemo from './components/EigenTransformDemo.vue'
-</script>
-
-# Covariance as a Linear Transformation
-
-<div class="mt-1">
-<EigenTransformDemo />
-</div>
-
-<div class="mt-1 text-[.68rem] flex items-center gap-6">
-<div>
-
-Applied to a unit circle, $\mathbf{C}$ describes the **spread of the data**: $\mathbf{x} = \mathbf{C}\mathbf{a}$.
-
-</div>
-<div class="rounded-lg border-2 border-[#00457c] px-3 py-1">
-
-**Eigenvectors** $\mathbf{v}$ and **eigenvalues** $\lambda$ of $\mathbf{C}$: $\;\mathbf{C}\mathbf{v} = \lambda \mathbf{v}$
-
-</div>
-</div>
-
-<!--
-How do we find the rotation that removes the covariances? The covariance matrix itself tells us.
-Rotate the probe vector a. In most directions, Ca points somewhere else. Only along the eigenvectors is Ca a scaled copy of a; the scaling factor is the eigenvalue.
-For a symmetric (covariance) matrix, the eigenvectors are orthogonal.
-In practice: eigvals, eigvecs = np.linalg.eig(C)
--->
-
----
-section: pca
----
-
-<script setup>
-import EvdDiagram from './components/EvdDiagram.vue'
-</script>
-
-# Eigendecomposition: Rotation and Scaling
-
-<div class="mt-2">
-<EvdDiagram geometry />
-</div>
-
-<div class="text-[.74rem] -mt-1">
-
-$\mathbf{C} = \mathbf{V}\mathbf{L}\mathbf{V}^\top$: the rotation $\mathbf{V}^\top \tilde{\mathbf{x}}$ **decorrelates** the data, and the **eigenvalues are the variances** in the rotated space.
-
-</div>
-
-<!--
-Any symmetric D×D matrix can be decomposed: eigvals, eigvecs = np.linalg.eig(C).
-Read the bottom row from left to right: rotate into the eigenvector frame, scale each axis by its eigenvalue, rotate back.
--->
-
----
-section: pca
----
-
-<script setup>
-import EvdDiagram from './components/EvdDiagram.vue'
-</script>
-
-# Few Large Eigenvalues: Principal Components
-
-<div class="mt-1">
-<EvdDiagram variant="truncated" />
-</div>
-
-<div class="grid grid-cols-4 gap-4 mt-1 items-center text-[.64rem] text-center text-gray-600">
-<div><img src="./figures/pca/s2-covariance-heatmap.png" class="h-[110px] mx-auto" alt="Covariance matrix of the Sentinel-2 bands as heatmap" />covariance of 12 bands</div>
-<div><img src="./figures/pca/s2-eigenvectors.png" class="h-[110px] mx-auto" alt="Eigenvectors of the covariance matrix as heatmap" />eigenvectors</div>
-<div><img src="./figures/pca/s2-eigenvalues.png" class="h-[110px] mx-auto" alt="Bar chart of eigenvalues: one large, one medium, the rest near zero" />eigenvalues: only few are large</div>
-<div class="text-left text-[.7rem] text-gray-800">
-
-If bands are strongly correlated, **most eigenvalues are close to 0**: keep only the $P \ll D$ eigenvectors with the largest eigenvalues, the **principal components**.
-
-</div>
-</div>
-
-<!--
-Terminology: the truncated eigenvector matrix is the PCA or loading matrix P; projecting data onto it gives the scores.
-Note: it is common to scale eigenvectors to loading vectors p = v·sqrt(λ).
--->
-
----
-section: pca
----
-
-<script setup>
-import PctPipeline from './components/PctPipeline.vue'
-</script>
-
-# Principal Component Transformation (PCT)
-
-<div class="mt-3">
-<PctPipeline />
-</div>
-
-<div class="mx-auto w-fit mt-1 px-4 py-1 rounded-lg border-2 border-[#00457c] text-[.78rem] text-[#00457c]">
-Once the eigenvectors are known: <strong>one matrix multiplication</strong> per pixel.
-</div>
-
----
-section: pca
----
-
-<script setup>
-import ScreePlotDemo from './components/ScreePlotDemo.vue'
-</script>
-
-# How Many Principal Components to Choose?
-
-<div class="grid grid-cols-5 gap-8 mt-2 items-start">
-
-<div class="col-span-3">
-<ScreePlotDemo />
-</div>
-
-<div class="col-span-2 text-[.78rem]">
-
-It depends on the **correlation** in the data: the stronger the correlation, the fewer components are needed.
-
-1. sort the eigenvalues $\lambda_1 \geq \lambda_2 \geq \ldots$
-2. compute the **explained variance ratio** $\lambda_i / \sum_j \lambda_j$
-3. choose $P$ so that the cumulative ratio exceeds e.g. **90 %, 95 % or 99 %**
-
-<div class="text-[.7rem] text-gray-600 mt-3">
-Exercise: eigenvalues (0.4, 0.3, 0.2, 0.1, 0.0). How many PCs for 90 %?
-</div>
-
-</div>
-
-</div>
-
-<!--
-Solution of the exercise: 3, since 0.4 + 0.3 + 0.2 = 0.9.
-Demo: compare the Sentinel-2 spectrum (2 PCs for 90 %) with weakly correlated features (many more PCs needed).
--->
-
----
-section: pca
 clicks: 2
 ---
 
-<script setup>
-import PctReconstruction from './components/PctReconstruction.vue'
-</script>
+# Linear Models Fail in Non-linear Situations
 
-# Principal Components &ldquo;Densify&rdquo; Information
+<div class="grid grid-cols-5 gap-6 mt-1 items-center">
 
-<div class="text-[.74rem] text-gray-600 -mt-2">by removing the correlation between bands</div>
+<div class="col-span-3">
+<SunflowerRegions :clicks="$clicks" />
+</div>
 
-<div class="mt-2">
-<PctReconstruction :clicks="$clicks" />
+<div class="col-span-2">
+
+<div v-if="$clicks === 0">
+
+$$f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
+
+<blockquote class="blockquote2">
+Linear models are well-suited for <strong>linear</strong> relationships with data from <strong>uni-modal</strong> distributions.
+</blockquote>
+
+</div>
+
+<div v-else-if="$clicks === 1">
+
+$$f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
+
+<blockquote class="blockquote4">
+Most relationships in the real world are <strong>non-linear</strong>, and data distributions are <strong>not uni-modal</strong>: no line separates cold, warm and hot.
+</blockquote>
+
+</div>
+
+<div v-else>
+
+We need a different model: a <strong>piecewise constant</strong> function over regions $R_m$
+
+$$f(X) = \sum_{m=1}^{M} c_m \cdot \mathbb{1}_{(X \in R_m)}$$
+
+with one value $c_m$ per region.
+
+</div>
+
+</div>
+
 </div>
 
 <!--
-The inverse transformation reconstructs all 13 bands from only a few principal components.
-Click through: 2 PCs explain 93 %, 3 PCs 96 %, 6 PCs 99 % of the variance.
+Click 1: add the hot, unhappy sunflowers — the best line becomes flat and useless.
+Click 2: split the temperature axis into three regions with one constant value each.
 -->
 
 ---
-section: pca
+layout: bonn-two-cols-header
+columns: "minmax(0, 1.25fr) minmax(0, 1fr)"
 ---
 
-<script setup>
-import PcaGeometry from './components/PcaGeometry.vue'
-</script>
+# Decision Trees: Regions from Binary Decisions
 
-# Summary: Calculating Principal Components
+$f(X) = \sum_{m=1}^{M} c_m \cdot \mathbb{1}_{(X \in R_m)}$ &mdash; regions defined by intervals: $R_1 = \{X \le 10\,°\text{C}\}$, $R_2 = \{10\,°\text{C} < X \le 30\,°\text{C}\}$, $R_3 = \{X > 30\,°\text{C}\}$
 
-<div class="grid grid-cols-2 gap-8 mt-3 items-center">
+::left::
 
-<div class="text-[.76rem]">
+<SunflowerRegions :stage="3" />
 
-The **principal components** $\mathbf{p}_1, \mathbf{p}_2, \ldots$ are the **eigenvectors** with the largest **eigenvalues** of the **covariance matrix** $\mathbf{C}$.
+::right::
 
-1. center the data matrix: $\tilde{\mathbf{X}} = \mathbf{X} - \boldsymbol{\mu}$ &nbsp;<span class="text-gray-500">($N$ pixels &times; $D$ bands)</span>
-2. calculate the $D \times D$ covariance matrix $\mathbf{C}$
-3. calculate eigenvectors $\mathbf{v}_1, \ldots, \mathbf{v}_D$ and eigenvalues $\lambda_1, \ldots, \lambda_D$
-4. sort by eigenvalue and keep the $P \ll D$ eigenvectors with the largest $\lambda$
-5. project $\tilde{\mathbf{X}}$ onto the principal components to obtain the reduced dataset
+<div class="text-center text-sm font-semibold text-blue-800 mb-1">A simple decision tree</div>
 
+<TreeDiagram
+  :width="320" :height="230"
+  :nodes="[
+    { id: 'in', x: 150, y: 14, label: 'X', type: 'input' },
+    { id: 'n1', x: 150, y: 66, label: 'X < 10 °C' },
+    { id: 'l1', x: 70, y: 136, icon: 'unhappy' },
+    { id: 'n2', x: 225, y: 136, label: 'X > 30 °C' },
+    { id: 'l2', x: 170, y: 206, icon: 'unhappy' },
+    { id: 'l3', x: 280, y: 206, icon: 'happy' },
+  ]"
+  :edges="[
+    { from: 'in', to: 'n1' },
+    { from: 'n1', to: 'l1', label: 'yes' },
+    { from: 'n1', to: 'n2', label: 'no' },
+    { from: 'n2', to: 'l2', label: 'yes' },
+    { from: 'n2', to: 'l3', label: 'no' },
+  ]"
+/>
+
+<div class="text-center text-xs text-gray-500 mt-1">(drawn upside down: the root is at the top)</div>
+
+<!--
+Each region corresponds to a path from the root to a leaf.
+The tree is just a compact way to write the interval definitions as a sequence of yes/no questions.
+-->
+
+---
+clicks: 4
+---
+
+# A Classification Decision Tree: Terminology
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<TreeDiagram
+  :width="320" :height="240"
+  :nodes="[
+    { id: 'in', x: 150, y: 14, label: 'X', type: 'input' },
+    { id: 'n1', x: 150, y: 66, label: 'X < 10 °C' },
+    { id: 'l1', x: 70, y: 140, icon: 'unhappy' },
+    { id: 'n2', x: 225, y: 140, label: 'X > 30 °C' },
+    { id: 'l2', x: 170, y: 214, icon: 'unhappy' },
+    { id: 'l3', x: 280, y: 214, icon: 'happy' },
+  ]"
+  :edges="[
+    { from: 'in', to: 'n1' },
+    { from: 'n1', to: 'l1', label: 'yes' },
+    { from: 'n1', to: 'n2', label: 'no' },
+    { from: 'n2', to: 'l2', label: 'yes' },
+    { from: 'n2', to: 'l3', label: 'no' },
+  ]"
+  :highlight="[[], ['in'], ['n1'], ['n1', 'n2'], ['l1', 'l2', 'l3']][Math.min($clicks, 4)]"
+/>
+
+<div>
+<ul>
+<li v-click="1"><strong>input features</strong>: the data to be classified</li>
+<li v-click="2">the <strong>root node</strong> starts the decision process</li>
+<li v-click="3"><strong>decision nodes</strong> (split nodes) implement a <strong>test function with discrete outcomes</strong>; each test splits the input space into regions</li>
+<li v-click="4"><strong>leaf nodes</strong> mark the end of a sequence of decisions; a single (output) class is associated with each leaf</li>
+</ul>
+</div>
+
+</div>
+
+---
+hide: true
+clicks: 3
+---
+
+# A Simple Algorithm to Classify a Test Sample
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<div>
+<TreeDiagram
+  :width="320" :height="240"
+  :nodes="[
+    { id: 'in', x: 150, y: 14, label: 'X = 15 °C', type: 'input' },
+    { id: 'n1', x: 150, y: 66, label: 'X < 10 °C' },
+    { id: 'l1', x: 70, y: 140, icon: 'unhappy' },
+    { id: 'n2', x: 225, y: 140, label: 'X > 30 °C' },
+    { id: 'l2', x: 170, y: 214, icon: 'unhappy' },
+    { id: 'l3', x: 280, y: 214, icon: 'happy' },
+  ]"
+  :edges="[
+    { from: 'in', to: 'n1' },
+    { from: 'n1', to: 'l1', label: 'yes' },
+    { from: 'n1', to: 'n2', label: 'no' },
+    { from: 'n2', to: 'l2', label: 'yes' },
+    { from: 'n2', to: 'l3', label: 'no' },
+  ]"
+  :highlight="[['n1'], ['n1', 'n1-n2', 'n2'], ['n1', 'n1-n2', 'n2', 'n2-l3', 'l3'], ['n1', 'n1-n2', 'n2', 'n2-l3', 'l3']][Math.min($clicks, 3)]"
+/>
 </div>
 
 <div>
-<PcaGeometry />
-</div>
 
-</div>
+<ol>
+<li>start at the root node</li>
+<li>if the current node is a leaf node, return its class label</li>
+<li>perform the test of the current decision node and follow the corresponding branch</li>
+<li>go to 2</li>
+</ol>
 
----
-section: pca
----
+<blockquote v-click="3" class="blockquote2 mt-4">
 
-# What Do We Get? Visualization and Analysis
+$15\,°\text{C}$: not below $10\,°\text{C}$, not above $30\,°\text{C}$ &rarr; <strong>happy</strong>.
 
-<div class="grid grid-cols-[1fr_auto_1.35fr] gap-6 items-center mt-3">
-
-<div class="relative h-[300px]">
-  <img src="./figures/pca/s2-composite-blue.png" class="absolute w-[150px] left-[60px] top-0 shadow" alt="Sentinel-2 false-colour composite" />
-  <img src="./figures/pca/s2-composite-green.png" class="absolute w-[150px] left-[40px] top-[40px] shadow" alt="Sentinel-2 false-colour composite" />
-  <img src="./figures/pca/s2-composite-red.png" class="absolute w-[150px] left-[20px] top-[80px] shadow" alt="Sentinel-2 false-colour composite" />
-  <img src="./figures/pca/s2-rgb.png" class="absolute w-[150px] left-0 top-[120px] shadow" alt="Sentinel-2 true-colour composite" />
-  <div class="absolute left-0 bottom-0 text-[.68rem] text-gray-600">13 Sentinel-2 bands</div>
-</div>
-
-<div class="flex flex-col items-center gap-1 text-[.7rem] text-[#00457c] font-semibold">
-  <div class="px-4 py-3 bg-[#00457c] text-white rounded" style="clip-path: polygon(0 0, 100% 25%, 100% 75%, 0 100%);">PCT</div>
-  <span class="w-10 h-4 rounded bg-[#e8706f] text-white text-[.55rem] grid place-items-center">PC1</span>
-  <span class="w-10 h-4 rounded bg-[#5fbf6a] text-white text-[.55rem] grid place-items-center">PC2</span>
-  <span class="w-10 h-4 rounded bg-[#7fb0de] text-white text-[.55rem] grid place-items-center">PC3</span>
-</div>
-
-<div class="flex flex-col gap-3">
-
-<div class="rounded-xl border-2 border-[#00457c] p-2 flex gap-3 items-center">
-<img src="./figures/pca/s2-pca-rgb.png" class="w-[115px]" alt="First three principal components as RGB" />
-<div class="text-[.72rem]"><strong>Purpose 1: Visualization</strong><br>the 3 most informative principal components shown as red, green and blue</div>
-</div>
-
-<div class="rounded-xl border-2 border-[#00457c] p-2">
-<div class="text-[.72rem] mb-1"><strong>Purpose 2: Analysis</strong></div>
-<div class="grid grid-cols-3 gap-2 text-[.6rem] text-center text-gray-600">
-<div><img src="./figures/pca/pc1-map.png" alt="Principal component 1" />PC1 &ndash; &ldquo;vegetation&rdquo;</div>
-<div><img src="./figures/pca/pc2-map.png" alt="Principal component 2" />PC2 &ndash; &ldquo;built-up &amp; veg.&rdquo;</div>
-<div><img src="./figures/pca/pc3-map.png" alt="Principal component 3" />PC3 &ndash; &ldquo;built-up&rdquo;</div>
-</div>
-</div>
-
-</div>
-
-</div>
-
-<!--
-The principal component transformation (PCT) maps 13 correlated bands to a few synthetic bands. We use them for visualization (any 3 PCs fit into RGB) and for analysis (each PC highlights a different surface type).
--->
-
----
-section: pca
----
-
-# Purpose 1: Visualization
-
-<div class="grid grid-cols-3 gap-5 mt-2">
-
-<div class="text-center">
-<div class="text-[.72rem] font-semibold text-[#00457c] mb-1">True colour: 3 of 12 bands</div>
-<img src="./figures/pca/bonn-rgb.jpg" class="h-[235px] mx-auto" alt="Sentinel-2 true-colour image of Bonn" />
-</div>
-
-<div class="text-center">
-<div class="text-[.72rem] font-semibold text-[#6a3d9a] mb-1">NDVI: one <em>designed</em> feature</div>
-<img src="./figures/pca/bonn-ndvi.jpg" class="h-[235px] mx-auto" alt="NDVI of the same scene: water brown, built-up beige, vegetation teal" />
-</div>
-
-<div class="text-center">
-<div class="text-[.72rem] font-semibold text-[#0f7d5c] mb-1">PC 1&ndash;3 as RGB: <em>learned</em> features</div>
-<img src="./figures/pca/bonn-pca-rgb.jpg" class="h-[235px] mx-auto" alt="First three principal components of the same scene as RGB: water red, grassland bright green, forest pale green, built-up purple" />
-</div>
-
-</div>
-
-<div class="grid grid-cols-3 gap-5 mt-2 text-[.68rem] text-gray-700">
-<div>Leaf-off forest and dense city both look dark.</div>
-<div>Vegetation (teal) vs. built-up (beige) vs. water (brown) &ndash; one dimension, interpretable.</div>
-<div>Water, grassland, forest and built-up separate at once &ndash; no expert knowledge needed, but no physical unit.</div>
-</div>
-
-<!--
-Same Sentinel-2 scene of Bonn as in the Dataset slide at the beginning of the lecture.
-Left: in true colour, the leaf-off forest on the Venusberg and the dense city centre are both dark and hard to tell apart.
-Middle: NDVI, the designed feature from the domain-knowledge block, compresses red and NIR into one number.
-Right: three principal components computed from all bands show water (red), grassland and sports fields (bright green), forest (pale green) and built-up areas (purple/blue) in one image.
--->
-
----
-section: pca
----
-
-# Purpose 2: Analysis
-
-<div class="grid grid-cols-[1fr_1fr_1.1fr] gap-6 mt-4 items-center">
-
-<div class="text-center">
-<img src="./figures/pca/pc1-gray.png" class="h-[250px] mx-auto" alt="Principal component 1 as greyscale image" />
-<div class="text-[.7rem] mt-1">PC1 &ndash; &ldquo;grass/crop &amp; healthy vegetation&rdquo;</div>
-</div>
-
-<div class="text-center">
-<img src="./figures/pca/pc2-gray.png" class="h-[250px] mx-auto" alt="Principal component 2 as greyscale image" />
-<div class="text-[.7rem] mt-1">PC2 &ndash; &ldquo;built-up / bare soil&rdquo;</div>
-</div>
-
-<div class="text-[.78rem]">
-
-Just **2 principal components** already yield a basic land-cover map.
-
-<blockquote class="blockquote2">
-Curse of dimensionality: with few labelled data points, classification and regression work much better on fewer dimensions.
 </blockquote>
 
 </div>
 
 </div>
 
----
-section: pca
+<!--
+Walk through the example with the class: each click follows one branch.
+Ask what happens for 5 °C (yes at the root → unhappy after one test).
+-->
+
 ---
 
-# PCA in Practice
+# Multivariate Data Example: Land Cover Classification
 
-<div class="grid grid-cols-5 gap-8 mt-4 items-center">
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<div>
+<img src="./figures/dt_s2_wageningen.jpg" class="w-full h-[290px] object-contain rounded-xl" alt="False-colour Sentinel-2 composite of Wageningen with vegetation in red and urban areas in cyan" />
+<div class="figure-copyright">Sentinel-2, false-colour composite (Wageningen, NL). Contains modified Copernicus Sentinel data.</div>
+</div>
+
+<div v-click>
+<LandCoverSplits :clicks="0" />
+<div class="text-sm text-gray-700 mt-2">Each pixel is a point in feature space: its <strong>red</strong> and <strong>near-infrared</strong> reflectance.</div>
+</div>
+
+</div>
+
+---
+clicks: 4
+---
+
+# Decision Tree for Multivariate Data
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<LandCoverSplits :clicks="$clicks" />
+
+<TreeDiagram
+  :width="340" :height="200"
+  :nodes="[
+    { id: 'r', x: 170, y: 20, label: 'red > t₁' },
+    { id: 'a', x: 85, y: 92, label: 'nir > t₃' },
+    { id: 'b', x: 255, y: 92, label: 'nir > t₂' },
+    { id: 'u', x: 35, y: 168, label: 'urban', type: 'leaf' },
+    { id: 'g', x: 135, y: 168, label: 'bare ground', type: 'leaf' },
+    { id: 'w', x: 210, y: 168, label: 'water', type: 'leaf' },
+    { id: 'v', x: 300, y: 168, label: 'vegetation', type: 'leaf' },
+  ]"
+  :edges="[
+    { from: 'r', to: 'a', label: 'yes' },
+    { from: 'r', to: 'b', label: 'no' },
+    { from: 'a', to: 'u', label: 'no' },
+    { from: 'a', to: 'g', label: 'yes' },
+    { from: 'b', to: 'w', label: 'no' },
+    { from: 'b', to: 'v', label: 'yes' },
+  ]"
+  :show="[[], ['r'], ['r', 'a', 'u', 'g'], ['r', 'a', 'u', 'g', 'b', 'w', 'v'], ['r', 'a', 'u', 'g', 'b', 'w', 'v']][Math.min($clicks, 4)]"
+/>
+
+</div>
+
+<div v-click="4" class="mt-2 text-gray-700">
+Every split is <strong>axis-aligned</strong>: each decision tests one feature against one threshold, so the regions are rectangles.
+</div>
+
+---
+clicks: 2
+---
+
+# Increasing Node Purity: Split &amp; Repeat
+
+<div class="grid grid-cols-5 gap-4 mt-1 items-start">
+
+<div class="col-span-2">
+<LandCoverSplits :clicks="$clicks === 0 ? 0 : ($clicks === 1 ? 1 : 2)" />
+<blockquote class="blockquote2 mt-3">
+Idea: every decision should <strong>increase the node purity</strong>.
+</blockquote>
+</div>
+
+<div class="col-span-3 flex flex-col items-center">
+<div class="w-[128px]"><PurityBars :counts="[20, 20, 20, 20]" :max="20" title="all samples" /></div>
+
+<div v-click="1" class="w-full">
+<div class="text-center text-sm text-blue-800 italic">red &gt; t₁</div>
+<div class="grid grid-cols-2 gap-6 justify-items-center">
+<div class="w-[128px]"><PurityBars :counts="[20, 20, 1, 2]" :max="20" title="yes" /></div>
+<div class="w-[128px]"><PurityBars :counts="[0, 0, 19, 18]" :max="20" title="no" /></div>
+</div>
+</div>
+
+<div v-click="2" class="w-full">
+<div class="grid grid-cols-2 gap-6">
+<div class="flex flex-col items-center">
+<div class="text-center text-sm text-blue-800 italic">nir &gt; t₃</div>
+<div class="grid grid-cols-2 gap-1">
+<div class="w-[104px]"><PurityBars :counts="[20, 1, 0, 1]" :max="20" title="no" /></div>
+<div class="w-[104px]"><PurityBars :counts="[0, 19, 1, 1]" :max="20" title="yes" /></div>
+</div>
+</div>
+<div class="flex items-center justify-center text-sm text-gray-500">&hellip; and so on</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<!--
+After each split the class histograms of the children are more peaked than the parent: the children are purer.
+Next: how do we put a number on purity?
+-->
+
+---
+
+# Quantifying Node Purity: Entropy
+
+$$H(\mathbf{p}) = -\sum_i p_i \log(p_i) \qquad \text{(here with } \log_{10}\text{)}$$
+
+<div class="grid grid-cols-2 gap-10 mt-2">
+
+<div>
+<div class="text-center text-sm font-semibold text-blue-800">lower entropy: more pure</div>
+<div class="w-[190px] mx-auto"><PurityBars :counts="[90, 90, 10, 10]" :max="90" /></div>
+
+<div class="compact-math text-sm" v-click>
+
+$p_1 = p_2 = \tfrac{90}{200} = 0.45, \quad p_3 = p_4 = \tfrac{10}{200} = 0.05$
+
+$H = -(2 \cdot 0.45 \log 0.45 + 2 \cdot 0.05 \log 0.05) \approx \mathbf{0.44}$
+
+</div>
+</div>
+
+<div>
+<div class="text-center text-sm font-semibold text-blue-800">higher entropy: less pure</div>
+<div class="w-[190px] mx-auto"><PurityBars :counts="[50, 50, 50, 50]" :max="90" /></div>
+
+<div class="compact-math text-sm" v-click>
+
+$p_{1,2,3,4} = \tfrac{50}{200} = 0.25$
+
+$H = -4 \cdot 0.25 \log 0.25 \approx \mathbf{0.60}$
+
+</div>
+</div>
+
+</div>
+
+---
+
+# Pen &amp; Paper Exercise: Gini Index
+
+$$G(\mathbf{p}) = \sum_i p_i (1 - p_i)$$
+
+<div class="grid grid-cols-2 gap-10 mt-2">
+
+<div>
+<div class="text-center text-sm font-semibold text-blue-800">higher Gini index: less pure</div>
+<div class="w-[190px] mx-auto"><PurityBars :counts="[50, 50, 50, 50]" :max="90" /></div>
+<div class="compact-math text-sm" v-click="2">
+
+$G = 4 \cdot 0.25 \cdot 0.75 = \mathbf{0.75}$
+
+</div>
+</div>
+
+<div>
+<div class="text-center text-sm font-semibold text-blue-800">lower Gini index: more pure</div>
+<div class="w-[190px] mx-auto"><PurityBars :counts="[90, 90, 10, 10]" :max="90" /></div>
+<div class="compact-math text-sm" v-click="2">
+
+$G = 2 \cdot 0.45 \cdot 0.55 + 2 \cdot 0.05 \cdot 0.95 = \mathbf{0.59}$
+
+</div>
+</div>
+
+</div>
+
+<blockquote v-click="1" class="blockquote2 mt-3">
+Exercise: calculate the Gini index for both distributions.
+</blockquote>
+
+<!--
+Give the students two minutes. The Gini index is the default criterion in scikit-learn (criterion='gini').
+-->
+
+---
+
+# Classification versus Regression Trees
+
+So far, we only considered <strong>classification trees</strong>: each leaf represents one class (the majority of the training samples in the leaf).
+
+<ul>
+<li v-click>in <strong>classification</strong> problems, the target variable is <strong>categorical</strong> (e.g., happy / not happy sunflower)</li>
+<li v-click>in <strong>regression</strong> problems, the target variable is <strong>continuous</strong> (e.g., a happiness score between 0 and 1)</li>
+</ul>
+
+<div v-click class="mt-4">
+
+<strong class="text-blue-800">Regression trees</strong> follow exactly the same principles, but use
+
+<ul>
+<li>a different metric for node purity: the <strong>sample variance</strong></li>
+<li>a different interpretation of the leaves: the <strong>sample mean</strong></li>
+</ul>
+
+</div>
+
+---
+clicks: 1
+---
+
+# Regression Trees: Leaves Return the Average
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<RegressionTreeDemo :variant="$clicks < 1 ? 'points' : 'leaf-means'" />
+
+<div v-click="1">
+<TreeDiagram
+  :width="300" :height="200"
+  :nodes="[
+    { id: 'in', x: 140, y: 12, label: 'X', type: 'input' },
+    { id: 'n1', x: 140, y: 62, label: 'X < 10 °C' },
+    { id: 'l1', x: 60, y: 130, label: 'μ₁', type: 'leaf', w: 46 },
+    { id: 'n2', x: 210, y: 130, label: 'X > 30 °C' },
+    { id: 'l3', x: 160, y: 188, label: 'μ₃', type: 'leaf', w: 46 },
+    { id: 'l2', x: 260, y: 188, label: 'μ₂', type: 'leaf', w: 46 },
+  ]"
+  :edges="[
+    { from: 'in', to: 'n1' },
+    { from: 'n1', to: 'l1', label: 'yes' },
+    { from: 'n1', to: 'n2', label: 'no' },
+    { from: 'n2', to: 'l3', label: 'yes' },
+    { from: 'n2', to: 'l2', label: 'no' },
+  ]"
+/>
+
+$$\mu_m = \frac{1}{N_m} \sum_{i:\, x_i \in R_m} y_i$$
+
+</div>
+
+</div>
+
+---
+clicks: 2
+---
+
+# Sample Variance as Node Purity
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<RegressionTreeDemo variant="variance" :clicks="$clicks" />
+
+<div>
+
+$$\sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (y_i - \mu)^2$$
+
+<blockquote v-if="$clicks === 0" class="blockquote2">
+
+<strong>Before splitting</strong> the node $X \le 30\,°\text{C}$: cold and warm sunflowers are mixed &mdash; the variance is <strong>high</strong>. Interpret variance as the <strong>average squared distance to the mean</strong>.
+
+</blockquote>
+
+<blockquote v-else-if="$clicks === 1" class="blockquote3">
+<strong>Geometric interpretation:</strong> each squared distance is the area of a square. A large average square area = high variance, i.e., a <strong>low node purity</strong>.
+</blockquote>
+
+<blockquote v-else class="blockquote2">
+
+<strong>After splitting</strong> at $10\,°\text{C}$: smaller average squares = lower variance = <strong>higher node purity</strong>.
+
+</blockquote>
+
+</div>
+
+</div>
+
+<!--
+Same picture as the MSE squares of linear regression: the tree now minimizes the squares around each region mean instead of around a line.
+-->
+
+---
+
+# How to Find the Threshold $\tau$?
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<RegressionTreeDemo variant="threshold" :tau="20" />
+
+<div>
+
+Formal definition of the regions by the threshold
+
+$$R_1 = \{X \mid X < \tau\}, \qquad R_2 = \{X \mid X \ge \tau\}$$
+
+<div v-click>
+
+Minimization objective
+
+$$
+t^* = \arg\min_\tau \underbrace{\sum_{i:\, x_i \in R_1} (y_i - \mu_{R_1})^2}_{\text{left variance}} + \underbrace{\sum_{i:\, x_i \in R_2} (y_i - \mu_{R_2})^2}_{\text{right variance}}
+$$
+
+</div>
+
+<div v-click class="text-gray-700">
+
+The impurity is a function of $\tau$ &mdash; we look for its minimum $t^*$.
+
+</div>
+
+</div>
+
+</div>
+
+---
+
+# Naïve Approach: Try Different Thresholds
+
+<div class="w-[86%] mx-auto"><ThresholdScan /></div>
+
+<blockquote class="blockquote3 mt-3">
+
+Easy to implement &mdash; but we need to choose which thresholds to test. Drag the slider to scan the thresholds; the best recorded threshold is $t^*$.
+
+</blockquote>
+
+<div class="slide-citation">
+Original Colab notebook: <a href="https://colab.research.google.com/drive/1-9FmziUq53R44xehKnzm3v4Pcvs43TXl?usp=sharing" target="_blank" rel="noopener noreferrer">threshold search</a>
+</div>
+
+<!--
+Interactive: drag τ from left to right. The impurity curve has a clear minimum where the two groups separate.
+Question to the class: how fine should the grid of thresholds be?
+-->
+
+---
+clicks: 6
+---
+
+# Binary Splitting
+
+<div class="w-[88%] mx-auto"><BinarySplitting :clicks="$clicks" /></div>
+
+<blockquote v-click="6" class="blockquote1 mt-1">
+Only thresholds between neighbouring points change the split &mdash; we test as many thresholds as we have points.
+</blockquote>
+
+<!--
+Click through the five candidate thresholds. The plot on the bottom right records the impurity of each split; the last click marks the optimum.
+-->
+
+---
+clicks: 4
+---
+
+# Growing a Tree: Recursive Binary Splitting
+
+<div class="grid grid-cols-5 gap-6 mt-2 items-center">
+
+<div class="col-span-2">
+
+Growing a decision tree:
+
+<ul>
+<li>perform binary splitting</li>
+<li>recursively for each decision node</li>
+<li>to maximize node purity</li>
+</ul>
+
+<blockquote v-click="2" class="blockquote3 mt-4">
+When to stop splitting?
+</blockquote>
+
+<blockquote v-click="4" class="blockquote4 mt-3">
+Without a stopping rule we end up with <strong>one sample per leaf</strong> = a 1-nearest-neighbour regressor / classifier.
+</blockquote>
+
+</div>
+
+<div class="col-span-3">
+<TreeGrowth :clicks="$clicks" :depth="4" />
+</div>
+
+</div>
+
+---
+
+# Overfitting of Decision Trees
+
+<div class="grid grid-cols-5 gap-6 mt-1 items-center">
+
+<div class="col-span-2">
+<ul>
+<li>the tree fits the training data perfectly (zero variance in every leaf)</li>
+<li v-click>the tree is extremely large and uninterpretable</li>
+<li v-click>test MSE: <strong>0.092</strong> happiness</li>
+</ul>
+</div>
+
+<div class="col-span-3">
+<img src="./figures/dt_overfit_full.png" class="w-full h-[220px] object-contain" alt="Unregularized regression tree following every training point of sunflower happiness versus temperature" />
+</div>
+
+</div>
+
+<img v-click="1" src="./figures/dt_overfit_full_tree.png" class="w-full h-[130px] object-contain mt-1" alt="Structure of the unregularized tree with 75 leaves" />
+
+<!--
+Synthetic sunflower data (75 training and 75 test samples). Figure script: figures-source/lecture-3/make_dt_figures.py
+-->
+
+---
+
+# Regularization: Restricting the Depth
+
+<div class="grid grid-cols-5 gap-6 mt-1 items-center">
+
+<div class="col-span-2">
+<ul>
+<li>we can manually restrict the depth</li>
+<li v-click>the tree remains interpretable</li>
+<li v-click>test MSE lower: <strong>0.077</strong> happiness</li>
+</ul>
+</div>
+
+<div class="col-span-3">
+<img src="./figures/dt_depth3_fit.png" class="w-full h-[210px] object-contain" alt="Regression tree with maximum depth 3 fitted to sunflower happiness versus temperature" />
+</div>
+
+</div>
+
+<img src="./figures/dt_depth3_tree.png" class="w-full h-[150px] object-contain mt-1" alt="The depth-3 regression tree with its split thresholds, errors and leaf values" />
+
+<div class="slide-citation">
+Original Colab notebook: <a href="https://colab.research.google.com/drive/1vP8XTPmVpnN3OdROYYkauT9y2XZlqf2r?usp=sharing" target="_blank" rel="noopener noreferrer">regularization of decision trees</a>
+</div>
+
+---
+layout: bonn-two-cols-header
+---
+
+# Regularization: Tree Pruning
+
+Two families of algorithms restrict the tree complexity and counteract overfitting.
+
+::left::
+
+<div class="border rounded-xl p-4 h-full">
+<h3>Slow growers (pre-pruning)</h3>
+
+<strong>Strategy:</strong> grow the tree slowly, with additional checks during growing.
+
+<ul>
+<li>simple checks: <strong>maximum depth</strong>, <strong>maximum number of leaf nodes</strong></li>
+<li>add a decision node only if the <strong>increase in node purity</strong> is above a threshold</li>
+</ul>
+</div>
+
+::right::
+
+<div v-click class="border rounded-xl p-4 h-full">
+<h3>Fast cutters (post-pruning)</h3>
+
+<strong>Strategy:</strong> grow the full tree, then remove unimportant nodes.
+
+<ul>
+<li><strong>cost complexity pruning</strong>: we identify the weakest link in the tree and remove it</li>
+</ul>
+</div>
+
+---
+hide: true
+---
+
+# Cost Complexity Pruning
+
+<div class="grid grid-cols-2 gap-8 mt-1 items-center">
+
+<div>
+
+$$C_\alpha(T) = \underbrace{C(T)}_{\substack{\text{cost} \\ \text{(training error)}}} + \alpha \underbrace{|T|}_{\substack{\text{complexity} \\ \text{(number of leaves)}}}$$
+
+<strong class="text-blue-800">Idea:</strong> remove leaves to <strong>reduce the complexity</strong> while keeping a <strong>low training error</strong> (cost). The hyperparameter $\alpha$ balances both objectives.
+
+<div v-click>
+
+<strong class="text-blue-800">Algorithm:</strong>
+
+<ul>
+<li>
+
+iteratively remove sub-trees and record the decrease in the cost-complexity function $C_\alpha(T)$
+
+</li>
+<li>
+
+sub-trees can be ordered by importance, each with an associated $\alpha$
+
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<TreeDiagram
+  :width="300" :height="230"
+  :nodes="[
+    { id: 'x', x: 150, y: 12, label: 'X', type: 'input' },
+    { id: 'r', x: 150, y: 58, label: ' ', w: 30 },
+    { id: 'a', x: 100, y: 112, label: ' ', w: 30 },
+    { id: 'b', x: 200, y: 112, label: ' ', w: 30 },
+    { id: 'a1', x: 60, y: 166, label: ' ', w: 30 },
+    { id: 'a2', x: 130, y: 166, label: ' ', w: 30 },
+    { id: 'm1', x: 40, y: 214, label: 'μ₁', type: 'leaf', w: 34 },
+    { id: 'm2', x: 85, y: 214, label: 'μ₂', type: 'leaf', w: 34 },
+    { id: 'm3', x: 175, y: 166, label: 'μ₃', type: 'leaf', w: 34 },
+    { id: 'm4', x: 240, y: 166, label: 'μ₄', type: 'leaf', w: 34 },
+  ]"
+  :edges="[
+    { from: 'x', to: 'r' },
+    { from: 'r', to: 'a' }, { from: 'r', to: 'b' },
+    { from: 'a', to: 'a1' }, { from: 'a', to: 'a2' },
+    { from: 'a1', to: 'm1' }, { from: 'a1', to: 'm2' },
+    { from: 'b', to: 'm3' }, { from: 'b', to: 'm4' },
+  ]"
+  :dim="$clicks >= 1 ? ['a1', 'm1', 'm2'] : []"
+/>
+
+</div>
+
+---
+hide: true
+---
+
+# Cost Complexity Pruning: The Effect of $\alpha$
+
+<div class="grid grid-cols-2 gap-8 items-center">
+
+<div>
+
+$$C_\alpha(T) = C(T) + \alpha |T|$$
+
+</div>
+
+<div>
+
+A higher $\alpha$
+
+- produces a **shallower tree** with fewer nodes (reduces complexity)
+- increases the impurity, i.e., the **training error** (increases cost)
+
+</div>
+
+</div>
+
+<img src="./figures/dt_ccp_alphas.png" class="w-full h-[250px] object-contain mt-2" alt="Three pruned regression trees for increasing alpha with their number of leaves and training and test errors" />
+
+<!--
+With increasing α the training error goes up but the test error goes down: we trade fit for generalization.
+-->
+
+---
+hide: true
+---
+
+# Building a Tree with Cost Complexity Pruning
+
+<div class="grid grid-cols-4 gap-6 mt-2 items-center">
 
 <div class="col-span-3">
 
-```python
-import numpy as np
-from sklearn.decomposition import PCA
+1. use ***recursive binary splitting*** to grow a large tree on the training data
+2. apply **cost complexity pruning** to the large tree to obtain a sequence of best sub-trees as a function of $\alpha$
+3. use **K-fold cross-validation to choose $\alpha$**:
+   1. repeat steps 1 and 2 on all but the $k$-th fold of the training data
+   2. evaluate the error on the left-out $k$-th fold as a function of $\alpha$; average the results for each $\alpha$ and pick $\alpha$ to minimize the average error
+4. return the sub-tree from step 2 that corresponds to the chosen value of $\alpha$
 
-# demo data: 100 samples, 5 features
-X = np.random.rand(100, 5)
+</div>
 
-# initialize the PCA transform object
-pca = PCA(n_components=2)
+<div>
+<img src="./figures/decision_tree.png" class="w-full h-[220px] object-contain" alt="Stylized illustration of a decision tree as a real tree" />
+<div class="figure-copyright text-center">Image by Bing Image Generator</div>
+</div>
 
-# fit (eigendecomposition) and apply the transformation
-pc_features = pca.fit_transform(X)
+</div>
 
-pc_features.shape              # (100, 2)
-pca.explained_variance_ratio_  # per component
+<div class="slide-citation">
+Algorithm after James, Witten, Hastie &amp; Tibshirani, <a href="https://www.statlearning.com/" target="_blank" rel="noopener noreferrer"><em>An Introduction to Statistical Learning</em></a>, Algorithm 8.1.
+</div>
+
+---
+hide: true
+---
+
+# Decision Trees in scikit-learn: Hyperparameters
+
+```python {2,3,4|all}
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+
+clf = DecisionTreeClassifier(criterion="gini",          # or "entropy" — node purity
+                             max_depth=None, max_leaf_nodes=None,      # pre-pruning
+                             min_samples_split=2, min_samples_leaf=1,
+                             min_impurity_decrease=0.0,
+                             ccp_alpha=0.0)                            # post-pruning
+
+reg = DecisionTreeRegressor(criterion="squared_error",  # variance as node purity
+                            max_depth=3, ccp_alpha=0.0)
 ```
 
+<div class="mt-3 text-gray-700">
+All hyperparameters in the snippet were covered in this part: the <strong>purity criterion</strong>, <strong>pre-pruning</strong> limits and <strong>cost complexity pruning</strong> via <code>ccp_alpha</code>.
 </div>
 
-<div class="col-span-2 text-[.8rem]">
+<div class="slide-citation">
+Documentation: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html" target="_blank" rel="noopener noreferrer">DecisionTreeClassifier</a> · <a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html" target="_blank" rel="noopener noreferrer">DecisionTreeRegressor</a>
+</div>
 
-Fitting PCA on thousands of pixels with a dozen bands takes **milliseconds**.
+---
+layout: bonn-two-cols-header
+---
 
-Once fitted, transforming new data is **a single matrix multiplication**.
+# Recap: Decision Trees
 
-<blockquote class="blockquote3">
-The tedious part is computing by hand &ndash; not for the computer.
-</blockquote>
+::left::
 
-<div class="mt-3 text-[.66rem] text-gray-600 rounded-lg border border-gray-300 px-3 py-1.5">
-<strong>FYI</strong> &ndash; PCA on whole images in Google Earth Engine:
-<a href="https://developers.google.com/earth-engine/guides/arrays_eigen_analysis" target="_blank" rel="noopener noreferrer">eigen-analysis guide</a> &middot;
-<a href="https://code.earthengine.google.com/23846e4ae9ab6ee37f9618563d24afbc" target="_blank" rel="noopener noreferrer">example script</a>
+<h3>Advantages</h3>
+
+<ul>
+<li><strong>inexpensive</strong> to construct</li>
+<li>extremely <strong>fast at prediction</strong> time</li>
+<li><strong>easy to interpret</strong> for small trees</li>
+<li><strong>robust to noise</strong> (when regularized)</li>
+<li>can easily handle <strong>redundant or irrelevant attributes</strong> (unless the attributes are interacting)</li>
+</ul>
+
+::right::
+
+<div v-click>
+<h3>Disadvantages</h3>
+
+<ul>
+<li>decision trees are prone to <strong>overfitting</strong> and need regularization</li>
+<li><strong>greedy</strong> approaches often fail to find the best tree (restricting growth is too short-sighted)</li>
+<li>do <strong>not take interactions between features</strong> into account: each decision boundary involves only a single attribute</li>
+</ul>
+</div>
+
+---
+
+# Bagging &amp; Random Forests
+
+## Increasing robustness by redundancy
+
+<div class="grid grid-cols-2 gap-16 mt-6 text-center w-[70%] mx-auto">
+
+<div>
+<img src="./figures/dt_ai_bag.jpg" class="w-full h-[200px] object-contain" alt="Stylized bag filled with green trees" />
+<div class="text-blue-800 font-semibold mt-2">Bagging</div>
+</div>
+
+<div>
+<img src="./figures/dt_ai_forest.jpg" class="w-full h-[200px] object-contain" alt="Stylized random forest of different trees" />
+<div class="text-blue-800 font-semibold mt-2">Random Forests</div>
 </div>
 
 </div>
 
+<div class="slide-citation">
+Images by Bing Image Generator (DALL·E 3): "a stylized image of a bag of green trees", "… of a random forest", white background.
 </div>
 
 <!--
-Exam experience from Wageningen: students thought PCA is computationally expensive because the hand calculation is tedious. Emphasize that it is a few lines of code and very fast.
-The GEE links are for reference only; there is no exercise on them. The GEE example implements exactly the steps from "Summary: Calculating Principal Components" (center, covariance, eigen-decomposition, projection).
+Part 2: single trees have high variance. We fix this by combining many trees.
 -->
 
 ---
-section: pca
----
 
-# PCA: Advantages and Limitations
+# An Artificial Classification Dataset
 
-<div class="grid grid-cols-2 gap-8 mt-3 text-[.72rem]">
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<div>
+<img src="./figures/dt_cls_distribution.png" v-if="$clicks < 1" class="w-full h-[300px] object-contain" alt="Density contours of four overlapping two-dimensional Gaussian class distributions" />
+<img src="./figures/dt_cls_sample.png" v-else class="w-full h-[300px] object-contain" alt="Samples drawn from the four class distributions" />
+</div>
 
 <div>
 
-<div class="text-[.82rem] font-bold text-[#0f7d5c] mb-1">Advantages</div>
+Assume four distributions, one per class, over a random feature vector $\mathbf{X} = (x_1, x_2)$:
 
-- **dimensionality reduction:** fewer features that keep most of the variance
-- **noise reduction:** dropping small components filters noise
-- **efficiency:** less memory, faster training
-- **uncorrelated features:** can improve model performance
-- **visualization:** 2&ndash;3 components fit into a plot or an RGB image
+<ul>
+<li>
+
+<span style="color:#ff7378">■</span> class 1: $p(x_1, x_2 \mid y = 1)$
+
+</li>
+<li>
+
+<span style="color:#8b5cf6">■</span> class 2: $p(x_1, x_2 \mid y = 2)$
+
+</li>
+<li>
+
+<span style="color:#f2c300">■</span> class 3: $p(x_1, x_2 \mid y = 3)$
+
+</li>
+<li>
+
+<span style="color:#5ec8ec">■</span> class 4: $p(x_1, x_2 \mid y = 4)$
+
+</li>
+</ul>
+
+<div v-click="1">
+
+We <strong>sample a dataset</strong> from the distribution
+
+$$\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^{N} \sim p(\mathbf{X}, Y)$$
+
+</div>
+
+<blockquote class="blockquote1 mt-3">
+Remember: we are always working with distributions.
+</blockquote>
+
+</div>
+
+</div>
+
+---
+clicks: 2
+---
+
+# Let's Fit a Decision Tree to the Data
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-center">
+
+<img src="./figures/dt_cls_tree.png" class="w-full h-[320px] object-contain" alt="Axis-aligned decision regions of a single decision tree on the four-class dataset" />
+
+<div>
+
+Again, we split the feature space into <strong>regions</strong>.
+
+<blockquote v-click="1" class="blockquote2 mt-4">
+The <strong>modes</strong> (i.e., centers) of the data distributions are well assigned to the correct classes.
+</blockquote>
+
+<blockquote v-click="2" class="blockquote4 mt-4">
+But the uncertain, <strong>overlapping region</strong> is not well defined: thin slivers and islands follow individual training points.
+</blockquote>
+
+</div>
+
+</div>
+
+---
+
+# Different Samples Lead to Very Different Trees
+
+<img src="./figures/dt_cls_two_samples.png" class="w-full h-[250px] object-contain mt-1" alt="Decision regions of two trees trained on two different samples from the same distribution" />
+
+<div class="grid grid-cols-2 gap-8 mt-2">
+
+<blockquote v-click class="blockquote2">
+<strong>Low bias:</strong> each tree fits its own training data perfectly.
+</blockquote>
+
+<blockquote v-click class="blockquote3">
+
+<strong>High variance:</strong> the trees are very different on different dataset samples $\mathcal{D}_1, \mathcal{D}_2 \sim p(\mathbf{X}, Y)$.
+
+</blockquote>
+
+</div>
+
+---
+layout: bonn-two-cols-header
+---
+
+# Bias–Variance Trade-off
+
+Finding a good balance between fitting and overfitting is the fundamental challenge in machine learning. For tree-like classifiers:
+
+::left::
+
+<div class="grid grid-cols-4 gap-3 items-center">
+<div class="col-span-3">
+<h3>Strategy 1: reduce tree complexity</h3>
+<span class="text-gray-500 text-sm">(recap: seen in Part 1)</span>
+<ul>
+<li>greedy: restrict the tree complexity while growing</li>
+<li>non-greedy: post-hoc pruning of the tree</li>
+</ul>
+</div>
+<div class="text-center">
+<img src="./figures/decision_tree.png" class="w-full h-[130px] object-contain" alt="A single stylized tree" />
+<div class="text-sm italic text-blue-800">"cut the tree"</div>
+</div>
+</div>
+
+::right::
+
+<div v-click class="grid grid-cols-4 gap-3 items-center">
+<div class="col-span-3">
+<h3>Strategy 2: ensemble many trees</h3>
+<ul>
+<li>bagging</li>
+<li>random forests</li>
+</ul>
+</div>
+<div class="text-center">
+<img src="./figures/dt_ai_forest.jpg" class="w-full h-[130px] object-contain" alt="A stylized forest" />
+<div class="text-sm italic text-blue-800">"grow a forest"</div>
+</div>
+</div>
+
+---
+
+# Let's Grow a Forest — Step 1: Bagging
+
+<div class="grid grid-cols-5 gap-6 mt-1 items-center">
+
+<div class="col-span-2">
+
+<div class="text-center text-sm">
+
+$\mathcal{D}_\text{train} = \{(\mathbf{x}_i, y_i)\}_{i=1}^{N} \sim p(\mathbf{X}, Y)$
+
+<div class="text-gray-500 text-xs my-1">&darr; randomly sampled subsets (with replacement), i.e., a <strong>"bootstrap"</strong> &darr;</div>
+
+</div>
+
+<div class="border-2 rounded-xl p-2 mt-1" style="border-color: var(--bonn-blue)">
+<div class="text-center text-sm font-semibold text-blue-800">Bag of decision trees</div>
+<div class="flex justify-around">
+<MiniTree label="𝒟₁ → DT₁" size="70px" />
+<MiniTree label="𝒟₂ → DT₂" size="70px" />
+<MiniTree label="𝒟₃ → DT₃" size="70px" />
+</div>
+<div class="text-center text-xs text-gray-500">each tree is deep and not pruned</div>
+</div>
+
+<div v-click="1" class="mt-3 text-sm">
+<strong class="text-blue-800">Ensemble prediction:</strong>
+<ul>
+<li><strong>majority voting</strong> for classification</li>
+<li><strong>output averaging</strong> for regression</li>
+</ul>
+</div>
+
+</div>
+
+<div class="col-span-3" v-click="2">
+<img src="./figures/dt_bagging_vs_tree.png" class="w-full h-[260px] object-contain" alt="Decision regions of a single tree compared with the blended regions of a bag of 200 trees" />
+<blockquote class="blockquote2 mt-1">
+Effect: trees agree in the modes and disagree in the overlap &mdash; decision boundaries become <strong>blurry</strong>, a more realistic result.
+</blockquote>
+</div>
+
+</div>
+
+<!--
+Right plot: colours are blended by the fraction of trees voting for each class; uncertain regions appear as mixed colours.
+-->
+
+---
+hide: true
+---
+
+# Bagging: Out-of-Bag Error
+
+<div class="grid grid-cols-2 gap-10 mt-4 items-center">
+
+<div class="text-center">
+
+$\mathcal{D}_\text{train}$
+
+<div class="flex justify-center gap-6 mt-3 text-sm">
+<div class="border-2 rounded-xl px-3 py-2" style="border-color: var(--bonn-blue)">
+
+bootstrap 𝒟ᵢ<br><span class="text-gray-500 text-xs">1. fit DTᵢ</span>
+
+</div>
+<div class="border-2 rounded-xl px-3 py-2" style="border-color: var(--grl-data-orange)">
+
+remaining samples 𝒟<sub>OOB</sub><br><span class="text-gray-500 text-xs">2. estimate the OOB error of DTᵢ</span>
+
+</div>
+</div>
 
 </div>
 
 <div>
 
-<div class="text-[.82rem] font-bold text-[#b02b37] mb-1">Limitations</div>
+<strong class="text-blue-800">Out-of-bag (OOB) error estimation</strong>
 
-- **loss of interpretability:** components have no unit and mix all bands
-- **assumes linearity:** captures only linear correlations
-- **sensitive to scaling:** features with large values dominate &rarr; normalize (less critical for reflectances in the same unit)
-- **sensitive to outliers:** outliers pull the principal axes
-- **loss of information:** fine-grained information in small components is lost
+<ol>
+<li>
 
-</div>
+fit decision tree $DT_i$ on $\mathcal{D}_i$
 
-</div>
+</li>
+<li>
 
-<blockquote class="blockquote3">
-PCA is one of the most widely used data analysis tools: remote sensing, image compression, genomics, social sciences, recommender systems.
+test its performance on the out-of-bag set $\mathcal{D}_\text{OOB}$
+
+</li>
+<li>repeat for each tree in the bag</li>
+<li>average the individual OOB errors across trees</li>
+</ol>
+
+<blockquote v-click class="blockquote2 mt-3">
+The OOB error <strong>approximates the test error</strong> without using test data &mdash; a similar idea to cross-validation.
 </blockquote>
 
-<!--
-Exam experience: students struggled to name the limitations of PCA. Spend time on the right column.
--->
+</div>
+
+</div>
 
 ---
-section: pca
----
 
-# Summary and Core Concepts
+# Bagging Trees: Re-gaining Interpretability
 
-<div class="flex flex-col gap-2 mt-2 text-[.72rem]">
+<div class="grid grid-cols-5 gap-6 mt-1 items-center">
 
-<div class="grid grid-cols-[13rem_1fr_auto] gap-4 items-center">
-<div class="rounded-lg border-2 border-[#5f625f] bg-[#ececec] px-3 py-1.5 text-center">Statistics<br><strong>covariances &amp; correlations</strong></div>
-<div>Correlated bands are <strong>redundant</strong>; PCA translates and rotates the data so that the components are <strong>uncorrelated</strong>.</div>
-<div class="flex gap-1 items-center"><img src="./figures/pca/s2-correlation-matrix.png" class="h-[64px]" alt="Band correlation" />&rarr;<img src="./figures/pca/pc-correlation-matrix.png" class="h-[64px]" alt="PC correlation" /></div>
+<div class="col-span-3">
+<ul>
+<li>bagging <strong>improves accuracy</strong> over a single tree through increasing diversity in the decisions</li>
+<li>but we <strong>lose interpretability</strong>: each tree has different decision rules, and interpreting many rules in parallel is difficult</li>
+</ul>
+
+<div v-click="1" class="mt-3">
+<strong class="text-blue-800">Variable importance</strong> &mdash; across all trees in the bag:
+<ol>
+<li>look at all decision nodes that involve the feature of interest <span style="color: var(--grl-data-orange)">●</span> (for instance, temperature)</li>
+<li>measure the <strong>increase in node purity</strong> at each of these nodes and average it</li>
+</ol>
+</div>
 </div>
 
-<div class="grid grid-cols-[13rem_1fr_auto] gap-4 items-center">
-<div class="rounded-lg border-2 border-[#c4581c] bg-[#fbd9c8] px-3 py-1.5 text-center">Linear algebra<br><strong>eigenvalue decomposition</strong></div>
-<div>The principal components are the <strong>eigenvectors</strong> of the covariance matrix; the eigenvalues are their variances. Applying PCA is <strong>one matrix multiplication</strong>.</div>
-<div class="font-mono text-[.7rem] text-[#00457c]">p = P(x &minus; &mu;)</div>
+<div class="col-span-2">
+<div class="flex justify-around">
+<MiniTree root="a" label="DT₁" size="64px" />
+<MiniTree left="a" right="a" label="DT₂" size="64px" />
+<MiniTree left="a" label="DT₃" size="64px" />
+</div>
+<img v-click="2" src="./figures/dt_rf_importance.png" class="w-full h-[170px] object-contain mt-2" alt="Bar chart of variable importance: the two informative features dominate four noise features" />
 </div>
 
-<div class="grid grid-cols-[13rem_1fr_auto] gap-4 items-center">
-<div class="rounded-lg border-2 border-[#00457c] bg-[#dbe9f6] px-3 py-1.5 text-center">Machine learning<br><strong>dimensionality reduction</strong></div>
-<div>Few principal components keep most of the variance and serve as compact <strong>features</strong>, e.g. for land-cover classification.</div>
-<div class="flex gap-1"><img src="./figures/pca/pc1-gray.png" class="h-[64px]" alt="PC1" /><img src="./figures/pca/pc2-gray.png" class="h-[64px]" alt="PC2" /></div>
-</div>
-
-<div class="grid grid-cols-[13rem_1fr_auto] gap-4 items-center">
-<div class="rounded-lg border-2 border-[#2e8b3a] bg-[#d9efd9] px-3 py-1.5 text-center">Remote sensing<br><strong>multi-spectral visualization</strong></div>
-<div>Three PCs show high-dimensional Sentinel-2 data in <strong>one RGB image</strong>.</div>
-<img src="./figures/pca/bonn-pca-rgb.jpg" class="h-[64px]" alt="Principal components of Bonn as RGB" />
-</div>
-
-</div>
-
-<div class="text-[.72rem] mt-3 text-center">
-Domain knowledge (indices) and PCA both reduce correlated dimensions: <strong>indices are interpretable</strong>, <strong>PCA needs no expert knowledge</strong>.
 </div>
 
 <!--
-Wrap-up of the representation story: data cubes give many, correlated dimensions; we reduce them with domain knowledge or algorithmically with PCA.
+The importance plot is computed on the four-class dataset with four extra pure-noise features: the informative features x1 and x2 clearly stand out.
 -->
+
+---
+
+# Bagging Limitation: Correlated Trees
+
+<div class="grid grid-cols-5 gap-6 mt-2 items-center">
+
+<div class="col-span-3">
+<ul>
+<li>bagging improves accuracy through increasing <strong>diversity</strong> in the decisions</li>
+<li v-click>but bagged trees are still <strong>highly correlated</strong>: an important feature <span style="color: var(--grl-data-orange)">●</span> is split first, followed by the second most important feature <span style="color: var(--grl-data-green)">●</span>, and so on&hellip;</li>
+<li v-click>all trees in a bag look similar &rarr; this <strong>correlates the trees</strong>, reduces diversity &amp; test accuracy</li>
+</ul>
+
+<blockquote v-click class="blockquote3 mt-4">
+Idea: increase diversity by <strong>removing features</strong> from individual trees.
+</blockquote>
+</div>
+
+<div class="col-span-2 border-2 rounded-xl p-3" style="border-color: var(--bonn-blue)">
+<div class="text-center text-sm font-semibold text-blue-800 mb-1">Bag of decision trees</div>
+<div class="flex justify-around">
+<MiniTree root="a" left="b" right="b" label="𝒟₁ → DT₁" size="72px" />
+<MiniTree root="a" left="b" right="b" label="𝒟₂ → DT₂" size="72px" />
+<MiniTree root="a" left="b" label="𝒟₃ → DT₃" size="72px" />
+</div>
+</div>
+
+</div>
+
+---
+
+# Random Forest — Step 2: Remove Features
+
+<blockquote class="blockquote3">
+Idea: increase diversity by removing features from individual trees.
+</blockquote>
+
+<div class="grid grid-cols-2 gap-8 mt-3 items-center">
+
+<div>
+
+<strong class="text-blue-800">Implementation:</strong> we take a random sample of predictors for each tree (usually $\sqrt{F}$ of $F$ features, e.g., 4 out of 15).
+
+In a random forest, each decision tree is
+
+<ol>
+<li>
+
+trained with a bootstrapped dataset $\mathcal{D}_i$
+
+</li>
+<li>
+
+using a subset of features $\mathcal{F}_i$
+
+</li>
+</ol>
+
+</div>
+
+<div v-click class="border-2 rounded-xl p-3" style="border-color: var(--bonn-blue)">
+<div class="text-center text-sm font-semibold text-blue-800 mb-1">Random forest</div>
+<div class="flex justify-around">
+<MiniTree root="a" left="o" right="o" label="𝒟₁ → DT₁" sub="using ℱ₁" :without="['b']" size="80px" />
+<MiniTree root="b" left="o" right="b" label="𝒟₂ → DT₂" sub="using ℱ₂" :without="['a']" size="80px" />
+<MiniTree root="o" left="o" right="o" label="𝒟₃ → DT₃" sub="using ℱ₃" :without="['a', 'b']" size="80px" />
+</div>
+</div>
+
+</div>
+
+<!--
+In scikit-learn the feature subset is drawn per split (max_features), not once per tree — the effect on diversity is the same.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Summary: Bagging and Random Forests
+
+::left::
+
+<h3>Bags &amp; random forests</h3>
+<ul>
+<li>each tree is trained on a different <strong>bootstrapped</strong> set of training data</li>
+<li>trees are trained separately from each other, <strong>in parallel</strong></li>
+</ul>
+
+<div class="flex justify-around mt-4">
+<MiniTree root="a" left="b" right="b" label="DT₁" size="62px" />
+<MiniTree root="a" left="b" right="b" label="DT₂" size="62px" />
+<MiniTree root="a" left="b" label="DT₃" size="62px" />
+</div>
+<div class="text-center text-sm text-blue-800 font-semibold">bag of decision trees</div>
+
+::right::
+
+<h3>Random forests</h3>
+<ul>
+<li>additionally, each tree is trained with a <strong>different subset of features</strong></li>
+</ul>
+
+<div class="flex justify-around mt-4">
+<MiniTree root="a" label="DT₁" :without="['b']" size="62px" />
+<MiniTree root="b" right="b" label="DT₂" :without="['a']" size="62px" />
+<MiniTree label="DT₃" :without="['a', 'b']" size="62px" />
+</div>
+<div class="text-center text-sm text-blue-800 font-semibold">random forest</div>
+
+---
+hide: true
+---
+
+# Bagging &amp; Random Forests in scikit-learn
+
+```python {3-5|7-9|all}
+from sklearn.ensemble import BaggingClassifier, RandomForestClassifier
+
+bag = BaggingClassifier(estimator=DecisionTreeClassifier(),  # any base model
+                        n_estimators=10, max_samples=1.0,     # number & size of bootstraps
+                        bootstrap=True, oob_score=False, n_jobs=None)
+
+rf = RandomForestClassifier(n_estimators=100, criterion="gini", max_depth=None,
+                            max_features="sqrt",              # feature subset → diversity
+                            bootstrap=True, oob_score=False, n_jobs=None)
+```
+
+<div class="mt-3 text-gray-700">
+Pass a <code>DecisionTreeClassifier</code> as <code>estimator</code> into the bagging classifier. <code>oob_score=True</code> computes the out-of-bag error; <code>n_jobs</code> trains trees in parallel.
+</div>
+
+<div class="slide-citation">
+Documentation: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html" target="_blank" rel="noopener noreferrer">BaggingClassifier</a> · <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html" target="_blank" rel="noopener noreferrer">RandomForestClassifier</a>
+</div>
+
+---
+layout: bonn-two-cols-header
+---
+
+# Recap: Decision Trees &amp; Ensembles
+
+::left::
+
+<h3>Decision trees</h3>
+<ul>
+<li>a simple chain of decisions</li>
+<li>well interpretable, but inaccurate on the test set (<strong>low bias, high variance</strong>)</li>
+</ul>
+
+<h3 class="mt-3">Bag of trees</h3>
+<ul>
+<li>an ensemble "bag" of trees, each trained on a different data subset ("bootstrap")</li>
+<li>better test accuracy through tree consensus; all trees learned <strong>simultaneously</strong></li>
+</ul>
+
+::right::
+
+<h3>Random forest</h3>
+<ul>
+<li>like a bag, but each tree also uses a different <strong>feature subset</strong></li>
+<li>trees are as <strong>diverse</strong> as possible; learned simultaneously</li>
+</ul>
+
+---
+section: closing
+sectionTitle: Closing
+---
+
+<script setup>
+import LectureOverview from './components/LectureOverview.vue'
+</script>
+
+# Lecture Overview
+
+<div class="mt-6">
+<LectureOverview :next="5" />
+</div>
+
+<!--
+Recap: four ways we improved machine learning today - more data (and its curse of dimensionality), less redundant data (decorrelation through PCA), more descriptive data (domain knowledge), and better non-linear models (random forests).
+-->
+
+---
+section: closing
+---
+
+# Machine Learning Pipeline
+
+<div class="mt-1 text-gray-700 text-[.82rem] text-center">
+Good, hand-selected features combined with a suitable model determine the quality of the result.
+</div>
+
+<div class="relative mt-8">
+
+<img src="./figures/classic_ml.svg" class="w-full object-contain" alt="Classic machine learning pipeline: hand-designed features such as NDVI, NDWI, and GLCM textures are extracted from an input tensor and passed to a linear/logistic regression or random forest model to produce predicted classes" />
+
+<div class="absolute" style="left: 36.2%; top: 100%; transform: translate(0, 10px);">
+<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--bonn-blue);">
+<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--bonn-blue);"></span>
+This lecture &middot; More Data, PCA &amp; Better Features
+</div>
+</div>
+
+<div class="absolute" style="left: 73%; top: 100%; transform: translate(0, 10px);">
+<div class="flex items-center gap-1.5 text-[.68rem] font-semibold whitespace-nowrap" style="color: var(--grl-data-orange);">
+<span class="w-2 h-2 rounded-full flex-shrink-0" style="background: var(--grl-data-orange);"></span>
+This lecture &middot; Decision Trees &amp; Random Forests
+</div>
+</div>
+
+</div>
+
+<!--
+Recap of the whole lecture in one picture. Feature side (blue): more data, less redundant data (PCA) and more descriptive data (domain knowledge). Model side (orange): decision trees and random forests.
+-->
+
+---
+layout: learning-outcomes
+mode: after
+meeting: lecture-03
+section: closing
+sectionTitle: Closing
+---
+
+# Revisit the learning outcomes

@@ -2,13 +2,13 @@
 export default {
   'lecture-1': true,
   'lecture-2': true,
-  'lecture-3': false,
+  'lecture-3': true,
   'lecture-4': false,
   'lecture-5': false,
   'lecture-6': false,
   'lecture-7': false,
   'lab-1': true,
   'lab-2': true,
-  'lab-3': false,
+  'lab-3': true,
   'lab-4': false,
 }
