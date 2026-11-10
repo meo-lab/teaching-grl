@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 220" role="img" aria-labelledby="title description">
+  <title id="title">Three models in Lecture 4</title>
+  <desc id="description">Fixed feature vectors feed linear regression or logistic regression. A multilayer perceptron learns a feature representation with affine layers and ReLU activations, then uses a regression or classification head.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff7900"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Arial, Helvetica, sans-serif; fill: #005172; }
+    .small { font-size: 17px; font-weight: 600; }
+    .math { font-size: 25px; font-weight: 700; }
+    .arrow { stroke: #ff7900; stroke-width: 4; marker-end: url(#arrow); }
+    .node { fill: #fff; stroke: #005172; stroke-width: 3; }
+    .feature { fill: #005172; }
+    .feature-light { fill: #84bfda; }
+    .output { fill: #ff7900; }
+  </style>
+
+  <line x1="400" y1="20" x2="400" y2="202" stroke="#d1d1d1" stroke-width="2"/>
+  <line x1="800" y1="20" x2="800" y2="202" stroke="#d1d1d1" stroke-width="2"/>
+
+  <!-- Block 1: a fixed feature vector feeds a continuous prediction. -->
+  <text class="small" x="54" y="42">fixed features</text>
+  <rect class="feature" x="75" y="82" width="20" height="57"/>
+  <rect class="feature-light" x="100" y="102" width="20" height="37"/>
+  <rect class="feature" x="125" y="66" width="20" height="73"/>
+  <line class="arrow" x1="158" y1="111" x2="198" y2="111"/>
+  <rect class="node" x="211" y="76" width="105" height="70" rx="8"/>
+  <text class="math" x="263.5" y="119" text-anchor="middle">Wx+b</text>
+  <line class="arrow" x1="324" y1="111" x2="347" y2="111"/>
+  <circle class="output" cx="372" cy="111" r="16"/>
+  <text class="small" x="263" y="181" text-anchor="middle">continuous value</text>
+
+  <!-- Block 2: the same fixed features yield class probabilities. -->
+  <text class="small" x="439" y="42">fixed features</text>
+  <rect class="feature" x="456" y="82" width="17" height="57"/>
+  <rect class="feature-light" x="478" y="102" width="17" height="37"/>
+  <rect class="feature" x="500" y="66" width="17" height="73"/>
+  <line class="arrow" x1="525" y1="111" x2="555" y2="111"/>
+  <rect class="node" x="567" y="76" width="84" height="70" rx="8"/>
+  <text class="math" x="609" y="119" text-anchor="middle">Wx+b</text>
+  <line class="arrow" x1="659" y1="111" x2="684" y2="111"/>
+  <rect class="node" x="696" y="76" width="72" height="70" rx="8"/>
+  <text class="math" x="732" y="119" text-anchor="middle">σ</text>
+  <text class="small" x="616" y="181" text-anchor="middle">class probabilities</text>
+
+  <!-- Block 3: hidden layers learn features before the output head. -->
+  <text class="small" x="840" y="42">input features</text>
+  <rect class="feature" x="844" y="82" width="16" height="57"/>
+  <rect class="feature-light" x="865" y="102" width="16" height="37"/>
+  <rect class="feature" x="886" y="66" width="16" height="73"/>
+  <line class="arrow" x1="910" y1="111" x2="935" y2="111"/>
+  <rect class="node" x="947" y="76" width="92" height="70" rx="8"/>
+  <text class="small" x="993" y="103" text-anchor="middle">affine</text>
+  <text class="small" x="993" y="126" text-anchor="middle">+ ReLU</text>
+  <line class="arrow" x1="1047" y1="111" x2="1071" y2="111"/>
+  <rect class="node" x="1083" y="76" width="81" height="70" rx="8"/>
+  <text class="small" x="1123.5" y="118" text-anchor="middle">head</text>
+  <text class="small" x="1029" y="181" text-anchor="middle">learn features, then predict</text>
+</svg>

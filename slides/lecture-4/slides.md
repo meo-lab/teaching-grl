@@ -14,9 +14,9 @@ subhead: Lecture 4
 home: ../
 ---
 
-# Machine Learning on Data Representations
+# Learning Feature Representations
 
-## Learning on fixed representations
+## From Linear Regression to Multi-Layer Perceptron
 
 <!--
 Connect the heterogeneous data collected in Lecture 2 to classical machine learning.
@@ -25,98 +25,2594 @@ Frame the lecture question: how can many data sources become one representation 
 
 ---
 
-# Learning Outcome Roadmap
+# Recap Lecture 3 - Feature Design
 
-<div class="mt-3 text-[.58rem] leading-tight whitespace-nowrap">
+## By Data, Decorrelation, and Domain Knowledge
 
-| | Learning outcome | Lecture | Block |
-|---|---|---|---|
-| ⬜ | Explain how heterogeneous datasets align to a common coordinate support and form a geospatial data cube. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Geospatial Data Cubes |
-| ⬜ | Represent locations as fixed feature vectors extracted from a geospatial data cube. | <span class="text-blue-700 font-semibold">Lecture 3</span> | Geospatial Data Cubes |
-| ⬜ | Explain how linear regression maps a fixed representation to a continuous target. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Linear Models |
-| ⬜ | Explain how logistic regression maps a fixed representation to categories with a linear decision boundary. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Linear Models |
-| ⬜ | Explain how decision trees partition a fixed representation space into nonlinear decision regions. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Decision Trees &amp; Random Forests |
-| ⬜ | Explain how random forests combine trees for robust predictions from fixed representations. | <span class="text-blue-700 font-semibold">Lecture 4</span> | Decision Trees &amp; Random Forests |
+<img
+  src="./figures/classic_ml_simple.svg"
+  class="w-full h-[170px] object-contain -mt-4"
+  alt="The classic machine learning pipeline: raw data → feature engineering → feature vector → classifier → prediction"
+/>
 
+<div class="grid grid-cols-2 gap-3 mt-1 justify-center">
+  <div>
+    <div class="text-[.6rem] font-semibold text-gray-500 mb-1">Raw Band: Green</div>
+    <div style="height: 140px; width: 300px;">
+      <PlotlyHistogram dataset="green" x-label="Green reflectance" :show-legend="false" />
+    </div>
+  </div>
+  <div class="mx-auto w-[280px]">
+    <div class="text-[.6rem] font-semibold text-gray-500 mb-1">Engineered Feature: NDVI</div>
+    <div style="height: 140px; width: 300px;">
+      <PlotlyHistogram dataset="ndvi" x-label="NDVI" :show-legend="false" />
+    </div>
+  </div>
+</div>
+
+<div class="flex items-center gap-3 text-[.5rem] text-gray-500" style="position: absolute; left: 72px; bottom: 22px;">
+  <div class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#2ca02c"></span>Vegetation</div>
+  <div class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full" style="background:#d62728"></span>Urban/Built-up</div>
+</div>
+
+---
+
+# Today's Lecture - Feature Learning
+
+## From Linear Models to Multi-Layer Perceptrons
+
+<PartTag part="model" />
+
+<img
+  src="./figures/feature_learning_simple.svg"
+  class="w-full h-[220px] object-contain"
+  alt="Training data guides a deep learning model to learn feature representations for classification"
+/>
+
+
+<div class="grid grid-cols-3 gap-3 mt-4 text-center">
+  <div class="rounded-lg px-3 py-3 text-white" style="background: #ed1c24">
+    <div class="text-[.6rem] font-semibold uppercase tracking-wide">Block 1</div>
+    <div class="mt-1 text-[.82rem] font-semibold">Linear Regression</div>
+  </div>
+  <div class="rounded-lg px-3 py-3 text-white" style="background: #ed1c24">
+    <div class="text-[.6rem] font-semibold uppercase tracking-wide">Block 2</div>
+    <div class="mt-1 text-[.82rem] font-semibold">Logistic Regression</div>
+  </div>
+  <div class="rounded-lg px-3 py-3 text-white" style="background: #ff7900">
+    <div class="text-[.6rem] font-semibold uppercase tracking-wide">Block 3</div>
+    <div class="mt-1 text-[.82rem] font-semibold">Multilayer Perceptrons</div>
+  </div>
 </div>
 
 <!--
-Establish the three-block route from heterogeneous data to robust nonlinear prediction.
-Emphasize that every model in this lecture learns on a representation that we construct first.
+Brief recap of Lecture 3.
+In classic ML, features are hand-designed by domain experts; the model operates on those fixed representations.
+Deep learning replaces hand-crafted features with learned representations — this lecture is about how and why that works.
+-->
+
+---
+
+# Each Block: Model -> Loss -> Optimization
+
+<div class="grid grid-cols-3 gap-4 mt-7">
+  <div class="overflow-hidden rounded-xl border-2" style="border-color: #ed1c24">
+    <div class="px-4 py-4 text-white" style="background: #ed1c24">
+      <div class="text-[.65rem] font-semibold uppercase tracking-wide">Block 1</div>
+      <div class="text-[1rem] font-bold">Linear Regression</div>
+    </div>
+    <div class="divide-y divide-gray-200">
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-red-700">Model</div>
+        <div class="mt-1 text-[.82rem]">ŷ = xw + b</div>
+      </div>
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-red-700">Loss</div>
+        <div class="mt-1 text-[.82rem]">MAE or MSE</div>
+      </div>
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-red-700">Optimization</div>
+        <div class="mt-1 text-[.82rem]">Closed-form solution (MSE)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-xl border-2" style="border-color: #ed1c24">
+    <div class="px-4 py-4 text-white" style="background: #ed1c24">
+      <div class="text-[.65rem] font-semibold uppercase tracking-wide">Block 2</div>
+      <div class="text-[1rem] font-bold">Logistic Regression</div>
+    </div>
+    <div class="divide-y divide-gray-200">
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-red-700">Model</div>
+        <div class="mt-1 text-[.82rem]">σ(xw + b) or softmax(Wx + b)</div>
+      </div>
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-red-700">Loss</div>
+        <div class="mt-1 text-[.82rem]">BCE or CE</div>
+      </div>
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-red-700">Optimization</div>
+        <div class="mt-1 text-[.82rem]">Gradient descent</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-xl border-2" style="border-color: #ff7900">
+    <div class="px-4 py-4 text-white" style="background: #ff7900">
+      <div class="text-[.65rem] font-semibold uppercase tracking-wide">Block 3</div>
+      <div class="text-[1rem] font-bold">Multilayer Perceptrons</div>
+    </div>
+    <div class="divide-y divide-gray-200">
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-orange-700">Model</div>
+        <div class="mt-1 text-[.82rem]">Linear layers + activations</div>
+      </div>
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-orange-700">Loss</div>
+        <div class="mt-1 text-[.82rem]">MAE / MSE or BCE / CE</div>
+      </div>
+      <div class="min-h-[88px] p-4">
+        <div class="text-[.7rem] font-bold uppercase text-orange-700">Optimization</div>
+        <div class="mt-1 text-[.82rem]">Backpropagation + gradient descent</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+---
+layout: learning-outcomes
+mode: before
+meeting: lecture-04
+section: opening
+sectionTitle: Opening
+---
+
+# Learning outcomes
+
+<LearningOutcome id="linear-regression-mse">
+<strong>Explain</strong> linear regression and how minimizing MSE fits its parameters.
+</LearningOutcome>
+
+<LearningOutcome id="linear-regression-matrix">
+<strong>Express</strong> linear regression as a matrix map between arbitrary input and output dimensions.
+</LearningOutcome>
+
+<LearningOutcome id="class-probabilities">
+<strong>Explain</strong> how sigmoid and softmax turn linear outputs into class probabilities.
+</LearningOutcome>
+
+<LearningOutcome id="loss-gradient-descent">
+<strong>Explain</strong> how losses and gradient descent guide parameter learning.
+</LearningOutcome>
+
+<LearningOutcome id="neurons-layers">
+<strong>Describe</strong> artificial neurons and layers as affine maps followed by nonlinear activations.
+</LearningOutcome>
+
+<LearningOutcome id="mlp-representations">
+<strong>Explain</strong> how MLPs learn intermediate representations.
+</LearningOutcome>
+
+<!--
+Two outcomes per block: linear regression, logistic regression and optimization, then multilayer perceptrons.
+Students rate their understanding now and again at the end of the lecture.
 -->
 
 ---
 layout: bonn-section
 sectionColor: "#00457c"
-section: linear-models
-sectionTitle: Linear Models
+section: linear-regression
+sectionTitle: "Linear Regression"
 ---
 
 # Linear Regression
 
-<img class="bonn-section-image-sm" src="./figures/LR.png" alt="Illustration of linear regression: data points, a fitted line, and vertical residuals" />
+<div class="bonn-section-image flex items-center justify-center">
+  <img
+    src="./figures/everest_north_face.jpg"
+    class="w-full h-[400px] object-contain"
+    alt="Mount Everest north face seen from the path to base camp in Tibet"
+  />
+</div>
 
 <div class="bonn-section-citation">
-Figure: M. Rußwurm &amp; D. Tuia, <em>Linear Regression</em>, ENV-408 course materials, EPFL, 2023.
+  Photo: Luca Galuzzi / <a href="https://commons.wikimedia.org/wiki/File:Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/2.5/" target="_blank" rel="noopener noreferrer">CC BY-SA 2.5</a>.
 </div>
 
 <!--
-Move from constructed feature vectors to prediction.
-This section will progress from continuous targets to categorical predictions and linear boundaries.
+Block 1 - How can we learn a transformation from inputs to outputs?
+Frame: Model (line -> plane -> y = Xw + b), Loss (residuals, MSE, loss surface), Fitting (guess, gradient descent, closed form, R2). Single output only; K outputs come in block 2, M -> N geometry in block 3.
 -->
 
 ---
 
-# Why Linear Regression?
+# How much does the temperature change when you hike a mountain?
 
-<ul>
-<li>a simple, classical approach to supervised learning</li>
-<li v-click>predicts a <strong>continuous</strong> response from one or more predictors</li>
-<li v-click>around for a long time, yet still one of the most used tools in science</li>
-<li v-click>a strong, interpretable baseline &mdash; and a stepping stone to more complex models</li>
-</ul>
+<PartTag part="model" />
+
+<div class="grid grid-cols-[250px_239px_1fr] gap-7 mt-2 items-center">
+
+<img
+  src="./figures/everest_north_face.jpg"
+  class="w-full h-[250px] object-cover rounded-xl"
+  alt="Mount Everest north face seen from the path to base camp in Tibet"
+/>
+
+<div v-click="1" class="relative mx-auto h-[250px] w-[239px]">
+  <img
+    src="./figures/LR_data_only.png"
+    class="absolute inset-0 h-full w-full"
+    alt="Measured temperature against elevation: four data points"
+  />
+  <img
+    v-click="2"
+    src="./figures/LR_unlabeled.png"
+    class="absolute inset-0 h-full w-full"
+    alt="The same data with a fitted line, predictions on the line, and vertical residuals"
+  />
+  <div class="absolute text-[.7rem] font-semibold text-gray-600" style="left: 13%; top: -4%;">temperature <em class="font-serif">y</em></div>
+  <div class="absolute text-[.7rem] font-semibold text-gray-600" style="right: 0; top: 92%;">elevation <em class="font-serif">x</em></div>
+</div>
+
+<div v-click="2" class="text-[.8rem]">
+
+A simple linear model
+
+$$
+\hat{y} = w\,x + b
+$$
+
+maps an elevation $x$ to an estimated temperature $\hat{y}$, with the **weight** $w$ (slope) and the **bias** $b$ (y-intercept).
+
+</div>
+
+</div>
+
+<div class="figure-copyright">
+Photo: Luca Galuzzi / <a href="https://commons.wikimedia.org/wiki/File:Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/2.5/" target="_blank" rel="noopener noreferrer">CC BY-SA 2.5</a>. Figure: M. Rußwurm &amp; D. Tuia, <em>Linear Regression</em>, ENV-408 course materials, EPFL, 2023.
+</div>
+
+<!--
+Hiker going up the mountain: every few hundred metres we note elevation and temperature.
+Ask: what do you expect? Temperature drops roughly linearly with elevation (~6.5 °C per km).
+Click 1: the measurements, temperature y against elevation x.
+Click 2: a straight line summarises the trend — the model y-hat = w x + b. Slope w: temperature change per metre of ascent (negative); bias b: temperature at sea level.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Univariate Linear Regression
+
+<PartTag part="model" />
+
+::left::
+
+<div class="text-[1rem]">
+
+$$
+\hat y = w\,x + b
+\;=\;
+\begin{pmatrix} x & 1 \end{pmatrix}
+\begin{pmatrix} w \\ b \end{pmatrix}
+$$
+
+</div>
+
+<svg viewBox="0 0 360 220" class="w-full h-[230px] mt-2" role="img" aria-label="Graphical model: input nodes x and 1 connect to the output node y-hat with weights w and b">
+  <line x1="78" y1="60" x2="272" y2="110" stroke="#00457c" stroke-width="2.5" />
+  <line x1="78" y1="160" x2="272" y2="110" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:20px;font-family:serif;font-style:italic;line-height:1" x="172" y="72" text-anchor="middle" fill="#00457c">w</text>
+  <text style="font-size:20px;font-family:serif;font-style:italic;line-height:1" x="172" y="125" text-anchor="middle" fill="#5f6368">b</text>
+  <circle cx="55" cy="60" r="24" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:21px;font-family:serif;font-style:italic;line-height:1" x="55" y="67" text-anchor="middle" fill="#00457c">x</text>
+  <circle cx="55" cy="160" r="24" fill="#f1f3f4" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:21px;font-family:serif;font-style:normal;line-height:1" x="55" y="167" text-anchor="middle" fill="#5f6368">1</text>
+  <circle cx="295" cy="110" r="24" fill="#fff1e5" stroke="#ff7900" stroke-width="2.5" />
+  <text style="font-size:21px;font-family:serif;font-style:italic;line-height:1" x="295" y="117" text-anchor="middle" fill="#b35500">ŷ</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="55" y="208" text-anchor="middle" fill="#5f6368">inputs</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="295" y="160" text-anchor="middle" fill="#5f6368">output</text>
+</svg>
+
+::right::
+
+<div class="text-[.7rem]">
+
+```python
+import torch.nn as nn
+
+# 1 input (elevation) -> 1 output (temperature)
+model = nn.Linear(1, 1)
+
+print(model.weight)  # w
+print(model.bias)    # b
+
+n = sum(p.numel() for p in model.parameters())
+print(n)
+```
+
+</div>
+
+---
+
+# From Uni- to Multivariate Linear Regression
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[250px_1fr] gap-6 mt-1 items-start">
+
+<div class="text-[.68rem]">
+
+<img
+  src="./figures/everest_north_face.jpg"
+  class="w-full h-[170px] object-cover rounded-xl"
+  alt="Mount Everest north face seen from the path to base camp in Tibet"
+/>
+
+<div class="mt-2 font-semibold text-blue-800">Same elevation, different temperature</div>
+
+<div class="mt-1 flex items-center gap-2"><span>☀️</span>sun-facing slope: warmer</div>
+<div class="mt-0.5 flex items-center gap-2"><span>☁️</span>shaded slope: colder</div>
+
+<div class="mt-2 text-gray-600 leading-snug">
+
+**Slope** and **aspect** (the direction a slope faces) control how much sun a location gets &mdash; extra covariates beyond elevation.
+
+</div>
+
+</div>
+
+<div class="text-[.78rem]">
+
+**Univariate linear regression:** elevation only, two parameters
+
+$$
+y = w_1 \overbrace{x_1}^{\text{elevation}} + b
+$$
+
+**Multivariate linear regression**
+
+- one input sample $\mathbf{x}_i = (x_1, x_2, x_3, \dots, x_p)$ of $p$ features
+- corresponding target $y_i$
+- one weight per feature $\mathbf w = (w_1, w_2, \dots, w_p)$, plus one bias $b$
+
+$$
+y_i = w_1\overbrace{x_1}^{\text{elevation}} + w_2\overbrace{x_2}^{\text{slope}} + w_3\overbrace{x_3}^{\text{aspect}} + \dots + b = \mathbf w^\top \mathbf{x}_i + b
+$$
+
+</div>
+
+</div>
+
+<div class="figure-copyright">
+Photo: Luca Galuzzi / <a href="https://commons.wikimedia.org/wiki/File:Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/2.5/" target="_blank" rel="noopener noreferrer">CC BY-SA 2.5</a>.
+</div>
+
+<!--
+Back to the hiker: two spots at the same elevation can differ by several degrees. A south-facing slope (northern hemisphere) gets much more direct sun than a north-facing one; a steep slope facing the sun gets even more.
+Elevation alone cannot explain this - the residuals of the univariate model contain the sun-exposure effect. Adding slope and aspect as features lets the model capture it: one weight per feature.
+Note: aspect is an angle; in practice we encode it e.g. as northness = cos(aspect) to keep the relation (roughly) linear.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Multivariate Linear Regression
+
+<PartTag part="model" />
+
+::left::
+
+<div class="text-[.85rem]">
+
+$$
+\begin{aligned}
+\hat y &= w_1 x_1 + w_2 x_2 + w_3 x_3 + b \\
+&= \begin{pmatrix} x_1 & x_2 & x_3 & 1 \end{pmatrix} \begin{pmatrix} w_1 & w_2 & w_3 & b \end{pmatrix}^{\!\top}
+\end{aligned}
+$$
+
+</div>
+
+<svg viewBox="0 0 360 250" class="w-full h-[215px] mt-1" role="img" aria-label="Graphical model: input nodes x1 (elevation), x2 (slope), x3 (aspect) and 1 connect to the output node y-hat with weights w1, w2, w3 and b">
+  <line x1="130" y1="36" x2="288" y2="126" stroke="#00457c" stroke-width="2.5" />
+  <line x1="130" y1="96" x2="288" y2="126" stroke="#00457c" stroke-width="2.5" />
+  <line x1="130" y1="156" x2="288" y2="126" stroke="#00457c" stroke-width="2.5" />
+  <line x1="130" y1="216" x2="288" y2="126" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:17px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="196" y="67" text-anchor="middle" fill="#00457c">w₁</text>
+  <text style="font-size:17px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="196" y="102" text-anchor="middle" fill="#00457c">w₂</text>
+  <text style="font-size:17px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="196" y="136" text-anchor="middle" fill="#00457c">w₃</text>
+  <text style="font-size:17px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="196" y="171" text-anchor="middle" fill="#5f6368">b</text>
+  <circle cx="110" cy="36" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="110" y="42" text-anchor="middle" fill="#00457c">x₁</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="80" y="40" text-anchor="end" fill="#5f6368">elevation</text>
+  <circle cx="110" cy="96" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="110" y="102" text-anchor="middle" fill="#00457c">x₂</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="80" y="100" text-anchor="end" fill="#5f6368">slope</text>
+  <circle cx="110" cy="156" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="110" y="162" text-anchor="middle" fill="#00457c">x₃</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="80" y="160" text-anchor="end" fill="#5f6368">aspect</text>
+  <circle cx="110" cy="216" r="21" fill="#f1f3f4" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:normal;line-height:1" x="110" y="222" text-anchor="middle" fill="#5f6368">1</text>
+  <circle cx="310" cy="126" r="22" fill="#fff1e5" stroke="#ff7900" stroke-width="2.5" />
+  <text style="font-size:20px;font-family:serif;font-style:italic;line-height:1" x="310" y="133" text-anchor="middle" fill="#b35500">ŷ</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="310" y="166" text-anchor="middle" fill="#5f6368">temperature</text>
+</svg>
+
+::right::
+
+<div class="text-[.7rem]">
+
+```python
+import torch.nn as nn
+
+# elevation, slope, aspect -> temperature
+model = nn.Linear(3, 1)
+
+print(model.weight.shape)  # (1, 3): w1, w2, w3
+print(model.bias.shape)    # (1,):   b
+
+n = sum(p.numel() for p in model.parameters())
+print(n)                   # 4
+```
+
+</div>
+
+<blockquote class="blockquote2 mt-4 text-[.75rem]">
+
+Same graph, more input nodes: one weight per feature, still one bias. Only <code>in_features</code> changes.
+
+</blockquote>
+
+<!--
+Compare with the univariate slide: the constant input 1 still carries the bias; each new feature adds one node and one edge, i.e. one weight.
+nn.Linear(3, 1) stores the weights as a 1 x 3 matrix (out_features x in_features) - this row-vector view is exactly the next topic.
+Parameters: 3 weights + 1 bias = 4. In general p features -> p + 1 parameters.
+-->
+
+---
+
+# Geometry: From a Line to a Plane
+
+<PartTag part="model" />
+
+<div class="mt-1">
+<RegressionPlaneDemo :width="330" :height="250" />
+</div>
+
+<blockquote class="blockquote2 mt-3 text-[.75rem]">
+
+$p$ features → a **hyperplane** in $p{+}1$ dimensions. The second feature (slope) explains much of the spread that elevation alone leaves in the residuals.
+
+</blockquote>
+
+<!--
+Same synthetic data on both sides (temperature ~ elevation + slope). Left: univariate OLS, the grey residuals are large because slope is ignored. Right: bivariate OLS plane, drag to rotate; residuals shrink and R2 jumps.
+With three features we cannot draw it any more, but the algebra is identical: a hyperplane in feature space x target.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Many Regressions in Parallel: $\mathbb{R}^N \to \mathbb{R}^M$
+
+<PartTag part="model" />
+
+::left::
+
+<div class="text-[.78rem]">
+
+$$
+\underbrace{\begin{pmatrix} \hat y_1 \\ \hat y_2 \end{pmatrix}}_{\hat{\mathbf y} \in \mathbb{R}^M}
+=
+\underbrace{\begin{pmatrix}
+\textcolor{#ff7900}{w_{11}} & \textcolor{#ff7900}{w_{12}} & \textcolor{#ff7900}{w_{13}} \\
+\textcolor{#7b3fa0}{w_{21}} & \textcolor{#7b3fa0}{w_{22}} & \textcolor{#7b3fa0}{w_{23}}
+\end{pmatrix}}_{\mathbf W \in \mathbb{R}^{M \times N}}
+\underbrace{\begin{pmatrix} x_1 \\ x_2 \\ x_3 \end{pmatrix}}_{\mathbf x \in \mathbb{R}^N}
++
+\underbrace{\begin{pmatrix} \textcolor{#ff7900}{b_1} \\ \textcolor{#7b3fa0}{b_2} \end{pmatrix}}_{\mathbf b \in \mathbb{R}^M}
+$$
+
+</div>
+
+<svg viewBox="0 0 360 225" class="w-full h-[205px] mt-1" role="img" aria-label="Graphical model: inputs x1 (elevation), x2 (slope), x3 (aspect) and 1 are fully connected to two outputs, y-hat 1 (temperature, orange edges) and y-hat 2 (snow depth, purple edges)">
+  <line x1="128" y1="30" x2="280" y2="72" stroke="#ff7900" stroke-width="2.2" stroke-opacity="0.8" />
+  <line x1="128" y1="85" x2="280" y2="72" stroke="#ff7900" stroke-width="2.2" stroke-opacity="0.8" />
+  <line x1="128" y1="140" x2="280" y2="72" stroke="#ff7900" stroke-width="2.2" stroke-opacity="0.8" />
+  <line x1="128" y1="195" x2="280" y2="72" stroke="#ff7900" stroke-width="2.2" stroke-opacity="0.8" stroke-dasharray="5 4" />
+  <line x1="128" y1="30" x2="280" y2="158" stroke="#7b3fa0" stroke-width="2.2" stroke-opacity="0.8" />
+  <line x1="128" y1="85" x2="280" y2="158" stroke="#7b3fa0" stroke-width="2.2" stroke-opacity="0.8" />
+  <line x1="128" y1="140" x2="280" y2="158" stroke="#7b3fa0" stroke-width="2.2" stroke-opacity="0.8" />
+  <line x1="128" y1="195" x2="280" y2="158" stroke="#7b3fa0" stroke-width="2.2" stroke-opacity="0.8" stroke-dasharray="5 4" />
+  <circle cx="110" cy="30" r="19" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:18px;font-family:serif;font-style:italic;line-height:1" x="110" y="36" text-anchor="middle" fill="#00457c">x₁</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="82" y="34" text-anchor="end" fill="#5f6368">elevation</text>
+  <circle cx="110" cy="85" r="19" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:18px;font-family:serif;font-style:italic;line-height:1" x="110" y="91" text-anchor="middle" fill="#00457c">x₂</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="82" y="89" text-anchor="end" fill="#5f6368">slope</text>
+  <circle cx="110" cy="140" r="19" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:18px;font-family:serif;font-style:italic;line-height:1" x="110" y="146" text-anchor="middle" fill="#00457c">x₃</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="82" y="144" text-anchor="end" fill="#5f6368">aspect</text>
+  <circle cx="110" cy="195" r="19" fill="#f1f3f4" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:18px;font-family:serif;font-style:normal;line-height:1" x="110" y="201" text-anchor="middle" fill="#5f6368">1</text>
+  <circle cx="300" cy="72" r="21" fill="#fff1e5" stroke="#ff7900" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="300" y="79" text-anchor="middle" fill="#ff7900">ŷ₁</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="300" y="110" text-anchor="middle" fill="#5f6368">temperature</text>
+  <circle cx="300" cy="158" r="21" fill="#f3ecf8" stroke="#7b3fa0" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="300" y="165" text-anchor="middle" fill="#7b3fa0">ŷ₂</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="300" y="196" text-anchor="middle" fill="#5f6368">snow depth</text>
+</svg>
+
+::right::
+
+<div class="text-[.7rem]">
+
+```python
+import torch.nn as nn
+
+# 3 features -> 2 targets
+model = nn.Linear(3, 2)
+
+print(model.weight.shape)  # (2, 3) = (M, N)
+print(model.bias.shape)    # (2,)
+
+n = sum(p.numel() for p in model.parameters())
+print(n)                   # 2*3 + 2 = 8
+```
+
+</div>
+
+<blockquote class="blockquote2 mt-3 text-[.75rem]">
+
+Each **row** of $\mathbf W$ is one multivariate regression; $M$ run **in parallel** on the same input. Together: a **linear transformation** with $M \cdot N + M$ parameters.
+
+</blockquote>
+
+<!--
+Generalize step by step: 1 -> 1 (univariate), N -> 1 (multivariate), now N -> M.
+Read the graph per color: the orange edges alone are the multivariate regression for temperature (row 1 of W), the purple edges the one for snow depth (row 2). Same inputs, independent weights.
+nn.Linear(N, M) is exactly this: weight has shape (M, N) - out_features x in_features - and bias has M entries.
+This is the building block for everything that follows: logistic regression adds a sigmoid / softmax on top (block 2), an MLP layer adds a non-linearity and stacks them (block 3).
+-->
+
+---
+
+# Geometry: One Plane per Target
+
+<PartTag part="model" />
+
+<div class="-mt-2">
+<TwoPlaneDemo :width="470" :height="320" />
+</div>
+
+<blockquote class="blockquote2 mt-1 text-[.75rem]">
+
+Same inputs, two targets: each row of $\mathbf W$ fits **its own plane** &mdash; $M$ targets, $M$ hyperplanes.
+
+</blockquote>
+
+<!--
+Mirror of the line -> plane slide, now with M = 2 outputs. Same 30 locations (elevation x1, slope x2) for both targets; targets standardized so they share the vertical axis.
+Temperature drops with elevation and rises on sunny slopes; snow depth does the opposite. Two independent OLS fits = the two rows of W from the previous slide.
+Both planes sit over the same floor (elevation x slope): same inputs, two sets of weights. Drag to rotate; the planes cross because the targets react oppositely to elevation and slope.
+Buttons: "elevation view" looks along the slope axis (target vs. elevation, like the 1D plot); "top view" looks down on the floor - every orange dot sits inside a purple ring: both targets are measured at exactly the same inputs.
+-->
+
+---
+
+# Linear Projection: From N to M Dim Spaces
+
+<PartTag part="model" />
+
+<div class="mt-1">
+<LinearMapDemo :size="250" />
+</div>
+
+<blockquote class="blockquote2 mt-2 text-[.75rem]">
+
+$\mathbf W\mathbf x + \mathbf b$ maps every location from the **input space** to a point in the **output space**; each input axis lands on a column of $\mathbf W$.
+
+</blockquote>
+
+<!--
+Same model as the previous slides, now seen as one map between two spaces rather than as two separate regressions.
+Left: 40 locations in feature space (rotate it). Right: their predictions. Colour = elevation, so you can follow points across; hover one to see x and its image y-hat.
+The three arrows: moving one unit along an input axis moves the prediction by the corresponding column of W - elevation pushes toward colder (and a bit snowier), aspect mostly toward more snow, slope toward warmer.
+3 -> 2 dimensions: the map compresses information (different inputs can land on the same output). This "transform the space" view is the language of block 3, where layers stack such maps with non-linearities in between.
+-->
+---
+
+# Quiz: How Much Colder per 100 m?
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[220px_1fr] gap-6 mt-1 items-center">
+
+<img
+  src="./figures/everest_north_face.jpg"
+  class="w-full h-[140px] object-cover rounded-xl"
+  alt="Mount Everest north face seen from the path to base camp in Tibet"
+/>
+
+<div class="text-[.85rem]">
+
+Back to our hiker: $\hat y = w\,x + b$ with elevation $x$ and temperature $\hat y$.
+
+The slope $w$ answers the question: **how many degrees does it get colder for every 100 m of ascent?**
+
+<div v-click="1" class="mt-2 text-[#b02b37]">
+
+On average about **0.65 °C per 100 m**, i.e. $w \approx -6.5\,^\circ\text{C}/\text{km}$ &mdash; the slope our regression should recover from data.
+
+</div>
+
+</div>
+
+</div>
+
+<div class="flex justify-center mt-1">
+  <div class="relative" style="width: 640px;">
+    <UnderstandingPulse
+      full-width
+      session-id="lecture-4"
+      poll-id="lapse-rate-quiz"
+      left-label="0 °C"
+      right-label="2 °C"
+      instruction="Click on the line: temperature drop per 100 m of ascent"
+    />
+    <div class="absolute text-[.6rem] text-gray-500 -translate-x-1/2" style="left:188.8px; top:73.8px;">0.5</div>
+    <div class="absolute bg-gray-400" style="left:188.3px; top:93.8px; width:1px; height:12px;"></div>
+    <div class="absolute text-[.6rem] text-gray-500 -translate-x-1/2" style="left:320.0px; top:73.8px;">1</div>
+    <div class="absolute bg-gray-400" style="left:319.5px; top:93.8px; width:1px; height:12px;"></div>
+    <div class="absolute text-[.6rem] text-gray-500 -translate-x-1/2" style="left:451.2px; top:73.8px;">1.5</div>
+    <div class="absolute bg-gray-400" style="left:450.7px; top:93.8px; width:1px; height:12px;"></div>
+    <div v-click class="absolute pointer-events-none" style="left:227.2px; top:53.8px; width:2px; height:58px; background:#b02b37;"></div>
+    <div v-click="1" class="absolute pointer-events-none whitespace-nowrap -translate-x-1/2 text-[.68rem] font-bold" style="left:228.2px; top:35.8px; color:#b02b37;">≈ 0.65 °C</div>
+  </div>
+</div>
+
+<div class="figure-copyright">
+Photo: Luca Galuzzi / <a href="https://commons.wikimedia.org/wiki/File:Everest_North_Face_toward_Base_Camp_Tibet_Luca_Galuzzi_2006.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/2.5/" target="_blank" rel="noopener noreferrer">CC BY-SA 2.5</a>.
+</div>
+
+<!--
+Separation slide before the loss part: let the class vote first (live pulse), then click to reveal.
+Answer: the environmental lapse rate of the standard atmosphere is 6.5 °C per km = 0.65 °C per 100 m. Real values vary: dry air cools ~1 °C / 100 m (dry adiabatic), saturated air ~0.5 °C / 100 m; inversions can even flip the sign.
+Transition: we know the answer from physics - but how would we estimate w (and b) from measured data alone? That is the next question.
+-->
+
+---
+
+# How to estimate $w$ and $b$ from data?
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<div class="flex justify-center">
+<RegressionScatterDemo variant="points" x-label="elevation x" y-label="temperature y" :clicks="$clicks" />
+</div>
+
+<div>
+
+We have a dataset of data samples $(x_i, y_i)$.
 
 <blockquote v-click class="blockquote3 mt-4">
-Learning linear regression helps understand more complex methods, and it is practically useful and easy to implement for many real-world problems.
+
+<strong>Problem:</strong> how do we find good model parameters $w$,  $b$ for our linear model $f(x; w,  b) = w\,x +  b$?
+
+</blockquote>
+
+</div>
+
+</div>
+
+---
+
+# Why Don't the Points Lie on the Line?
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<div class="flex justify-center">
+<RegressionScatterDemo variant="error-band" x-label="elevation x" y-label="temperature y" />
+</div>
+
+<div class="flex items-center gap-5">
+
+<div class="flex-1">
+
+$$
+y_i = w\,x_i + b \pm \overbrace{\varepsilon}^{\text{error}}
+$$
+
+with the error $\varepsilon$ as a random variable &mdash; the model never fits the data perfectly.
+
+Measurement noise is one source: not every thermometer is precise.
+
+</div>
+
+<figure class="flex flex-col items-center m-0">
+  <img
+    src="./figures/galileo_thermometer.jpg"
+    class="h-[240px] object-contain rounded-lg"
+    alt="A Galileo thermometer: floating glass bulbs indicate the temperature only in coarse steps"
+  />
+  <figcaption class="mt-1 w-[130px] text-center text-[.6rem] italic text-gray-500 leading-tight">The hiker took a bad thermometer</figcaption>
+</figure>
+
+</div>
+
+</div>
+
+<div class="figure-copyright">
+Photo: Hustvedt / <a href="https://commons.wikimedia.org/wiki/File:Galileo_Thermometer_24_degrees.jpg" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 3.0</a>.
+</div>
+
+---
+
+# Residuals and Mean Absolute Error
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<div class="flex justify-center">
+<RegressionScatterDemo variant="residual-segments" x-label="elevation x" y-label="temperature y" :clicks="$clicks" />
+</div>
+
+<div>
+
+Concretely, the error &mdash; the "residual" $\varepsilon_i$ &mdash; for each sample $i$:
+
+$$
+\varepsilon_i = \hat{y}_i - y_i
+$$
+
+<div v-click>
+
+We want small residuals over the whole dataset. Positive and negative residuals would cancel, so we average their absolute values: the **Mean Absolute Error**
+
+$$
+\text{MAE}(\mathcal{D}; w, b) = \frac{1}{N} \sum_{i=1}^N \vert \hat{y}_i - y_i \vert
+$$
+
+</div>
+
+</div>
+
+</div>
+
+---
+
+# Mean Squared Error (MSE)
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<div class="flex justify-center">
+<RegressionScatterDemo variant="residual-squares" x-label="x" y-label="y" />
+</div>
+
+<div>
+
+$$
+\text{MSE}(\mathcal{D}; w, b) = \frac{1}{2N} \sum_{i=1}^N (\hat{y}_i - y_i)^2
+$$
+
+Punishes large errors with a square penalty.
+
+<blockquote class="blockquote2 mt-3">
+<strong>Geometric intuition:</strong> find a model that minimizes the total area of these squares.
+</blockquote>
+
+</div>
+
+</div>
+
+---
+
+# The Loss $\mathcal{L}(w;\, \mathcal{D})$ as a Function of $w$
+
+<PartTag part="loss" />
+
+<div class="mt-1">
+<SlopeLossDemo :b="1" :initial-w="0" loss="mae" single />
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-1 text-[.7rem]">
+
+<blockquote v-click class="blockquote2 my-0">
+
+**① Big errors matter most:** squared penalty &mdash; a little off is fine, very off is fatal.
+
+</blockquote>
+
+<blockquote v-click class="blockquote2 my-0">
+
+**② Smooth gradients:** MAE has constant slopes and kinks; MSE is smooth &mdash; needed to find good parameters (later).
+
+</blockquote>
+
+</div>
+
+<!--
+Usage: bias b fixed. Change w by dragging the line or hovering the loss plot; in "one point" mode click a point to select it.
+Start with MAE on one point: the loss is |w x_i + b - y_i|, a perfect V (triangle) with its tip where the line passes through the point.
+Switch to all points: the MAE is the average of four such Vs -> piecewise linear, with a kink wherever the line passes through a point.
+Switch to MSE: each point gives a parabola instead of a V; their average is again a smooth parabola. The squares on the left are the squared residuals.
+MSE is smooth and has a unique minimum we can compute in closed form; MAE is more robust to outliers but has corners.
+Takeaway 1 (click): an error of 2 costs 4x as much as an error of 1 under MSE, only 2x under MAE.
+Takeaway 2 (click): the MAE gradient is +-const and flips abruptly at the kink, so it gives no hint how close the minimum is; the MSE gradient shrinks smoothly toward the minimum.
+-->
+---
+
+# Searching over $b$ and $w$ spans a 2D Loss Surface
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-[1fr_2fr] gap-6 mt-2 items-center">
+
+<div class="text-[.78rem]">
+
+The loss $\mathcal{L}(\mathcal{D}; w, b)$ depends on
+
+- the **model** $f(x) = w\,x + b$
+- the **loss function**, e.g. MSE
+- the **dataset** $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^N$
+
+For a fixed dataset, every parameter pair $(w, b)$ gets one loss value: a **surface over parameter space**.
+
+<blockquote class="blockquote2 mt-3">
+Each point on the right is one line on the left.
+</blockquote>
+
+</div>
+
+<div>
+<LossSurfaceExplorer mode="explore" loss="mse" />
+</div>
+
+</div>
+
+<!--
+Demo: hover the surface. Moving toward the yellow centre makes the orange line fit the data. Corners = lines with wrong slope and offset.
+Data: standardized elevation vs. temperature (synthetic, 20 points), loss = MSE with the 1/(2N) convention from earlier.
+-->
+
+---
+
+# How to find the optimal $w$ and $b$ parameters?
+
+<PartTag part="fitting" />
+
+<div class="flex justify-center mt-2">
+  <img
+    src="./figures/meme_find_w_b.jpg"
+    class="h-[340px] object-contain"
+    alt="Bell-curve meme: low and high end say 'brute force' and 'gradient descent', the middle says 'solve analytically (OLS)'"
+  />
+</div>
+
+<div class="figure-copyright">
+Meme template: "bell curve / IQ distribution" via imgflip.com, labels modified.
+</div>
+
+<!--
+Three ways to find good parameters. Brute force: just try many values. OLS: solve analytically &mdash; looks like the clever answer.
+Gradient descent: looks naive again (guess, then improve) &mdash; but it is the one that scales to logistic regression and MLPs, where no closed form exists.
+-->
+
+---
+
+# Brute Force: Guess the Parameters ¯\\\_(ツ)\_/¯
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_bruteforce.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 1: brute force" />
+
+<div class="grid grid-cols-[2.2fr_1fr] gap-6 mt-2 items-center">
+
+<div>
+<LossSurfaceExplorer mode="guess" loss="mse" show-truth />
+</div>
+
+<div class="text-[.74rem]">
+
+<blockquote class="blockquote1">
+Works for 2 parameters &mdash; but it is expensive and never exact.
+</blockquote>
+
+<blockquote v-click class="blockquote4 mt-4">
+100 values per parameter: 2 parameters → 10⁴ evaluations; a small MLP with 10⁴ parameters → 100<sup>10 000</sup>. The curse of dimensionality again.
+</blockquote>
+
+</div>
+
+</div>
+
+<!--
+Click "guess" a few times, then "100 guesses". Grey lines on the left are recent guesses, orange is the best so far; the red circle on the surface is the OLS optimum.
+Replaces the old random-guessing video.
+-->
+
+
+---
+
+# Smart Solution: Ordinary Least Square (OLS)
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_ols.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 2: OLS" />
+
+<blockquote class="blockquote3 mt-6">
+
+<strong>Task:</strong> find $\hat w, \hat b$ that minimize the Mean Squared Error
+
+</blockquote>
+
+$$
+\hat w,\hat b = \operatorname*{arg\,min}_{w, b} \frac{1}{2N} \sum_{i=1}^N \left(\overbrace{w\,x_i + b}^{\hat{y}_i} - y_i \right)^2
+$$
+
+<div v-click class="mt-6">
+
+**Question:** how do we minimize a function with respect to its parameters?
+
+</div>
+
+<div v-click>
+
+- calculate the partial derivatives $\frac{\partial \text{MSE}}{\partial w}$ and $\frac{\partial \text{MSE}}{\partial b}$
+- set the derivatives to zero: $\frac{\partial \text{MSE}}{\partial w} = 0$, $\frac{\partial \text{MSE}}{\partial b} = 0$
+- solve for $w$ and $b$
+
+</div>
+
+---
+
+# OLS Step by Step
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_ols.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 2: OLS" />
+
+<div class="text-[.74rem]">
+
+$$
+\mathcal{L}(w, b) = \frac{1}{2N} \sum_{i=1}^N \left(w\,x_i + b - y_i\right)^2
+\qquad \bar x = \frac{1}{N}\sum_i x_i,\;\; \bar y = \frac{1}{N}\sum_i y_i
+$$
+
+<div class="grid grid-cols-[2fr_3fr] gap-5 mt-1">
+
+<div v-click="1" class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-1">
+
+**① derivative with respect to $b$**
+
+$$
+\begin{aligned}
+& \frac{\partial \mathcal{L}}{\partial b} = \frac{1}{N}\sum_{i=1}^N \left(w\,x_i + b - y_i\right) \overset{!}{=} 0 \\[.4em]
+\Leftrightarrow\;\; & w\,\bar x + b - \bar y = 0 \\[.4em]
+\Leftrightarrow\;\; & b = \bar y - w\,\bar x
+\end{aligned}
+$$
+
+</div>
+
+<div v-click="2" class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-1">
+
+**② derivative with respect to $w$**
+
+$$
+\begin{aligned}
+& \frac{\partial \mathcal{L}}{\partial w} = \frac{1}{N}\sum_{i=1}^N \left(w\,x_i + b - y_i\right) x_i \overset{!}{=} 0 \\[.4em]
+\overset{\text{insert } b}{\Leftrightarrow}\;\; & \textstyle\sum_i \big(w\,(x_i - \bar x) - (y_i - \bar y)\big)\, x_i = 0 \\[.4em]
+\Leftrightarrow\;\; & w \textstyle\sum_i (x_i - \bar x)\,x_i = \sum_i (y_i - \bar y)\,x_i \\[.4em]
+\Leftrightarrow\;\; & w = \dfrac{\sum_i (x_i - \bar x)(y_i - \bar y)}{\sum_i (x_i - \bar x)^2}
+\end{aligned}
+$$
+
+<div v-click="3" class="text-[.62rem] text-gray-600 -mt-1 mb-2">
+
+last step: $\sum_i (x_i - \bar x) = \sum_i (y_i - \bar y) = 0$, so $x_i$ may be replaced by $(x_i - \bar x)$
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!--
+Follow the recipe from the previous slide: derivative, set to zero, solve.
+Step 1 (b): averaging the residuals must give zero, so the line passes through the mean point (x-bar, y-bar).
+Step 2 (w): insert b = y-bar - w x-bar; everything becomes centred. Dividing numerator and denominator by N gives Cov[x,y] / Var[x] on the next slide.
+Why x_i can be replaced by x_i - x-bar: we subtract x-bar * sum_i (x_i - x-bar) = 0 on the left and x-bar * sum_i (y_i - y-bar) = 0 on the right.
+-->
+
+---
+
+# Ordinary Least Squares (OLS) &mdash; Solution
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_ols.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 2: OLS" />
+
+Model $y = w\,x + b$ on a dataset $\mathcal{D} = \{x_i, y_i\}_{i=1}^N$
+
+Ordinary Least Squares objective
+
+$$
+\hat w,\hat b = \operatorname*{arg\,min}_{w, b} \frac{1}{2N} \sum_{i=1}^N \left(\overbrace{w\,x_i + b}^{\hat{y}_i} - y_i \right)^2
+$$
+
+Closed-form solution
+
+$$
+\begin{aligned}
+\hat w &= \frac{\text{Cov}[x,y]}{\text{Var}[x]} = \frac{\frac{1}{N}\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\frac{1}{N}\sum_i (x_i - \bar{x})^2} \\[.3em]
+\hat b &= \frac{1}{N}\sum_{i=1}^N y_i - \hat w \frac{1}{N}\sum_{i=1}^N x_i = \bar{y} - \hat w\, \bar{x}
+\end{aligned}
+$$
+
+<div class="figure-copyright">
+See <a href="https://en.wikipedia.org/wiki/Ordinary_least_squares" target="_blank" rel="noopener noreferrer">Ordinary Least Squares</a>, Wikipedia.
+</div>
+
+---
+
+# Multivariate OLS &mdash; Closed-form Derivation
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_ols.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 2: OLS" />
+
+<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-1 items-start text-[.74rem]">
+
+<div>
+
+**Data:** $n$ locations, $p = 3$ features, one target
+
+$$
+\mathbf{X} =
+\begin{pmatrix}
+1 & \overbrace{x_{11}}^{\text{elev.}} & \overbrace{x_{12}}^{\text{slope}} & \overbrace{x_{13}}^{\text{aspect}} \\
+1 & x_{21} & x_{22} & x_{23} \\
+\vdots & \vdots & \vdots & \vdots \\
+1 & x_{n1} & x_{n2} & x_{n3}
+\end{pmatrix}
+\!,\;\;
+\mathbf{y} = \begin{pmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{pmatrix}
+$$
+
+<div class="text-center text-gray-600 -mt-2 mb-2">
+
+one row per location: $\mathbf X \in \mathbb R^{n \times (p+1)}$, temperatures $\mathbf y \in \mathbb R^{n}$
+
+</div>
+
+**Model** for all $n$ locations at once:
+
+$$
+\hat{\mathbf y} = \mathbf X \mathbf w, \qquad \mathbf w = (b, w_1, w_2, w_3)^\top
+$$
+
+The column of ones absorbs the bias $b$ into $\mathbf w$.
+
+</div>
+
+<div>
+
+**Loss:** squared error of all residuals
+
+$$
+\text{MSE}(\hat{\mathbf w}) = \left\Vert \mathbf{y} - \mathbf{X}\hat{\mathbf w} \right\Vert^2 = \mathbf{y}^\top\mathbf{y} - 2\hat{\mathbf w}^\top\mathbf{X}^\top\mathbf{y} + \hat{\mathbf w}^\top\mathbf{X}^\top\mathbf{X}\hat{\mathbf w}
+$$
+
+**Derivative** set to zero:
+
+$$
+\begin{aligned}
+\frac{\partial \text{MSE}(\hat{\mathbf w})}{\partial \hat{\mathbf w}} &= -2\mathbf{X}^\top\mathbf{y} + 2\mathbf{X}^\top\mathbf{X}\hat{\mathbf w} = 0 \\
+\mathbf{X}^\top\mathbf{X}\hat{\mathbf w} &= \mathbf{X}^\top\mathbf{y} \\[.4em]
+\hat{\mathbf w} &= \left(\mathbf{X}^\top\mathbf{X}\right)^{-1} \mathbf{X}^\top\mathbf{y}
+\end{aligned}
+$$
+
+<blockquote class="blockquote2 mt-2">
+The <strong>normal equation</strong> &mdash; a closed-form solution, no iterative optimization required.
+</blockquote>
+
+</div>
+
+</div>
+
+<!--
+Left: the dataset in matrix form for our example (one row per location: 1, elevation, slope, aspect; target = temperature). Same content as the "Multivariate Linear Model in Matrix Form" slide later in the deck.
+Right: the derivation. The constant 1/N (or 1/2N) in front of the MSE is dropped here: it does not change where the minimum is.
+-->
+
+---
+
+# Let's Appreciate the Elegance
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_ols.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 2: OLS" />
+
+<div class="grid grid-cols-2 gap-8 mt-6 items-center">
+
+<div class="text-center">
+
+<img src="./figures/before_fit.png" class="w-full h-[220px] object-contain rounded-xl" alt="Predictions of an untrained model with all weights 0, far from the true values" />
+
+<div class="mt-2 text-sm text-gray-600">
+
+$\mathbf w = (0,0,0,0,\dots)$
+
+</div>
+
+</div>
+
+<div class="text-center">
+
+<img src="./figures/after_fit.png" class="w-full h-[220px] object-contain rounded-xl" alt="Predictions of the fitted model closely tracking the true values" />
+
+<div class="mt-2 text-sm text-gray-600">
+
+$\mathbf w = (-.1,.2,.5,-.5,\dots)$
+
+</div>
+
+</div>
+
+</div>
+
+<blockquote class="blockquote3 mt-6 text-center">
+
+$\hat{\mathbf w} = \left(\mathbf{X}^\top\mathbf{X}\right)^{-1} \mathbf{X}^\top\mathbf{y}$ &mdash; a single line of code, and blazing fast.
+
 </blockquote>
 
 ---
 
-# Measuring Relationships Between Variables
+# Why Does OLS Work for Linear Regression?
 
-<div class="grid grid-cols-2 gap-10 mt-6">
+<PartTag part="fitting" />
+
+<img src="./figures/solution_ols.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 2: OLS" />
+
+<div class="grid grid-cols-[1fr_2fr] gap-6 mt-2 items-center">
+
+<div class="text-[.78rem]">
+
+The MSE of a linear model is a **quadratic bowl** in $(w, b)$:
+
+- it is **convex**: no local minima to get stuck in
+- it has exactly **one global minimum**
+- at that point, the slope is zero in every direction
+
+<blockquote v-click class="blockquote2 mt-4">
+
+So "derivatives $= 0$" has exactly one solution &mdash; and that solution **is** the global optimum.
+
+</blockquote>
+
+</div>
 
 <div>
-<div class="text-sm font-semibold text-blue-800 mb-2 text-center">Classic example</div>
-<FeatureTargetDiagram
-  :features="[
-    { label: 'TV ads', symbol: 'x₁', width: 5 },
-    { label: 'radio ads', symbol: 'x₂', width: 4 },
-    { label: 'newspaper ads', symbol: 'x₃', width: 2.5 },
-  ]"
-  target="sales"
-  target-symbol="y"
-/>
+<LossSurfaceExplorer mode="explore" loss="mse" highlight-optimum show-closed-form />
+</div>
+
+</div>
+
+<!--
+Hover the surface: the closer you get to the red ring, the closer the orange line comes to the dashed optimal line. At the ring they coincide.
+Press "closed form (OLS)": one formula jumps straight to the bottom of the bowl. Click the surface to explore again.
+Every contour is a closed ellipse around the same centre: one bowl, one bottom.
+Contrast for later: logistic regression (block 2) and MLPs (block 3) have no closed form and, for MLPs, no single bowl.
+-->
+---
+
+# Real Problems, Rugged Loss Landscapes
+
+<PartTag part="fitting" />
+
+<div class="grid grid-cols-2 gap-8 mt-2 items-end">
+
+<div class="text-center">
+<img src="./figures/loss_landscape_noshort.png" class="w-full h-[250px] object-contain" alt="3D loss surface of a ResNet-56 without skip connections: a rugged landscape with many peaks, valleys and local minima" />
+<div class="text-[.65rem] text-gray-500 mt-1">ResNet-56 without skip connections</div>
+</div>
+
+<div class="text-center">
+<img src="./figures/loss_landscape_resnet110_noshort.png" class="w-full h-[250px] object-contain" alt="3D loss surface of a ResNet-110 without skip connections: chaotic, with many local minima and steep walls" />
+<div class="text-[.65rem] text-gray-500 mt-1">ResNet-110 without skip connections</div>
+</div>
+
+</div>
+
+<blockquote class="blockquote4 mt-4 text-[.75rem]">
+
+Linear regression gives a convex bowl with one global minimum. Deep networks give **rugged landscapes**: many local minima, saddle points and plateaus &mdash; no closed form, and no guarantee to reach the global optimum.
+
+</blockquote>
+
+<div class="figure-copyright">
+Figures: H. Li, Z. Xu, G. Taylor, C. Studer, T. Goldstein, <a href="https://ar5iv.labs.arxiv.org/html/1712.09913" target="_blank" rel="noopener noreferrer"><em>Visualizing the Loss Landscape of Neural Nets</em></a>, NeurIPS 2018.
+</div>
+
+<!--
+Contrast to the previous slide: the MSE bowl of linear regression is the exception, not the rule.
+These are 2D slices (two random, filter-normalized directions) through the loss of real image classifiers with millions of parameters - the full landscape is far higher-dimensional.
+Consequence: we cannot solve for the optimum, and we cannot even be sure we found it. We need an iterative method that only needs local information - gradient descent - and in practice a "good enough" minimum is what we get.
+(In the paper, adding skip connections makes these surfaces much smoother - one reason ResNets train well.)
+-->
+---
+
+# Gradient Descent &mdash; Guess Once, Then Improve
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_gd.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 3: gradient descent" />
+
+<div class="grid grid-cols-[1fr_2fr] gap-6 mt-2 items-center">
+
+<div class="text-[.78rem]">
+
+<div class="rounded-lg bg-blue-800 text-white p-4">
+<div class="font-semibold mb-2">Gradient descent</div>
+
+1. initialize $w, b$ (e.g. randomly)
+2. update $w \leftarrow w - \eta\, \frac{\partial\mathcal L}{\partial w}$ <br> and $\;b \leftarrow b - \eta\, \frac{\partial\mathcal L}{\partial b}$
+3. repeat 2 until convergence
+
+</div>
+
+<div class="mt-3">
+
+- the gradient $\nabla \mathcal{L}$ points **uphill**; we step the other way
+- $\eta$ is the **step size** or **learning rate**
+
+</div>
+
 </div>
 
 <div>
-<div class="text-sm font-semibold text-blue-800 mb-2 text-center">Geospatial example</div>
-<FeatureTargetDiagram
-  :features="[
-    { label: 'elevation', symbol: 'x₁', width: 5 },
-    { label: 'slope', symbol: 'x₂', width: 4 },
-    { label: 'aspect', symbol: 'x₃', width: 2.5 },
-  ]"
-  target="surface temperature"
-  target-symbol="y"
+<LossSurfaceExplorer mode="gd" loss="mse" :lr="0.3" />
+</div>
+
+</div>
+
+<!--
+Press "step" a few times, then "run". Click anywhere on the surface to restart from a new initialization: on this convex surface every start ends at the same optimum.
+Replaces the short (3 s) gradient-descent video.
+-->
+
+---
+
+# The Gradient of the MSE
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_gd.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 3: gradient descent" />
+
+<div class="grid grid-cols-2 gap-8 mt-4 items-start">
+
+<div class="text-[.8rem]">
+
+Loss for $\hat y_i = w\,x_i + b$:
+
+$$
+\mathcal{L}(w, b) = \frac{1}{2N}\sum_{i=1}^N (\hat y_i - y_i)^2
+$$
+
+Partial derivatives (chain rule, the $\tfrac12$ cancels):
+
+$$
+\frac{\partial \mathcal{L}}{\partial w} = \frac{1}{N}\sum_i (\hat y_i - y_i)\, x_i
+\qquad
+\frac{\partial \mathcal{L}}{\partial b} = \frac{1}{N}\sum_i (\hat y_i - y_i)
+$$
+
+<blockquote class="blockquote2 mt-3">
+Each sample pushes the parameters by its residual &mdash; weighted by its input.
+</blockquote>
+
+</div>
+
+<div>
+
+```python {all|5-6|7-8}
+import numpy as np
+
+w, b, lr = 1.2, 1.2, 0.3    # init, step size
+for it in range(100):
+    y_hat = w * x + b        # prediction
+    r = y_hat - y            # residuals
+    w -= lr * (r * x).mean() # dL/dw
+    b -= lr * r.mean()       # dL/db
+```
+
+<div class="text-[.7rem] text-gray-600 mt-2">
+Setting both derivatives to zero and solving gives the OLS solution. Gradient descent only needs to <em>evaluate</em> them.
+</div>
+
+</div>
+
+</div>
+
+<!--
+Points ahead to OLS: OLS = gradient set to zero and solved in closed form. GD = gradient evaluated and followed. Students implement this loop in the lab.
+-->
+
+---
+
+# Gradient Descent: Role of the Learning Rate
+
+<PartTag part="fitting" />
+
+<img src="./figures/solution_gd.png" class="absolute top-[20px] left-[44px] w-[72px] h-[72px] pointer-events-none" alt="Solution 3: gradient descent" />
+
+<div class="mt-1">
+<LossSurfaceExplorer mode="gd" loss="mse" show-lr show-curve :lr="0.05" />
+</div>
+
+<div class="grid grid-cols-3 gap-4 text-[.72rem] mt-1">
+<blockquote class="blockquote1">η = 0.05: safe, but slow &mdash; still not converged after 80 steps</blockquote>
+<blockquote class="blockquote2">η ≈ 0.3&ndash;1: few steps to the optimum</blockquote>
+<blockquote class="blockquote4">η ≥ 2: every step overshoots more &mdash; the loss <strong>diverges</strong></blockquote>
+</div>
+
+<!--
+Drag the slider and press run each time. For this dataset the stability limit is eta ~ 2.0 (2 / largest curvature of the MSE bowl); at 1.9 the path zig-zags but still converges, at 2.1 it explodes.
+In deep learning the curvature is unknown and changes over the surface, so the learning rate becomes the most important hyperparameter (block 3).
+-->
+
+---
+
+# Recap: Linear Regression
+
+<div class="grid grid-cols-[1.25fr_1fr] gap-8 mt-3 items-start">
+
+<div class="text-[.78rem]">
+
+<v-clicks>
+
+- **Model:** from univariate $\hat y = w\,x + b$ (a line) to multivariate $\hat y = \mathbf w^\top\mathbf x + b$ (a plane), to $M$ regressions in parallel $\hat{\mathbf y} = \mathbf W\mathbf x + \mathbf b$: a **linear transformation** from input to output space
+- **Loss:** residuals measured by MAE or MSE; we usually prefer **MSE**: large errors are penalized more, and its smooth, convex bowl has one global minimum
+- **Fitting:** three ways to find the parameters &mdash; brute force (does not scale), OLS in closed form $\hat{\mathbf w} = (\mathbf X^\top\mathbf X)^{-1}\mathbf X^\top\mathbf y$ (special cases only), and gradient descent (steps downhill, works everywhere)
+
+</v-clicks>
+
+</div>
+
+<div class="text-[.74rem]">
+
+| | brute force | closed form | gradient descent |
+|---|:-:|:-:|:-:|
+| linear regression | ✓ | ✓ | ✓ |
+
+<blockquote v-click class="blockquote4 mt-6">
+<strong>Limitation:</strong> linear regression predicts <strong>continuous</strong> values (temperature, snow depth). What about <strong>categories</strong> &mdash; snow or no snow, forest or field?
+</blockquote>
+
+<blockquote v-click class="blockquote3 mt-3">
+Next: <strong>classification</strong> with the <strong>same</strong> linear transformation &mdash; new output function, new loss, and the closed form disappears.
+</blockquote>
+
+</div>
+
+</div>
+
+<!--
+Model: 1 -> 1 (a line), N -> 1 (a plane / hyperplane), N -> M (M regressions in parallel = a linear transformation W x + b between input and output space).
+Loss: MAE vs. MSE; MSE because big errors matter most and because its smooth, convex bowl makes optimization easy.
+Fitting: the three characters from the meme - brute force, the closed form (OLS) and gradient descent, which is the one that carries over to everything that follows.
+Limitation: everything so far predicts continuous numbers. Next block: the same linear transformation for classes.
+-->
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: logistic-regression
+sectionTitle: "Logistic Regression"
+---
+
+# Logistic Regression
+
+<img class="bonn-section-image-sm" src="./figures/ls_snowboard.jpg" alt="A robot snowboarding down a red slope, a metaphor for a model descending a loss surface" />
+
+<div class="bonn-section-citation">
+Image by Bing Image Generator (DALL·E 3): "a deep learning model snowboarding down a red loss surface to find a local minimum".
+</div>
+
+<!--
+Block 2 - How can the same linear transformations solve classification problems, and how can we learn their parameters?
+Key message: the linear transformation does not change. What changes is the interpretation of its output, the output function and the loss.
+-->
+
+---
+
+# Same Transformation, Different Job
+
+<div class="mt-3 text-[.82rem] compare-table">
+
+| | Linear regression | Logistic regression |
+|---|---|---|
+| **Model core** | $\mathbf W\mathbf x + \mathbf b$ | $\mathbf W\mathbf x + \mathbf b$ |
+| **Output** | continuous value | <span v-click="1">class probability</span> |
+| **Output function** | identity | <span v-click="2">sigmoid or softmax</span> |
+| **Typical loss** | MSE | <span v-click="3">cross-entropy</span> |
+| **Optimization** | closed form possible | <span v-click="4">gradient-based optimization</span> |
+
+</div>
+
+<div class="mt-4 text-[.7rem] text-gray-600">
+<strong>Model:</strong> why not linear regression · sigmoid · K outputs · softmax &nbsp;→&nbsp; <strong>Loss:</strong> binary &amp; multiclass cross-entropy &nbsp;→&nbsp; <strong>Fitting:</strong> gradient descent &nbsp;→&nbsp; back to real data
+</div>
+
+<!--
+Central question of block 2: how can the same linear transformations solve classification problems, and how can we learn their parameters?
+Reveal the logistic column row by row; the model core is identical. We return to this table at the end of the block.
+-->
+
+---
+
+# Why Not Linear Regression for Classes?
+
+<PartTag part="model" />
+
+<div class="mt-1 max-w-[600px] mx-auto">
+<LinearVsLogistic1D />
+</div>
+
+<div class="grid grid-cols-2 gap-4 mt-2 text-[.72rem]">
+<blockquote class="blockquote4">a line predicts values below 0 and above 1 &mdash; not probabilities</blockquote>
+<blockquote class="blockquote4">far-away samples pull the line: its 0.5 threshold moves into the other class</blockquote>
+</div>
+
+<!--
+Start with the linear fit only. Then tick "add extreme class-1 samples": samples that are very clearly class 1 should not change the decision, but MSE punishes the line for not reaching y = 1 there and tilts it - the 0.5 crossing moves right and starts misclassifying class-1 samples. Then switch on the logistic fit: the sigmoid saturates, extreme samples are already "right", the threshold barely moves.
+-->
+
+---
+
+# The Sigmoid: From Score to Probability
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[1fr_1.15fr] gap-6 mt-3 items-center">
+
+<div class="text-[.78rem]">
+
+Keep the linear transformation, squash its output:
+
+$$
+z = \mathbf w^\top\mathbf x + b, \qquad p = \sigma(z) = \frac{1}{1 + e^{-z}}
+$$
+
+- any score $z \in \mathbb R$ becomes a probability $p \in (0, 1)$
+- $z = 0 \Leftrightarrow p = 0.5$: the **decision boundary** $\mathbf w^\top\mathbf x + b = 0$ is still a line / plane
+- large $|z|$: confident; the output saturates instead of growing without bound
+
+</div>
+
+<div>
+<LogisticSigmoid />
+</div>
+
+</div>
+
+<!--
+Step 2 of block 2. The linear part is exactly block 1; the sigmoid is the only new piece. Drag z to show saturation: this is why extreme samples did not pull the logistic fit on the previous slide.
+-->
+
+---
+
+# Logistic Regression in Weight Space
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[1fr_1.45fr] gap-5 mt-2 items-center">
+
+<div class="text-[.76rem]">
+
+Two features, two weights, no bias &mdash; small enough to see the whole parameter space:
+
+$$
+p = \hat y = \sigma(w_1 x_1 + w_2 x_2)
+$$
+
+- $p \in (0, 1)$ is the probability of class 1
+- $p = 0.5$ where $w_1 x_1 + w_2 x_2 = 0$: the **decision boundary** is a line
+- no bias $b$ here, so every model is a point $(w_1, w_2)$
+
+```python
+nn.Sequential(nn.Linear(2, 1, bias=False),
+              nn.Sigmoid())
+```
+
+</div>
+
+<div>
+<LogisticLossExplorer :init="[2, -1.5]" />
+</div>
+
+</div>
+
+<!--
+Hover the surface and watch the boundary rotate and the orange/blue shading sharpen: a larger weight norm = steeper sigmoid = more confident probabilities.
+Logistic regression maps a fixed representation to categories with a linear decision boundary (learning outcome).
+-->
+
+---
+
+# One Score per Class: $K$ Outputs
+
+<PartTag part="model" />
+
+<div class="text-[.78rem]">
+
+For $K$ classes we need $K$ scores. Stack $K$ weight vectors $\mathbf w_k^\top$ as the rows of a matrix $\mathbf W \in \mathbb R^{K \times p}$: $\;\mathbf z = \mathbf W\mathbf x + \mathbf b$ &mdash; $K$ linear models side by side, one per class.
+
+</div>
+
+<img
+  src="./figures/linear_transformation.svg"
+  class="w-full h-[290px] object-contain"
+  alt="A 3-dimensional input vector is multiplied by a 2 by 3 weight matrix to produce a 2-dimensional output vector; GPU cores accelerate this computation through parallel processing"
 />
+
+<!--
+One row of W = one linear model = one class score. Bold capital W for a whole matrix of weights (K x p): the notation of neural networks. The same object becomes a layer in block 3.
+-->
+
+---
+
+# More Than Two Classes: Softmax
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-2 items-center">
+
+<div class="text-[.78rem]">
+
+The $K$-output transformation from the previous slide gives one score per class:
+
+$$
+\mathbf z = \mathbf W\mathbf x + \mathbf b, \qquad \mathbf W \in \mathbb R^{K\times p}
+$$
+
+Softmax turns the scores into probabilities that sum to one:
+
+$$
+p_k = \text{softmax}(\mathbf z)_k = \frac{e^{z_k}}{\sum_{j=1}^K e^{z_j}}
+$$
+
+- the largest score gets the largest probability
+- only score **differences** matter
+- $K = 2$: softmax reduces to the sigmoid
+
+</div>
+
+<div>
+<SoftmaxBars />
 </div>
 
 </div>
 
-<div class="mt-4 text-gray-700">
-Linear regression models how one or more predictor variables (features) relate to a continuous target &mdash; exactly the fixed representations built in the previous section.
+<!--
+Step 3 of block 2. Move one slider up: its bar grows, all others shrink - probabilities compete. Shift all sliders by the same amount: nothing changes (only differences matter).
+-->
+
+---
+
+# Binary Cross-Entropy Loss
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-2 gap-8 mt-3 items-center">
+
+<div class="text-[.78rem]">
+
+For labels $y_i \in \{0, 1\}$ and predicted probabilities $p_i$:
+
+$$
+\mathcal{L}_{\text{BCE}} = -\frac{1}{N}\sum_{i=1}^N \Big[\, y_i \log p_i + (1 - y_i)\log(1 - p_i) \Big]
+$$
+
+- confident and right → loss ≈ 0
+- confident and wrong → loss grows without bound
+- equals the negative log-likelihood of a Bernoulli model
+
+<blockquote class="blockquote2 mt-3">
+
+With a sigmoid output, BCE gives a convex loss surface and a simple gradient: $\nabla_{\mathbf w}\mathcal{L} = \frac{1}{N}\sum_i (p_i - y_i)\,\mathbf{x}_i$
+
+</blockquote>
+
 </div>
+
+<div>
+<BceCurve />
+</div>
+
+</div>
+
+<!--
+Compare with the MSE gradient: (prediction - target) * input again. MSE on top of a sigmoid would make the surface non-convex and the gradient vanish for confident mistakes, hence BCE for classification.
+Cross-entropy for many classes follows on the next slide.
+-->
+
+---
+
+# Multiclass Cross-Entropy
+
+<PartTag part="loss" />
+
+<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-2 items-center">
+
+<div class="text-[.78rem]">
+
+With one-hot labels $y_{ik}$ and softmax probabilities $p_{ik}$:
+
+$$
+\mathcal{L}_{\text{CE}} = -\frac{1}{N}\sum_{i=1}^N \sum_{k=1}^K y_{ik} \log p_{ik}
+$$
+
+- only the probability of the **true** class counts: $-\log p_{i,\text{true}}$
+- $K = 2$: cross-entropy reduces to the BCE
+- e.g. land cover: water, forest, cropland, urban, …
+
+```python
+model = nn.Linear(p, K)                        # one score per class
+loss = nn.CrossEntropyLoss()(model(x), y)      # softmax inside
+```
+
+</div>
+
+<div>
+<img src="./figures/cross_entropy.svg" class="w-full h-[300px] object-contain" alt="Cross-entropy compares a predicted class probability vector with the one-hot ground truth vector; a confident wrong prediction gives an exponentially large error" />
+</div>
+
+</div>
+
+<!--
+Step 4 of block 2. In PyTorch, CrossEntropyLoss expects the raw scores (logits) and applies log-softmax internally - do not put a softmax layer in front of it.
+-->
+
+---
+
+# Same Recipe for Logistic Regression
+
+<PartTag part="fitting" />
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-[.78rem]">
+
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+<div class="font-semibold text-blue-800 mb-2">linear regression + MSE</div>
+
+$$
+\hat y = \mathbf w^\top\mathbf x + b
+$$
+
+$$
+\nabla_{\mathbf w}\mathcal L = \frac{1}{N}\sum_i (\hat y_i - y_i)\,\mathbf x_i
+$$
+
+setting it to zero is **solvable** → closed form
+
+</div>
+
+<div class="rounded-xl border border-orange-200 bg-orange-50 p-4">
+<div class="font-semibold text-orange-700 mb-2">logistic regression + BCE</div>
+
+$$
+p = \sigma(\mathbf w^\top\mathbf x + b)
+$$
+
+$$
+\nabla_{\mathbf w}\mathcal L = \frac{1}{N}\sum_i (p_i - y_i)\,\mathbf x_i
+$$
+
+$p_i$ depends non-linearly on $\mathbf w$ → **no closed form**
+
+</div>
+
+</div>
+
+<blockquote class="blockquote2 mt-5">
+The gradient has the same form: (prediction − target) × input. Gradient descent does not care whether a closed form exists &mdash; it only needs to evaluate this gradient.
+</blockquote>
+
+<!--
+Derivation of the BCE gradient follows with the chain rule in block 3 (backpropagation for logistic regression).
+-->
+
+---
+
+# Testing All Possible Weights
+
+<PartTag part="fitting" />
+
+<div class="grid grid-cols-[2.2fr_1fr] gap-6 mt-2 items-center">
+
+<div>
+<LogisticLossExplorer :init="[-7.5, 7.5]" :pins="[[-7.5, 7.5], [1, 1], [5, -5]]" />
+</div>
+
+<div class="text-[.72rem]">
+<blockquote class="blockquote4">model 1: boundary flipped, every sample confidently wrong → high loss</blockquote>
+<blockquote class="blockquote1 mt-3">model 2: small weights, class 0 on the wrong side but not confident → loss ≈ 1.2</blockquote>
+<blockquote class="blockquote2 mt-3">model 3: classes separated and confident → loss ≈ 0</blockquote>
+</div>
+
+</div>
+
+<!--
+Click the three model buttons, then hover freely. Note the large yellow plateau in the lower right: many weights are (almost) perfect.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# The Loss Surface of Logistic Regression
+
+<PartTag part="fitting" />
+
+::left::
+
+<div class="text-[.8rem]">
+
+<div class="flex gap-1 items-center mt-2 text-[.7rem] whitespace-nowrap">
+<span class="rounded bg-blue-800 text-white px-2 py-1">no global minimum</span>
+<span>→</span>
+<span class="rounded bg-blue-800 text-white px-2 py-1">no closed form</span>
+<span>→</span>
+<span class="rounded bg-orange-500 text-white px-2 py-1">GD still works</span>
+</div>
+
+- on separable data the loss keeps shrinking as $\lVert\mathbf w\rVert \to \infty$: the sigmoid becomes a step
+- the surface is still **convex**: there are no bad valleys to get stuck in
+- but it has **flat regions**, where the gradient is tiny and progress is slow
+
+<blockquote class="blockquote1 mt-4">
+In practice we stop early or add regularization (weight decay) to keep the weights finite.
+</blockquote>
+
+</div>
+
+::right::
+
+<div class="flex justify-center">
+<LossSurface3D surface="log-bce" :width="360" :height="300" :yaw="0.9" :pitch="0.4" :auto-rotate="false" />
+</div>
+
+<!--
+Replaces the rotating 3D video. Rotate so the plateau (yellow, near zero loss) and the steep wall (confidently wrong models) are both visible.
+-->
+
+---
+
+# Let's Try Gradient Descent
+
+<PartTag part="fitting" />
+
+<div class="text-[.76rem] -mt-1">
+
+Full-batch gradient descent on the BCE, starting with a flipped boundary at $\mathbf w = (-7, 7)$. Press **run**, then try other learning rates or click the surface to start elsewhere.
+
+</div>
+
+<div class="mt-1">
+<LogisticGDDemo :init="[-7, 7]" :lr="0.1" show-lr />
+</div>
+
+<blockquote class="blockquote1 mt-2 text-[.72rem]">
+Confidently wrong samples give a constant gradient: the loss falls in a straight line. On the yellow plateau progress crawls &mdash; the loss never quite reaches zero.
+</blockquote>
+
+<!--
+Same setup as the course notebook (logistic_regression.py): 20 samples per class from N((-1,3), 0.5 I) and N((3,-2), 0.5 I), no bias, mean BCE, SGD lr 0.1, 150 epochs, start (-7, 7).
+eta = 0.1: converged region after ~40 epochs. eta = 0.01: still far up the wall after 150 epochs. eta = 1: ten times faster, no instability here because the surface is so flat.
+The dashed grey line in the training curve is the rest of the run.
+-->
+
+---
+
+# Gradient Descent: Role of Momentum
+
+<PartTag part="fitting" />
+
+<div class="text-[.78rem] mt-1">
+
+Keep a running velocity $\mathbf v$ and let it carry the steps: $\;\mathbf v \leftarrow \mu\,\mathbf v - \eta\,\nabla\mathcal{L}, \quad \mathbf w \leftarrow \mathbf w + \mathbf v$
+
+</div>
+
+<div class="mt-1 max-w-[600px] mx-auto">
+<LogisticGDRace :init="[-7, 7]" :configs="[
+  { label: 'no momentum (μ = 0)', lr: 0.1, momentum: 0 },
+  { label: 'μ = 0.8', lr: 0.1, momentum: 0.8 },
+  { label: 'μ = 1 (no friction)', lr: 0.1, momentum: 1 },
+]" />
+</div>
+
+<blockquote class="blockquote2 mt-2 text-[.75rem]">
+Momentum crosses flat areas quickly; with μ = 1 nothing slows it down &mdash; it never stops.
+</blockquote>
+
+<!--
+All three runs: start (-7, 7), eta = 0.1, same SGD as torch.optim.SGD(momentum=mu). Press run once; the runs advance in lockstep.
+mu = 0: ~40 epochs to the plateau. mu = 0.8: there after ~10 epochs, then settles. mu = 1: the velocity is never damped - w keeps flying away from the origin (beyond (200, -260) after 150 epochs).
+Momentum (and Adam) are the standard optimizers for the deep networks in block 3 and later lectures.
+-->
+
+---
+
+# Back to Real Data: Land Cover
+
+<PartTag part="data" />
+
+<div class="mt-4">
+  <LinearDecisionBoundaryDemo />
+</div>
+
+<!--
+Feature space recap: NDVI vs. Green reflectance for 759 land-cover samples.
+Drag the two handles to reshape the line and watch w1, w2, b update live.
+This is the linear score w^T x + b; the sigmoid (logistic regression) comes next.
+-->
+
+---
+
+# Logistic Regression on Land Cover
+
+<PartTag part="data" />
+
+<div class="mt-4">
+  <LogisticRegressionDemo />
+</div>
+
+<!--
+Same feature space and boundary mechanic as the previous slide, but the linear score
+z = w^T x + b is now passed through the sigmoid to become a probability P(y=1|x).
+The boundary itself does not move: z = 0 is still exactly where P = 0.5.
+-->
+
+---
+
+# Recap: Logistic Regression
+
+<div class="mt-2 text-[.8rem] compare-table">
+
+| | Linear regression | Logistic regression |
+|---|---|---|
+| **Model core** | $\mathbf W\mathbf x + \mathbf b$ | $\mathbf W\mathbf x + \mathbf b$ |
+| **Output** | continuous value | class probability |
+| **Output function** | identity | sigmoid or softmax |
+| **Typical loss** | MSE | cross-entropy |
+| **Optimization** | closed form possible | gradient-based optimization |
+
+</div>
+
+<blockquote class="blockquote2 mt-4 text-[.78rem]">
+The linear transformation has not changed. What changes is the <strong>interpretation</strong> of its output, the <strong>output function</strong> and the <strong>loss</strong> &mdash; and with them, how we must optimize.
+</blockquote>
+
+<blockquote v-click class="blockquote3 mt-3 text-[.74rem]">
+Next: what if the features are not good enough for a linear boundary? Combine several transformations and let the model <strong>learn</strong> the features.
+</blockquote>
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: multilayer-perceptrons
+sectionTitle: "Multilayer Perceptrons"
+---
+
+# Multilayer Perceptrons
+
+<img class="bonn-section-image-sm" src="./figures/mlp_cover.svg" alt="An illustration of a multilayer perceptron neural network" />
+
+<!--
+Block 3: learning the representation. From linear decisions on fixed features to learned feature-space transformations.
+An MLP = stacked linear regressions with non-linear activations, ending in a linear (regression) or logistic/softmax (classification) head.
+-->
+
+---
+
+# What happens when we combine multiple learned transformations?
+
+<div class="mt-3 text-[.66rem] block-roadmap">
+
+|  | Block 3 — Multilayer Perceptrons | Main idea |
+|---|---|---|
+| 1 | Biological neurons | conceptual inspiration |
+| 2 | Artificial neuron | weighted sum + activation |
+| 3 | Many neurons form a layer | an $M \to N$ map: matrix multiplication and its geometry |
+| 4 | Many layers form a network | stacked transformations |
+| 5 | Why non-linear activations? | stacked linear maps collapse |
+| 6 | Hidden layers | learned intermediate representations |
+| 7 | Depth | composition of increasingly abstract representations |
+| 8 | Backpropagation | gradients flow layer by layer |
+
+</div>
+
+<div class="mt-2 text-[.66rem] text-gray-600"><strong>Model:</strong> steps 1–7 &nbsp;→&nbsp; <strong>Loss:</strong> as in block 2 &nbsp;→&nbsp; <strong>Fitting:</strong> step 8</div>
+
+<!--
+Central question of block 3. Key message: stacking linear layers alone does not make a model more expressive - the non-linear activations do.
+-->
+
+---
+
+# Biological Interpretation of Adding Signals
+
+<PartTag part="model" />
+
+<img
+  src="./figures/biological_interpretation.svg"
+  class="w-full h-[360px] object-contain"
+/>
+
+---
+
+# Activation Functions – Biological Interpretation
+
+<PartTag part="model" />
+
+<img
+  src="./figures/biological_interpretation_activation_functions.svg"
+  class="w-full h-[360px] object-contain"
+/>
+
+
+---
+
+# An Artificial Neuron
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[1.25fr_1fr] gap-6 mt-3 items-center">
+
+<div>
+<NeuronDiagram />
+</div>
+
+<div class="text-[.78rem]">
+
+$$
+a = \text{act}\left(\mathbf w^\top\mathbf x + b\right)
+$$
+
+- the weighted sum is a **block 1** transformation $\mathbb R^p \to \mathbb R$
+- the activation is the **block 2** idea: a non-linear output function
+
+<blockquote class="blockquote2 mt-3">
+With a sigmoid activation, one neuron <strong>is</strong> logistic regression.
+</blockquote>
+
+</div>
+
+</div>
+
+<!--
+Step 2 of block 3. Compare to the biological picture: inputs = dendrites, weighted sum = integration in the cell body, activation = firing rate.
+-->
+
+---
+
+# Many Neurons Form a Layer
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-3 items-center">
+
+<div class="text-[.78rem]">
+
+$K$ neurons that see the same input = $K$ rows of a weight matrix:
+
+$$
+\mathbf h = \text{act}\left(\mathbf W\mathbf x + \mathbf b\right), \qquad \mathbf W \in \mathbb R^{K\times p}
+$$
+
+- the $K$-output map from block 2 (one row per neuron), now feeding the next layer
+- the activation is applied to every output separately
+- the layer maps the input into a new $K$-dimensional representation $\mathbf h$
+
+```python
+layer = nn.Sequential(nn.Linear(p, K), nn.ReLU())
+```
+
+</div>
+
+<div>
+<img src="./figures/linear_transformation_bias.svg" class="w-full h-[280px] object-contain" alt="A weight matrix with bias maps a 3-dimensional input vector to a 2-dimensional output vector" />
+</div>
+
+</div>
+
+<!--
+Step 3 of block 3: recall the K-output map from block 2 plus the per-output activation. The next slides show what such M -> N maps do geometrically.
+-->
+
+---
+
+# One Sample or a Whole Dataset
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-[.78rem]">
+
+<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+<div class="font-semibold text-blue-800 mb-2">one sample: column vectors</div>
+
+$$
+\underbrace{\hat{\mathbf y}}_{K} = \underbrace{\mathbf W}_{K\times p}\,\underbrace{\mathbf x}_{p} + \underbrace{\mathbf b}_{K}
+$$
+
+the notation on the slides and in most textbooks
+
+</div>
+
+<div class="rounded-xl border border-gray-300 p-4">
+<div class="font-semibold text-blue-800 mb-2"><em>n</em> samples: one row per sample</div>
+
+$$
+\underbrace{\hat{\mathbf Y}}_{n\times K} = \underbrace{\mathbf X}_{n\times p}\,\underbrace{\mathbf W^\top}_{p\times K} + \mathbf b^\top
+$$
+
+the bias row is added to every sample
+
+</div>
+
+</div>
+
+```python
+layer = nn.Linear(in_features=p, out_features=K)   # stores W (K x p) and b (K)
+Y_hat = layer(X)                                   # X: (n, p) -> Y_hat: (n, K), computes X @ W.T + b
+```
+
+<!--
+Same map, two bookkeeping conventions. For K = 1 the batch version is exactly y = Xw + b from block 1.
+-->
+
+---
+
+# Linear Transformation from 3D to 2D
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-2 gap-4 mt-2 items-center">
+
+<img
+  src="./figures/linear_transformation_2-3D.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
+/>
+
+<video
+  src="./figures/2d_plot.mov"
+  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+<!--
+The same W is applied to every data point: X W^T maps a whole point cloud from 3D to 2D. A layer with two neurons does exactly this (before its activation).
+-->
+
+---
+
+# Linear Transformation from 2D to 3D
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-2 gap-4 mt-2 items-center">
+
+<img
+  src="./figures/linear_projection_2d_to_3d.svg"
+  class="w-full h-[360px] object-contain"
+  alt="A 3 by 2 weight matrix maps each two-dimensional input point to a three-dimensional output point"
+/>
+
+<video
+  src="./figures/3d_plot.mov"
+  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+<!--
+Mapping to more dimensions than we started with: the points stay on a 2D plane inside 3D. This is what a wider hidden layer does - before the non-linearity bends that plane.
+-->
+
+---
+
+# Linear Alebra: Stacking Layers
+
+<PartTag part="model" />
+
+## A 2D→3D Linear Projection moves data into 3D representation space
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./figures/2d-3d-figure-lef.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<img
+  src="./figures/2d-3d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+---
+
+# Linear Alebra: Stacking Layers
+
+<PartTag part="model" />
+
+## Two Linear projections 2D→3D→2D in a 2-Layer network
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./figures/2d-3d-2d-figure-left.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<img
+  src="./figures/2d-3d-2d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+
+---
+
+# Linear Alebra: Stacking Layers
+
+<PartTag part="model" />
+
+## Two Linear projections 2D→3D→2D without non-linearity is a single 2D → 2D projection
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./figures/2d-2d-figure-left.png"
+  class="w-full h-[260px] object-contain"
+/>
+
+
+<img
+  src="./figures/2d-2d-figure.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+</div>
+
+---
+
+# Linear Alebra: Stacking Layers
+
+<PartTag part="model" />
+## Non-linear functions like ReLU are needed to transform feature space
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./figures/relu.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+
+<video
+  src="./figures/relu.mov"
+  class="w-full h-[250px] rounded-lg border border-gray-200 object-contain bg-black"
+  autoplay loop muted playsinline controls
+/>
+
+</div>
+
+---
+
+# From Fixed to Learned Features
+
+<PartTag part="model" />
+
+<div class="mt-2">
+<ModelHeadDiagram :clicks="$clicks" />
+</div>
+
+<div v-click="1" class="text-[.75rem] mt-1">
+<blockquote class="blockquote2">
+
+An MLP for regression or classification ends in exactly these two heads. What changes now is **what the head sees**: a learned representation $\mathbf h$ instead of hand-built features $\mathbf x$. The loss surface gets far more complex, so gradient descent is the only option.
+
+</blockquote>
+</div>
+
+<!--
+Key bridge into block 3. Blocks 1-2: representation fixed (built from the data cube), only the head is learned. MLP: representation and head are learned jointly, end to end, with the same losses (MSE, BCE / cross-entropy) and the same optimizer (gradient descent).
+-->
+
+---
+
+# More layers → more complex transformations
+
+<PartTag part="model" />
+
+<img
+  src="./figures/transformations_in_an_MLP.png"
+  class="w-full h-[360px] object-contain"
+/>
+
+---
+
+# Demo: Multi-Layer Perceptron Feature Space
+
+<PartTag part="model" />
+
+<MlpFeatureSpaceDemo />
+
+<div class="mt-1 text-xs text-gray-500">
+Inspired by Andrej Karpathy's <a href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html" target="_blank" rel="noopener noreferrer">ConvNetJS Classify2D</a> demo. Implemented with Claude and Codex.
+</div>
+
+---
+
+# Multi-Layer Perceptron - Implementation
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+
+<img
+  src="./figures/MLP_summary.svg"
+  class="w-full h-[260px] object-contain"
+/>
+
+<style>
+.mlp-impl-code pre { font-size: 9.5px !important; line-height: 1.4 !important; }
+</style>
+
+<div class="mlp-impl-code">
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class MLPClassifier(nn.Module):
+    def __init__(
+        self, input_dim, hidden_dim, num_classes
+    ):
+        super(MLPClassifier, self).__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))      # 1st layer ReLU
+        x = F.relu(self.fc2(x))      # 2nd layer ReLU
+        x = F.sigmoid(self.fc3(x))   # Output (probs)
+        return x
+```
+
+</div>
+
+</div>
+
+
+---
+
+# Depth: Composing Representations
+
+<PartTag part="model" />
+
+<div class="grid grid-cols-[1fr_1.15fr] gap-6 mt-3 items-center">
+
+<div class="text-[.78rem]">
+
+A deep network is a composition of layers:
+
+$$
+\hat{\mathbf y} = f_L\big(\cdots f_2\big(f_1(\mathbf x)\big)\big), \qquad f_\ell(\mathbf h) = \text{act}(\mathbf W_\ell \mathbf h + \mathbf b_\ell)
+$$
+
+- every layer re-represents the output of the previous one
+- early layers: simple patterns in the raw input (e.g. edges, spectral contrasts)
+- later layers: combinations of those patterns &mdash; increasingly **abstract** representations
+- the last layer is still the linear / logistic head of blocks 1–2
+
+</div>
+
+<div>
+<img src="./figures/model.svg" class="w-full h-[300px] object-contain" alt="A deep learning model transforms an input tensor through several layers into an output tensor" />
+</div>
+
+</div>
+
+<!--
+Step 7 of block 3 (borrowed from Lecture 5). Lecture 5 picks this up: why learned representations work and which architectures build them for images and time series.
+-->
+
+---
+
+# Learning Feature Representations
+
+<PartTag part="model" />
+
+<img
+  src="./figures/feature_learning.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Training data guides a deep learning model to learn feature representations for classification"
+/>
+
+<!--
+Step 7 of block 3 (from Lecture 5): feature learning and a simple classifier are trained together, end to end. The "simple classifier" is the logistic regression of block 2.
+-->
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: multilayer-perceptrons
+---
+
+# Training an MLP: Gradient Descent &amp; Backpropagation
+
+<!--
+Learning the parameters of every layer: parameters -> prediction -> loss -> gradient -> update.
+Same recipe as for logistic regression; backpropagation makes the gradients cheap to compute for many layers.
+-->
+
+---
+
+# Training: Adjusting Weights to Minimize Loss
+
+<PartTag part="loss" />
+
+## Finding good parameters W
+
+<img
+  src="./figures/Loss-weights.svg"
+  class="w-full h-[360px] object-contain"
+  alt="A training dataset passes through the model f(x;W) to produce predictions, which are compared against the true labels by a loss function; the weights W are adjusted to minimize this loss"
+/>
+
+---
+
+# Gradient Descent on Mini-Batches
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/gradient_descent2.png"
+  class="w-full h-[360px] object-contain"
+/>
+
+---
+
+# More Complex Models, More Complex Loss Surfaces
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/loss_surface.png"
+  class="w-full h-[360px] object-contain"
+/>
+
+
+---
+
+# Gradient Descent vs Backpropagation
+
+<PartTag part="fitting" />
+
+<div class="grid grid-cols-2 gap-5 mt-4 text-[.8rem]">
+  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
+    <div class="font-semibold text-blue-900 mb-2">Gradient Descent</div>
+    <div>How to update parameters once gradients are known.</div>
+    <img src="./figures/grad_descent_image.png"/>
+  </div>
+  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+    <div class="font-semibold text-emerald-900 mb-2">Backpropagation</div>
+    <div>How to compute gradients efficiently through many layers.</div>
+    <img src="./figures/backprop_6.svg"/>
+  </div>
+</div>
+
+<div class="mt-4 text-[.72rem] text-gray-600">Backprop gives the gradients; gradient descent uses them to step the parameters.</div>
+
+<!--
+Clarify the common confusion: optimization rule vs gradient-computation algorithm.
+-->
+
+---
+clicks: 2
+---
+
+# Backpropagation for Logistic Regression
+
+<PartTag part="fitting" />
+
+<div class="mt-2">
+<ChainRuleDiagram :clicks="$clicks" />
+</div>
+
+<div v-click="2" class="text-[.75rem] mt-2">
+<blockquote class="blockquote1">
+For deeper models, the same chain rule is applied layer by layer, from the loss back to the input: <strong>backpropagation</strong>. Gradient descent then uses these gradients to update all weights.
+</blockquote>
+</div>
+
+<!--
+Click 1: local derivatives of each step. Click 2: multiply them -> (p - y) x, the gradient from the BCE slide. Backprop = computing exactly this product efficiently for millions of parameters; frameworks like PyTorch do it automatically (autograd).
+-->
+
+---
+
+# Backpropagation 1
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_1.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 1: the network computes a forward pass from input to prediction"
+/>
+
+---
+
+# Backpropagation 2
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_2.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 2: the loss compares the prediction to the true label"
+/>
+
+---
+
+# Backpropagation 3
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_3.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 3: the gradient of the loss with respect to the output layer is computed"
+/>
+
+---
+
+# Backpropagation 4
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_4.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 4: the gradient is propagated backward through the network layer by layer using the chain rule"
+/>
+
+---
+
+# Backpropagation 5
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_5.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 5: each layer's weight gradients are computed from the gradient flowing back from the layer above"
+/>
+
+---
+
+# Backpropagation 6
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_6.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 6: gradients of earlier layers require only the gradient from the previous layer, so no recomputation of later layers is needed"
+/>
+
+---
+
+# Backpropagation 7
+
+<PartTag part="fitting" />
+
+<img
+  src="./figures/backprop_7.svg"
+  class="w-full h-[360px] object-contain"
+  alt="Backpropagation step 7: the same computation expressed in code as loss = MSE(y_pred, y), loss.backward(), and optimizer.step()"
+/>
+
+---
+
+# Recap: Lecture 4
+
+<div class="grid grid-cols-[1.1fr_1fr] gap-8 mt-3 items-start">
+
+<div class="text-[.78rem]">
+
+<v-clicks>
+
+- **Block 1:** linear regression fits a line / plane, $\mathbf y = \mathbf X\mathbf w + b$; with MSE it has a closed-form solution
+- **Block 2:** $K$ outputs $\mathbf W\mathbf x + \mathbf b$ + sigmoid / softmax + cross-entropy classify; no closed form, so we use gradient descent
+- **Block 3:** neurons form layers ($M \to N$ maps), layers form networks; non-linear activations make stacking worthwhile and hidden layers learn representations
+- **Backpropagation** computes the gradients layer by layer, **gradient descent** uses them &mdash; the same optimization as for logistic regression
+
+</v-clicks>
+
+</div>
+
+<div class="text-[.74rem]">
+
+| | guess | closed form | gradient descent |
+|---|:-:|:-:|:-:|
+| linear regression | ✓ | ✓ | ✓ |
+| logistic regression | ✓ | ✗ | ✓ |
+| MLP / deep networks | ✗ | ✗ | ✓ |
+
+<div class="text-[.68rem] text-gray-600 mt-2">Which solving tools are applicable.</div>
+
+</div>
+
+</div>
+
+<!--
+Lecture 5: why should what the network learns work beyond the training data? Learned representations and deep architectures.
+-->
+
+---
+layout: learning-outcomes
+mode: after
+meeting: lecture-04
+section: closing
+sectionTitle: Closing
+---
+
+# Revisit the learning outcomes
+
+---
+layout: bonn-section
+sectionColor: "#00457c"
+section: backup
+sectionTitle: "Backup"
+---
+
+# Backup Slides
+
+<div class="text-[.9rem] mt-4">Optional material: statistics and details not needed for the main storyline.</div>
+
+<!--
+Moved here in iteration 5 to unload the blocks: advertising data, limits of univariate models, MAE, interpretable coefficients, the argmin slide, linear transformation with bias.
+-->
 
 ---
 
@@ -154,316 +2650,6 @@ $x_3 \mapsto y$ (newspaper &rarr; sales)
 
 <div class="figure-copyright">
 Figure: James, Witten, Hastie &amp; Tibshirani, <a href="https://www.statlearning.com/" target="_blank" rel="noopener noreferrer"><em>An Introduction to Statistical Learning</em></a>, Advertising dataset.
-</div>
-
----
-
-# Linear Regression Answers Important Questions
-
-<div class="grid grid-cols-3 gap-8 mt-6 items-center">
-
-<div class="col-span-2">
-
-<ul>
-<li>is there a relationship between advertising budget and sales?</li>
-<li v-click>how strong is the relationship?</li>
-<li v-click>is there synergy among the advertising media?</li>
-</ul>
-
-</div>
-
-<div>
-<img src="./figures/advertisement_vs_sales_1.png" class="w-full h-[260px] object-contain rounded-xl" alt="Scatter plot of sales against radio advertising budget with a fitted regression line" />
-</div>
-
-</div>
-
-<div class="mt-4 text-gray-700">
-The same questions apply to our geospatial example: is there a relationship between elevation and surface temperature &mdash; and how strong is it?
-</div>
-
----
-
-# Univariate Linear Regression
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div class="flex items-center justify-center gap-3">
-<div class="relative">
-<img src="./figures/dem.png" class="h-[170px] object-contain rounded-xl" alt="Digital elevation model of a catchment" />
-<div v-click="1" class="absolute w-2.5 h-2.5 rounded-full" style="top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--grl-data-orange); box-shadow: 0 0 0 2px white;"></div>
-</div>
-<div class="text-2xl text-blue-800">&rarr;</div>
-<div class="relative">
-<img src="./figures/tave.png" class="h-[170px] object-contain rounded-xl" alt="Average temperature raster" />
-<div v-click="1" class="absolute w-2.5 h-2.5 rounded-full" style="top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--grl-data-orange); box-shadow: 0 0 0 2px white;"></div>
-</div>
-</div>
-
-<div>
-
-A simple (but powerful) linear model
-
-$$
-\hat{y} = f(x;\beta_0,\beta_1) = \beta_0 + x\beta_1
-$$
-
-maps an elevation $x$ to an estimated temperature $\hat{y}$, with $\beta_0$ the y-intercept and $\beta_1$ the slope.
-
-</div>
-
-</div>
-
-<div class="figure-copyright">
-Figure: M. Rußwurm &amp; D. Tuia, <em>Linear Regression</em>, ENV-408 course materials, EPFL, 2023.
-</div>
-
----
-
-# The Problem: Finding $\hat{\boldsymbol{\beta}}$
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="points" x-label="elevation x" y-label="temperature y" :clicks="$clicks" />
-</div>
-
-<div>
-
-We have a dataset of data samples $(x_i, y_i)$.
-
-<blockquote v-click class="blockquote3 mt-4">
-
-<strong>Problem:</strong> how do we find good model parameters $\hat{\boldsymbol{\beta}} = (\hat{\beta}_0, \hat{\beta}_1)$ for our linear model $f(x;\hat{\boldsymbol{\beta}}) = \hat{\beta}_0 + x\hat{\beta}_1$?
-
-</blockquote>
-
-</div>
-
-</div>
-
----
-
-# What Is a Good Model &mdash; Formally?
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="error-band" x-label="elevation x" y-label="temperature y" />
-</div>
-
-<div>
-
-$$
-\begin{aligned}
-y_i &= f(x_i;\hat{\boldsymbol{\beta}}) \pm \overbrace{\varepsilon}^{\text{error}} \\
-\hat{y}_i &= f(x_i;\hat{\boldsymbol{\beta}})
-\end{aligned}
-$$
-
-with the error $\varepsilon$ as a random variable &mdash; the model never fits the data perfectly.
-
-</div>
-
-</div>
-
----
-
-# Residuals
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="residual-segments" x-label="elevation x" y-label="temperature y" :clicks="$clicks" />
-</div>
-
-<div>
-
-Concretely, the error &mdash; the "residual" $\varepsilon_i$ &mdash; for each sample $i$:
-
-$$
-\vert \hat{y}_i - y_i \vert = \varepsilon_i
-$$
-
-<div v-click>
-
-We want to minimize the residuals over the whole dataset
-
-$$
-\min \frac{1}{N} \sum_{i=1}^N \varepsilon_i
-$$
-
-</div>
-
-</div>
-
-</div>
-
----
-
-# Mean Absolute Error (MAE)
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="residual-segments" x-label="x" y-label="y" />
-</div>
-
-<div>
-
-$$
-\text{MAE}(\mathcal{D}, \boldsymbol{\beta}) = \frac{1}{N} \sum_{i=1}^N \vert \hat{y}_i - y_i \vert
-$$
-
-over model $\boldsymbol{\beta}$ with $\hat{y}_i = f(x_i;\boldsymbol{\beta})$ and dataset $\mathcal{D} = \{x_i, y_i\}_{i=1}^N$
-
-<blockquote class="blockquote1 mt-3">
-Very intuitive &mdash; but does not punish large errors.
-</blockquote>
-
-</div>
-
-</div>
-
----
-
-# Mean Squared Error (MSE)
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="residual-squares" x-label="x" y-label="y" />
-</div>
-
-<div>
-
-$$
-\text{MSE}(\mathcal{D}, \boldsymbol{\beta}) = \frac{1}{2N} \sum_{i=1}^N (\hat{y}_i - y_i)^2
-$$
-
-Punishes large errors with a square penalty.
-
-<blockquote class="blockquote2 mt-3">
-<strong>Geometric intuition:</strong> find a model that minimizes the total area of these squares.
-</blockquote>
-
-</div>
-
-</div>
-
----
-layout: bonn-two-cols-header
----
-
-# Vertical vs. Perpendicular Error Offsets
-
-Both measure a residual &mdash; but they disagree on what "error" means for a spatial variable.
-
-::left::
-
-<div class="text-center text-sm font-semibold text-blue-800 mb-2">Vertical offsets</div>
-
-<RegressionScatterDemo variant="offsets-vertical" x-label="x" y-label="y" :clicks="$clicks" />
-
-<div v-click.hide="1">
-
-$$
-\min \frac{1}{N}\sum_i \vert (\beta_0+x_i\beta_1) - y_i\vert
-$$
-
-</div>
-<div v-click="1">
-
-$$
-\min \frac{1}{2N}\sum_i \left((\beta_0+x_i\beta_1) - y_i\right)^2
-$$
-
-</div>
-
-- simple, and often sufficient (e.g. temperature vs. elevation)
-- **but:** the error changes with how the axes are chosen
-
-::right::
-
-<div class="text-center text-sm font-semibold text-blue-800 mb-2">Perpendicular offsets</div>
-
-<RegressionScatterDemo variant="offsets-perpendicular" x-label="x" y-label="y" :clicks="$clicks" />
-
-<div v-click.hide="1">
-
-$$
-\min \frac{1}{N}\sum_i \frac{\vert (\beta_0+x_i\beta_1) - y_i\vert}{\sqrt{1+\beta_1^2}}
-$$
-
-</div>
-<div v-click="1">
-
-$$
-\min \frac{1}{2N}\sum_i \frac{\left((\beta_0+x_i\beta_1) - y_i\right)^2}{1+\beta_1^2}
-$$
-
-</div>
-
-- makes the error depend only on the fitted model, not the coordinate system
-- useful when both axes represent comparable spatial quantities
-
-<div class="figure-copyright mt-2">
-Ordinary least squares (next) uses vertical offsets. See <a href="https://mathworld.wolfram.com/LeastSquaresFittingPerpendicularOffsets.html" target="_blank" rel="noopener noreferrer">Least Squares Fitting &mdash; Perpendicular Offsets</a>, MathWorld.
-</div>
-
----
-
-# Ordinary Least Squares (OLS) &mdash; Intuition
-
-The closed-form solution $\hat{\beta}_0, \hat{\beta}_1$ for a linear model under MSE.
-
-<blockquote class="blockquote3 mt-6">
-
-<strong>Task:</strong> find $\hat{\beta}_0,\hat{\beta}_1$ that minimize the Mean Squared Error
-
-</blockquote>
-
-$$
-\hat{\beta}_0,\hat{\beta}_1 = \operatorname*{arg\,min}_{\beta_0,\beta_1} \frac{1}{2N} \sum_{i=1}^N \left(\overbrace{\beta_0 + x_i \beta_1}^{\hat{y}_i} - y_i \right)^2
-$$
-
-<div v-click class="mt-6">
-
-**Question:** how do we minimize a function with respect to its parameters?
-
-</div>
-
-<div v-click>
-
-- calculate the partial derivatives $\frac{\partial \text{MSE}}{\partial \beta_0}$ and $\frac{\partial \text{MSE}}{\partial \beta_1}$
-- set the derivatives to zero: $\frac{\partial \text{MSE}}{\partial \beta_0} = 0$, $\frac{\partial \text{MSE}}{\partial \beta_1} = 0$
-- solve for $\beta_0$ and $\beta_1$
-
-</div>
-
----
-
-# Ordinary Least Squares (OLS) &mdash; Solution
-
-Model $y = \beta_0 + x\beta_1$ on a dataset $\mathcal{D} = \{x_i, y_i\}_{i=1}^N$
-
-Ordinary Least Squares objective
-
-$$
-\hat{\beta}_0,\hat{\beta}_1 = \operatorname*{arg\,min}_{\beta_0,\beta_1} \frac{1}{2N} \sum_{i=1}^N \left(\overbrace{\beta_0 + x_i \beta_1}^{\hat{y}_i} - y_i \right)^2
-$$
-
-Closed-form solution
-
-$$
-\begin{aligned}
-\hat{\beta}_0 &= \frac{1}{N}\sum_{i=1}^N y_i - \hat{\beta}_1 \frac{1}{N}\sum_{i=1}^N x_i = \bar{y} - \hat{\beta}_1 \bar{x} \\[.3em]
-\hat{\beta}_1 &= \frac{\text{Cov}[x,y]}{\text{Var}[x]} = \frac{\frac{1}{N}\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\frac{1}{N}\sum_i (x_i - \bar{x})^2}
-\end{aligned}
-$$
-
-<div class="figure-copyright">
-See <a href="https://en.wikipedia.org/wiki/Ordinary_least_squares" target="_blank" rel="noopener noreferrer">Ordinary Least Squares</a>, Wikipedia.
 </div>
 
 ---
@@ -506,188 +2692,29 @@ elevation &rarr; surface temperature &mdash; shading, wind, and local terrain al
 
 ---
 
-# Multivariate Models: Linearize With Good Feature Design
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div class="flex justify-center">
-<FeatureTargetDiagram
-  :features="[
-    { label: 'elevation', symbol: 'x₁' },
-    { label: 'slope', symbol: 'x₂' },
-    { label: 'aspect', symbol: 'x₃' },
-  ]"
-  target="surface temperature"
-  target-symbol="y"
-/>
-</div>
-
-<div>
-
-Many non-linear relationships can be linearized with good feature design: elevation alone under-explains surface temperature, but elevation **and** slope **and** aspect together explain it much better.
-
-<div class="mt-4 text-gray-700 text-sm">
-Same pattern as classical feature extraction: extract informative features, then fit a simple model.
-</div>
-
-<img src="./figures/pipeline.png" class="w-full h-[70px] object-contain mt-3" alt="Generic pipeline: extract distinguishing features, then train and use a model" />
-
-</div>
-
-</div>
-
----
-
-# From Uni- to Multivariate Linear Models
-
-**Univariate model** $y = f(x;\beta_0,\beta_1)$ with scalar $x,y$ and two parameters
-
-$$
-y = \beta_0 + \overbrace{x_1}^{\text{e.g., elev.}}\beta_1
-$$
-
-**Multivariate linear model**
-
-- one input sample $\mathbf{x}_i = (1, x_1, x_2, x_3, \dots, x_p)$ of $p$ features
-- corresponding target $y_i$
-- one weight per feature $\boldsymbol{\beta} = (\beta_0, \beta_1, \beta_2, \dots, \beta_p)$
-
-$$
-y_i = \beta_0 + \overbrace{x_1}^{\text{e.g., elev.}}\beta_1 + \overbrace{x_2}^{\text{e.g., slope}}\beta_2 + \overbrace{x_3}^{\text{e.g., aspect}}\beta_3 + \dots = \boldsymbol{\beta}^\top \mathbf{x}_i
-$$
-
----
-
-# Multivariate Linear Model in Matrix Form
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div>
-
-A multivariate dataset $\mathcal{D} = \{\mathbf{x}_i, y_i\}_{i=1}^n$ as matrix $\mathbf{X}$ and target vector $\mathbf{y}$, with $n$ samples and $p$ features
-
-$$
-\mathbf{X} =
-\begin{pmatrix}
-1 & \overbrace{x_{11}}^{\text{elev.}} & \overbrace{x_{21}}^{\text{slope}} & \overbrace{x_{31}}^{\text{aspect}} & \dots \\
-1 & x_{12} & x_{22} & x_{32} & \dots \\
-\vdots & \vdots & \vdots & \vdots & \ddots \\
-1 & x_{1n} & x_{2n} & x_{3n} & \dots
-\end{pmatrix}\!,\;\;
-\mathbf{y} = \begin{pmatrix} y_1 \\ y_2 \\ \vdots \\ y_n \end{pmatrix}
-$$
-
-<div v-click>
-
-And the model
-
-$$
-\mathbf{y} = \mathbf{X}\hat{\boldsymbol{\beta}} + \overbrace{\boldsymbol{\varepsilon}}^{\text{errors}}
-$$
-
-with $p{+}1$ parameters $\hat{\boldsymbol{\beta}} = (\hat{\beta}_0, \hat{\beta}_1, \dots, \hat{\beta}_p)$
-
-</div>
-
-<div v-click>
-
-$$
-\boldsymbol{\varepsilon} = \overbrace{\left\Vert \mathbf{X}\hat{\boldsymbol{\beta}} - \mathbf{y} \right\Vert^2}^{\text{MSE}}
-$$
-
-</div>
-
-</div>
-
-<div class="flex justify-center">
-<img v-click="1" src="./figures/OLS_illustration.png" class="w-full max-h-[280px] object-contain" alt="Geometric illustration of ordinary least squares: y is projected onto the column space of X, and the residual is orthogonal to the fitted value" />
-</div>
-
-</div>
-
----
-
-# Multivariate Ordinary Least Squares
-
-$$
-\hat{\boldsymbol{\beta}} = \operatorname*{arg\,min}_{\hat{\boldsymbol{\beta}}} \text{MSE}(\hat{\boldsymbol{\beta}}) = \operatorname*{arg\,min}_{\hat{\boldsymbol{\beta}}} \left\Vert \mathbf{X}\hat{\boldsymbol{\beta}} - \mathbf{y} \right\Vert^2
-$$
-
-<div v-click class="mt-8">
-
-**Question:** how do we minimize a function with respect to its parameters &mdash; now a whole vector $\hat{\boldsymbol{\beta}}$?
-
-</div>
-
-<div v-click>
-
-- calculate the partial derivatives $\frac{\partial \text{MSE}}{\partial \hat{\boldsymbol{\beta}}}$
-- set the derivatives to zero: $\frac{\partial \text{MSE}}{\partial \hat{\boldsymbol{\beta}}} = 0$
-- solve for $\hat{\boldsymbol{\beta}}$
-
-</div>
-
----
-
-# Multivariate OLS &mdash; Closed-form Derivation
-
-With Mean Squared Error
-
-$$
-\text{MSE}(\hat{\boldsymbol{\beta}}) = \left\Vert \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}} \right\Vert^2 = \mathbf{y}^\top\mathbf{y} - 2\hat{\boldsymbol{\beta}}^\top\mathbf{X}^\top\mathbf{y} + \hat{\boldsymbol{\beta}}^\top\mathbf{X}^\top\mathbf{X}\hat{\boldsymbol{\beta}}
-$$
-
-and its derivative set to zero
-
-$$
-\begin{aligned}
-\frac{\partial \text{MSE}(\hat{\boldsymbol{\beta}})}{\partial \hat{\boldsymbol{\beta}}} &= -2\mathbf{X}^\top\mathbf{y} + 2\mathbf{X}^\top\mathbf{X}\hat{\boldsymbol{\beta}} = 0 \\
-\mathbf{X}^\top\mathbf{X}\hat{\boldsymbol{\beta}} &= \mathbf{X}^\top\mathbf{y} \\[.4em]
-\hat{\boldsymbol{\beta}} &= \left(\mathbf{X}^\top\mathbf{X}\right)^{-1} \mathbf{X}^\top\mathbf{y}
-\end{aligned}
-$$
-
-<blockquote class="blockquote2 mt-4">
-This is the <strong>normal equation</strong> &mdash; a closed-form solution, no iterative optimization required.
-</blockquote>
-
----
-
-# Let's Appreciate the Elegance
+# Mean Absolute Error (MAE)
 
 <div class="grid grid-cols-2 gap-8 mt-6 items-center">
 
-<div class="text-center">
-
-<img src="./figures/before_fit.png" class="w-full h-[220px] object-contain rounded-xl" alt="Predictions of an untrained model with beta = 0, far from the true values" />
-
-<div class="mt-2 text-sm text-gray-600">
-
-$\boldsymbol{\beta} = (0,0,0,0,\dots)$
-
+<div class="flex justify-center">
+<RegressionScatterDemo variant="residual-segments" x-label="x" y-label="y" />
 </div>
 
-</div>
+<div>
 
-<div class="text-center">
+$$
+\text{MAE}(\mathcal{D}; w, b) = \frac{1}{N} \sum_{i=1}^N \vert \hat{y}_i - y_i \vert
+$$
 
-<img src="./figures/after_fit.png" class="w-full h-[220px] object-contain rounded-xl" alt="Predictions of the fitted model closely tracking the true values" />
+over model parameters $w, b$ with $\hat{y}_i = f(x_i; w, b)$ and dataset $\mathcal{D} = \{x_i, y_i\}_{i=1}^N$
 
-<div class="mt-2 text-sm text-gray-600">
-
-$\boldsymbol{\beta} = (-.1,.2,.5,-.5,\dots)$
-
-</div>
-
-</div>
-
-</div>
-
-<blockquote class="blockquote3 mt-6 text-center">
-
-$\hat{\boldsymbol{\beta}} = \left(\mathbf{X}^\top\mathbf{X}\right)^{-1} \mathbf{X}^\top\mathbf{y}$ &mdash; a single line of code, and blazing fast.
-
+<blockquote class="blockquote1 mt-3">
+Very intuitive &mdash; but does not punish large errors.
 </blockquote>
+
+</div>
+
+</div>
 
 ---
 
@@ -712,7 +2739,7 @@ $\hat{\boldsymbol{\beta}} = \left(\mathbf{X}^\top\mathbf{X}\right)^{-1} \mathbf{
 
 <div class="mt-3 text-gray-700 text-sm">
 
-Each $\hat{\beta}_j$ tells us how $\hat{y}$ changes per unit of $x_j$, holding the other features fixed.
+Each weight $\hat w_j$ tells us how $\hat{y}$ changes per unit of $x_j$, holding the other features fixed (the printout calls them beta; beta 0 is the bias $b$).
 
 </div>
 
@@ -730,1822 +2757,26 @@ Figure: M. Rußwurm &amp; D. Tuia, <em>Linear Regression</em>, ENV-408 course ma
 
 ---
 
-# Model Evaluation
+# Linear Transformation with Bias
 
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
+<div class="text-[.78rem]">
 
-<div class="flex justify-center">
-<RegressionScatterDemo variant="trainval-3" x-label="elevation x" y-label="temperature y" :clicks="$clicks" />
-</div>
-
-<div>
-
-We can now fit a model $(\hat{\beta}_0, \hat{\beta}_1, \dots)$ to any set of data samples $\mathcal{D} = \{(x_i,y_i)\}_{i=1}^N$ &mdash; but different samples give different fits.
-
-<div v-click="2">
-
-$$
-Y = \beta_0 + \beta_1 X_1 + \dots + \varepsilon
-$$
-
-**Did we capture the true, underlying relationship** $(\beta_0, \beta_1, \dots)$?
+$\hat{\mathbf y} = \mathbf W \mathbf x + \mathbf b$: the bias is the extra constant input $1$ &mdash; the same trick as the column of ones in $\mathbf X$.
 
 </div>
 
-<ol>
-
-<li v-click="3">
-
-how large is the data error $\varepsilon$? &rarr; RSE
-
-</li>
-
-<li v-click="4">
-
-does our model explain the target variable well? &rarr; R²
-
-</li>
-
-<li v-click="5">
-
-how close is $\hat{\beta}$ to the true $\beta$? &rarr; $\text{SE}[\hat{\beta}]$
-
-</li>
-
-</ol>
-
-</div>
-
-</div>
-
-<blockquote v-click="6" class="blockquote3 mt-2">
-&rarr; a hypothesis test tells us whether the relationship is significant given the dataset size.
-</blockquote>
-
----
-
-# Residual Sum of Squares (RSS)
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div>
-
-$$
-\text{RSS} = \sum_{i=1}^N (y_i - \hat{y}_i)^2
-$$
-
-RSS increases with the dataset size $N$.
-
-<blockquote class="blockquote2 mt-3">
-Idea: normalize by the number of data samples.
-</blockquote>
-
-</div>
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="residual-squares" x-label="x" y-label="y" />
-</div>
-
-</div>
-
----
-
-# Residual Standard Error (RSE)
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div>
-
-$$
-\text{RSE} = \sqrt{\frac{1}{\underbrace{N-M-1}_{\text{DoF}}} \text{RSS}}
-$$
-
-- normalized by the number of samples $N$
-- and the degrees of freedom (DoF): $M$ slope parameters and one y-intercept
-
-<blockquote v-click class="blockquote3 mt-3">
-
-The RSE estimates $\text{std}(\varepsilon)$ and is a good measure of fit.
-
-</blockquote>
-
-<blockquote v-click class="blockquote3 mt-2">
-
-&rarr; but it is in the <strong>units of the target variable</strong>: what number counts as a good fit?
-
-</blockquote>
-
-</div>
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="error-band" x-label="x" y-label="y" />
-</div>
-
-</div>
-
----
-
-# R² Metric: Coefficient of Determination
-
-The R² is a **unitless proportion**, typically between 0 and 1: it measures how much of the variability in $Y$ is explained by $\hat{Y}$.
-
-<img  src="./figures/errors_r2.png" class="w-full h-[220px] object-contain rounded-xl mt-4" alt="Three scatter plots with low, medium, and high random error, each annotated with its R2 and RSE" />
-
-<div v-click="1" class="mt-2 text-gray-700 text-sm">
-
-In the univariate case, R² is the square of the <strong>Pearson correlation coefficient</strong>
-$r(Y,\hat{Y}) = \dfrac{\text{Cov}[Y,\hat{Y}]}{\sigma_Y \sigma_{\hat{Y}}}$.
-
-</div>
-
-<div class="figure-copyright">
-Figure: M. Rußwurm &amp; D. Tuia, <em>Linear Regression</em>, ENV-408 course materials, EPFL, 2023. See also <a href="https://en.wikipedia.org/wiki/Coefficient_of_determination" target="_blank" rel="noopener noreferrer">Coefficient of Determination</a>, Wikipedia.
-</div>
-
----
-
-# R²: Comparison to an Averaging Model
-
-How much better is our model than a simple averaging model that always predicts $\bar{y}$, no matter the input $x$?
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div>
-
-$$
-\text{R}^2 = 1 - \frac{\text{RSS}}{\text{TSS}}
-$$
-
-Residual Sum of Squares
-
-$$
-\text{RSS} = \sum_{i=1}^N (y_i-\hat{y}_i)^2
-$$
-
-Total Sum of Squares
-
-$$
-\text{TSS} = \sum_{i=1}^N (y_i-\bar{y})^2
-$$
-
-</div>
-
-<img src="./figures/r2_figure.png" class="w-full max-h-[260px] object-contain" alt="Diagram comparing residuals of the fitted model to residuals of the averaging model that predicts the mean" />
-
-</div>
-
----
-
-# Estimating the Standard Error for Coefficients
-
-In the underlying model
-
-$$
-Y = \beta_0 + \beta_1 X_1 + \dots + \varepsilon
-$$
-
-we can estimate the residual standard error $\sigma = \text{std}(\varepsilon) = \text{RSE}$ &mdash; the better the fit, the smaller the standard deviation of $\varepsilon$.
-
-<div v-click>
-
-<blockquote class="blockquote3 mt-4">
-
-How close are the estimated coefficients $\hat{\boldsymbol{\beta}}$ to the true, underlying relationship $\boldsymbol{\beta}$?
-
-</blockquote>
-
-We can calculate the Standard Error (SE) for each coefficient:
-
-$$
-\text{SE}[\hat{\beta}_0] = \sigma^2\left[\frac{1}{N} + \frac{\bar{x}^2}{\sum_{i=1}^N (x_i-\bar{x})^2}\right], \qquad
-\text{SE}[\hat{\beta}_1] = \frac{\sigma^2}{\sum_{i=1}^N (x_i-\bar{x})^2}
-$$
-
-</div>
-
----
-
-# Student's t-test: Is Our Model Significant?
-
-**Question:** is an estimated relationship a random artifact of the data?
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div>
-
-Model: $Y = \beta_0 + \beta_1 X_1 + \varepsilon$
-
-Testing the slope $\beta_1$
-
-$$
-H_0: \beta_1 = 0 \qquad H_1: \beta_1 \neq 0
-$$
-
-<div v-click="1">
-
-Test statistic
-
-$$
-t_0 = \frac{\hat{\beta}_1}{\text{SE}[\hat{\beta}_1]}
-$$
-
-</div>
-
-<blockquote v-click="2" class="blockquote3 mt-2">
-
-Reject $H_0$ if $t_0 < -t_{\alpha,N-2}$ or $t_0 > t_{\alpha,N-2}$
-
-</blockquote>
-
-</div>
-
-<div v-click="2">
-
-<img src="./figures/student_t.png" class="w-full max-h-[220px] object-contain" alt="Student's t probability density functions for different degrees of freedom" />
-
-<div class="mt-2 text-sm text-gray-600">
-
-$t_{\alpha,N-2}$ comes from the Student-t distribution with $\nu = N-2$ degrees of freedom.
-
-</div>
-
-</div>
-
-</div>
-
-<div class="figure-copyright">
-Figure: Wikipedia, author Skbkekas, <a href="https://en.wikipedia.org/wiki/Student%27s_t-distribution" target="_blank" rel="noopener noreferrer">Student's t-distribution</a>. CC BY-SA.
-</div>
-
----
-
-# P-value: The Probability of a Lucky Shot
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div>
-
-The (two-sided) p-value integrates the Student-t distribution to $t_0$ on both sides.
-
-<div v-click class="grid grid-cols-2 gap-3 mt-4">
-<div class="p-3 rounded-xl border box-card box-2 text-center text-sm">high p-value &rarr; not enough data</div>
-<div class="p-3 rounded-xl border box-card box-3 text-center text-sm">high p-value &rarr; no relationship</div>
-</div>
-
-<blockquote v-click class="blockquote3 mt-4">
-We can use the p-value of different coefficients to select significant features.
-</blockquote>
-
-</div>
-
-<div>
-<img src="./figures/student_t_pdf_pvalue.png" class="w-full max-h-[220px] object-contain" alt="Student's t probability density function with the two-sided p-value shaded in red" />
-<div class="mt-1 text-sm text-gray-600 text-center">p-value shown in red</div>
-</div>
-
-</div>
-
-<div class="figure-copyright">
-Figure modified from Wikipedia, original author Skbkekas, <a href="https://en.wikipedia.org/wiki/Student%27s_t-distribution" target="_blank" rel="noopener noreferrer">Student's t-distribution</a>. CC BY-SA.
-</div>
-
----
-
-# Recap: Linear Regression
-
-This part covered how to:
-
-<ul>
-<li v-click>implement a univariate and multivariate linear model from scratch</li>
-<li v-click>fit the parameters with the Ordinary Least Squares (OLS) method</li>
-<li v-click>evaluate the goodness of fit with RSE and R²</li>
-<li v-click>test individual parameters for significance with Student's t-test</li>
-<li v-click>select features dynamically based on their significance</li>
-</ul>
-
-<blockquote v-click class="blockquote3 mt-6">
-Next: logistic regression extends the same linear model to map a fixed representation to <strong>categories</strong> with a linear decision boundary.
-</blockquote>
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: decision-trees-and-random-forests
-sectionTitle: "Decision Trees & Random Forests"
----
-
-# Non-linear models: Decision Trees & Random Forests
-
-<img class="bonn-section-image-sm" src="./figures/decision_tree.png" alt="Illustration of a geospatial data cube stacking heterogeneous layers" />
-
-<div class="bonn-section-citation">
-Image by Bing Image Generator
-</div>
-
-<!--
-Extend the linear-model view with recursive partitions and ensembles.
-This section will end with random forests as robust predictors on fixed representations.
--->
-
----
-
-# Decision Trees: The Core Idea
-
-<div class="grid grid-cols-3 gap-8 mt-4 items-center">
-
-<div class="col-span-2">
-
-We categorize data through a <strong>chain of simple decisions</strong>.
-
-<ul>
-<li v-click>each decision is a simple test on a single feature (e.g., <em>is the temperature below 10 °C?</em>)</li>
-<li v-click>implemented in computer science as a <strong>binary tree</strong>: a graph data structure in which each node has at most two children</li>
-<li v-click>a universal tool for <strong>classification and regression</strong> of non-linear relationships</li>
-</ul>
-
-</div>
-
-<div>
-<img src="./figures/decision_tree.png" class="w-full h-[240px] object-contain" alt="Stylized illustration of a tree whose branches form a decision tree" />
-<div class="figure-copyright">Image by Bing Image Generator</div>
-</div>
-
-</div>
-
-<!--
-Part 1 of the section. Trees are the first non-linear model of the course.
-Keep the "chain of simple decisions" picture in mind for everything that follows.
--->
-
----
-
-# Recap: Data, Data Distributions &amp; Models
-
-<div class="grid grid-cols-3 gap-6 mt-2 items-center">
-
-<div class="text-sm">
-
-<div v-click="1">
-<strong class="text-blue-800">1 · collect data</strong> of the real world: we "sample" training data from a distribution
-
-$$\{(X_i, y_i)\}_{i=1}^N \sim P(X, y)$$
-</div>
-
-<div v-click="3" class="mt-3">
-<strong class="text-blue-800">3 · validate / evaluate</strong> the model on test data sampled from the same distribution
-
-$$\{(X_i, y_i)\}_{i=1}^M \sim P(X, y)$$
-</div>
-
-</div>
-
-<div>
-<img src="./figures/dt_ai_sunflower_researchers.jpg" class="w-full h-[280px] object-contain" alt="Illustration of two researchers collecting and analysing data in a sunflower field" />
-<div class="figure-copyright text-center">Image by Bing Image Generator</div>
-</div>
-
-<div class="text-sm">
-
-<div v-click="2">
-<strong class="text-blue-800">2 · create / fit</strong> a mathematical model that approximates the world on training data
-
-$$\hat{y}_i = f(X_i), \qquad \min E_\text{train}(\hat{y}_i, y_i)$$
-</div>
-
-<div v-click="4" class="mt-3">
-<blockquote class="blockquote3">
-
-We are interested in the test error $E_\text{test}(\hat{y}_i, y_i)$.
-
-</blockquote>
-</div>
-
-</div>
-
-</div>
-
-<!--
-Running example for the whole section: sunflowers are happy at warm temperatures and unhappy when it is too cold or too hot.
--->
-
----
-clicks: 2
----
-
-# Linear Models Fail in Non-linear Situations
-
-<div class="grid grid-cols-5 gap-6 mt-1 items-center">
-
-<div class="col-span-3">
-<SunflowerRegions :clicks="$clicks" />
-</div>
-
-<div class="col-span-2">
-
-<div v-if="$clicks === 0">
-
-$$f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
-
-<blockquote class="blockquote2">
-Linear models are well-suited for <strong>linear</strong> relationships with data from <strong>uni-modal</strong> distributions.
-</blockquote>
-
-</div>
-
-<div v-else-if="$clicks === 1">
-
-$$f(X) = \beta_0 + \sum_{j=1}^{p} X_j \beta_j$$
-
-<blockquote class="blockquote4">
-Most relationships in the real world are <strong>non-linear</strong>, and data distributions are <strong>not uni-modal</strong>: no line separates cold, warm and hot.
-</blockquote>
-
-</div>
-
-<div v-else>
-
-We need a different model: a <strong>piecewise constant</strong> function over regions $R_m$
-
-$$f(X) = \sum_{m=1}^{M} c_m \cdot \mathbb{1}_{(X \in R_m)}$$
-
-with one value $c_m$ per region.
-
-</div>
-
-</div>
-
-</div>
-
-<!--
-Click 1: add the hot, unhappy sunflowers — the best line becomes flat and useless.
-Click 2: split the temperature axis into three regions with one constant value each.
--->
-
----
-layout: bonn-two-cols-header
-columns: "minmax(0, 1.25fr) minmax(0, 1fr)"
----
-
-# Decision Trees: Regions from Binary Decisions
-
-$f(X) = \sum_{m=1}^{M} c_m \cdot \mathbb{1}_{(X \in R_m)}$ &mdash; regions defined by intervals: $R_1 = \{X \le 10\,°\text{C}\}$, $R_2 = \{10\,°\text{C} < X \le 30\,°\text{C}\}$, $R_3 = \{X > 30\,°\text{C}\}$
-
-::left::
-
-<SunflowerRegions :stage="3" />
-
-::right::
-
-<div class="text-center text-sm font-semibold text-blue-800 mb-1">A simple decision tree</div>
-
-<TreeDiagram
-  :width="320" :height="230"
-  :nodes="[
-    { id: 'in', x: 150, y: 14, label: 'X', type: 'input' },
-    { id: 'n1', x: 150, y: 66, label: 'X < 10 °C' },
-    { id: 'l1', x: 70, y: 136, icon: 'unhappy' },
-    { id: 'n2', x: 225, y: 136, label: 'X > 30 °C' },
-    { id: 'l2', x: 170, y: 206, icon: 'unhappy' },
-    { id: 'l3', x: 280, y: 206, icon: 'happy' },
-  ]"
-  :edges="[
-    { from: 'in', to: 'n1' },
-    { from: 'n1', to: 'l1', label: 'yes' },
-    { from: 'n1', to: 'n2', label: 'no' },
-    { from: 'n2', to: 'l2', label: 'yes' },
-    { from: 'n2', to: 'l3', label: 'no' },
-  ]"
+<img
+  src="./figures/linear_transformation_bias.svg"
+  class="w-full h-[300px] object-contain"
+  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
 />
 
-<div class="text-center text-xs text-gray-500 mt-1">(drawn upside down: the root is at the top)</div>
-
-<!--
-Each region corresponds to a path from the root to a leaf.
-The tree is just a compact way to write the interval definitions as a sequence of yes/no questions.
--->
-
----
-clicks: 4
 ---
 
-# A Classification Decision Tree: Terminology
+# The Learning Objective: argmin
 
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<TreeDiagram
-  :width="320" :height="240"
-  :nodes="[
-    { id: 'in', x: 150, y: 14, label: 'X', type: 'input' },
-    { id: 'n1', x: 150, y: 66, label: 'X < 10 °C' },
-    { id: 'l1', x: 70, y: 140, icon: 'unhappy' },
-    { id: 'n2', x: 225, y: 140, label: 'X > 30 °C' },
-    { id: 'l2', x: 170, y: 214, icon: 'unhappy' },
-    { id: 'l3', x: 280, y: 214, icon: 'happy' },
-  ]"
-  :edges="[
-    { from: 'in', to: 'n1' },
-    { from: 'n1', to: 'l1', label: 'yes' },
-    { from: 'n1', to: 'n2', label: 'no' },
-    { from: 'n2', to: 'l2', label: 'yes' },
-    { from: 'n2', to: 'l3', label: 'no' },
-  ]"
-  :highlight="[[], ['in'], ['n1'], ['n1', 'n2'], ['l1', 'l2', 'l3']][Math.min($clicks, 4)]"
+<img
+  src="./figures/argmin.svg"
+  class="w-full h-[360px] object-contain"
+  alt="An input tensor passes through the model to produce a predicted tensor, which is compared to the target to compute an error or loss; training finds the model that minimizes this loss (argmin)"
 />
-
-<div>
-<ul>
-<li v-click="1"><strong>input features</strong>: the data to be classified</li>
-<li v-click="2">the <strong>root node</strong> starts the decision process</li>
-<li v-click="3"><strong>decision nodes</strong> (split nodes) implement a <strong>test function with discrete outcomes</strong>; each test splits the input space into regions</li>
-<li v-click="4"><strong>leaf nodes</strong> mark the end of a sequence of decisions; a single (output) class is associated with each leaf</li>
-</ul>
-</div>
-
-</div>
-
----
-clicks: 3
----
-
-# A Simple Algorithm to Classify a Test Sample
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<div>
-<TreeDiagram
-  :width="320" :height="240"
-  :nodes="[
-    { id: 'in', x: 150, y: 14, label: 'X = 15 °C', type: 'input' },
-    { id: 'n1', x: 150, y: 66, label: 'X < 10 °C' },
-    { id: 'l1', x: 70, y: 140, icon: 'unhappy' },
-    { id: 'n2', x: 225, y: 140, label: 'X > 30 °C' },
-    { id: 'l2', x: 170, y: 214, icon: 'unhappy' },
-    { id: 'l3', x: 280, y: 214, icon: 'happy' },
-  ]"
-  :edges="[
-    { from: 'in', to: 'n1' },
-    { from: 'n1', to: 'l1', label: 'yes' },
-    { from: 'n1', to: 'n2', label: 'no' },
-    { from: 'n2', to: 'l2', label: 'yes' },
-    { from: 'n2', to: 'l3', label: 'no' },
-  ]"
-  :highlight="[['n1'], ['n1', 'n1-n2', 'n2'], ['n1', 'n1-n2', 'n2', 'n2-l3', 'l3'], ['n1', 'n1-n2', 'n2', 'n2-l3', 'l3']][Math.min($clicks, 3)]"
-/>
-</div>
-
-<div>
-
-<ol>
-<li>start at the root node</li>
-<li>if the current node is a leaf node, return its class label</li>
-<li>perform the test of the current decision node and follow the corresponding branch</li>
-<li>go to 2</li>
-</ol>
-
-<blockquote v-click="3" class="blockquote2 mt-4">
-
-$15\,°\text{C}$: not below $10\,°\text{C}$, not above $30\,°\text{C}$ &rarr; <strong>happy</strong>.
-
-</blockquote>
-
-</div>
-
-</div>
-
-<!--
-Walk through the example with the class: each click follows one branch.
-Ask what happens for 5 °C (yes at the root → unhappy after one test).
--->
-
----
-
-# Multivariate Data Example: Land Cover Classification
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<div>
-<img src="./figures/dt_s2_wageningen.jpg" class="w-full h-[290px] object-contain rounded-xl" alt="False-colour Sentinel-2 composite of Wageningen with vegetation in red and urban areas in cyan" />
-<div class="figure-copyright">Sentinel-2, false-colour composite (Wageningen, NL). Contains modified Copernicus Sentinel data.</div>
-</div>
-
-<div v-click>
-<LandCoverSplits :clicks="0" />
-<div class="text-sm text-gray-700 mt-2">Each pixel is a point in feature space: its <strong>red</strong> and <strong>near-infrared</strong> reflectance.</div>
-</div>
-
-</div>
-
----
-clicks: 4
----
-
-# Decision Tree for Multivariate Data
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<LandCoverSplits :clicks="$clicks" />
-
-<TreeDiagram
-  :width="340" :height="200"
-  :nodes="[
-    { id: 'r', x: 170, y: 20, label: 'red > t₁' },
-    { id: 'a', x: 85, y: 92, label: 'nir > t₃' },
-    { id: 'b', x: 255, y: 92, label: 'nir > t₂' },
-    { id: 'u', x: 35, y: 168, label: 'urban', type: 'leaf' },
-    { id: 'g', x: 135, y: 168, label: 'bare ground', type: 'leaf' },
-    { id: 'w', x: 210, y: 168, label: 'water', type: 'leaf' },
-    { id: 'v', x: 300, y: 168, label: 'vegetation', type: 'leaf' },
-  ]"
-  :edges="[
-    { from: 'r', to: 'a', label: 'yes' },
-    { from: 'r', to: 'b', label: 'no' },
-    { from: 'a', to: 'u', label: 'no' },
-    { from: 'a', to: 'g', label: 'yes' },
-    { from: 'b', to: 'w', label: 'no' },
-    { from: 'b', to: 'v', label: 'yes' },
-  ]"
-  :show="[[], ['r'], ['r', 'a', 'u', 'g'], ['r', 'a', 'u', 'g', 'b', 'w', 'v'], ['r', 'a', 'u', 'g', 'b', 'w', 'v']][Math.min($clicks, 4)]"
-/>
-
-</div>
-
-<div v-click="4" class="mt-2 text-gray-700">
-Every split is <strong>axis-aligned</strong>: each decision tests one feature against one threshold, so the regions are rectangles.
-</div>
-
----
-clicks: 2
----
-
-# Increasing Node Purity: Split &amp; Repeat
-
-<div class="grid grid-cols-5 gap-4 mt-1 items-start">
-
-<div class="col-span-2">
-<LandCoverSplits :clicks="$clicks === 0 ? 0 : ($clicks === 1 ? 1 : 2)" />
-<blockquote class="blockquote2 mt-3">
-Idea: every decision should <strong>increase the node purity</strong>.
-</blockquote>
-</div>
-
-<div class="col-span-3 flex flex-col items-center">
-<div class="w-[128px]"><PurityBars :counts="[20, 20, 20, 20]" :max="20" title="all samples" /></div>
-
-<div v-click="1" class="w-full">
-<div class="text-center text-sm text-blue-800 italic">red &gt; t₁</div>
-<div class="grid grid-cols-2 gap-6 justify-items-center">
-<div class="w-[128px]"><PurityBars :counts="[20, 20, 1, 2]" :max="20" title="yes" /></div>
-<div class="w-[128px]"><PurityBars :counts="[0, 0, 19, 18]" :max="20" title="no" /></div>
-</div>
-</div>
-
-<div v-click="2" class="w-full">
-<div class="grid grid-cols-2 gap-6">
-<div class="flex flex-col items-center">
-<div class="text-center text-sm text-blue-800 italic">nir &gt; t₃</div>
-<div class="grid grid-cols-2 gap-1">
-<div class="w-[104px]"><PurityBars :counts="[20, 1, 0, 1]" :max="20" title="no" /></div>
-<div class="w-[104px]"><PurityBars :counts="[0, 19, 1, 1]" :max="20" title="yes" /></div>
-</div>
-</div>
-<div class="flex items-center justify-center text-sm text-gray-500">&hellip; and so on</div>
-</div>
-</div>
-
-</div>
-
-</div>
-
-<!--
-After each split the class histograms of the children are more peaked than the parent: the children are purer.
-Next: how do we put a number on purity?
--->
-
----
-
-# Quantifying Node Purity: Entropy
-
-$$H(\mathbf{p}) = -\sum_i p_i \log(p_i) \qquad \text{(here with } \log_{10}\text{)}$$
-
-<div class="grid grid-cols-2 gap-10 mt-2">
-
-<div>
-<div class="text-center text-sm font-semibold text-blue-800">lower entropy: more pure</div>
-<div class="w-[190px] mx-auto"><PurityBars :counts="[90, 90, 10, 10]" :max="90" /></div>
-
-<div class="compact-math text-sm" v-click>
-
-$p_1 = p_2 = \tfrac{90}{200} = 0.45, \quad p_3 = p_4 = \tfrac{10}{200} = 0.05$
-
-$H = -(2 \cdot 0.45 \log 0.45 + 2 \cdot 0.05 \log 0.05) \approx \mathbf{0.44}$
-
-</div>
-</div>
-
-<div>
-<div class="text-center text-sm font-semibold text-blue-800">higher entropy: less pure</div>
-<div class="w-[190px] mx-auto"><PurityBars :counts="[50, 50, 50, 50]" :max="90" /></div>
-
-<div class="compact-math text-sm" v-click>
-
-$p_{1,2,3,4} = \tfrac{50}{200} = 0.25$
-
-$H = -4 \cdot 0.25 \log 0.25 \approx \mathbf{0.60}$
-
-</div>
-</div>
-
-</div>
-
----
-
-# Pen &amp; Paper Exercise: Gini Index
-
-$$G(\mathbf{p}) = \sum_i p_i (1 - p_i)$$
-
-<div class="grid grid-cols-2 gap-10 mt-2">
-
-<div>
-<div class="text-center text-sm font-semibold text-blue-800">higher Gini index: less pure</div>
-<div class="w-[190px] mx-auto"><PurityBars :counts="[50, 50, 50, 50]" :max="90" /></div>
-<div class="compact-math text-sm" v-click="2">
-
-$G = 4 \cdot 0.25 \cdot 0.75 = \mathbf{0.75}$
-
-</div>
-</div>
-
-<div>
-<div class="text-center text-sm font-semibold text-blue-800">lower Gini index: more pure</div>
-<div class="w-[190px] mx-auto"><PurityBars :counts="[90, 90, 10, 10]" :max="90" /></div>
-<div class="compact-math text-sm" v-click="2">
-
-$G = 2 \cdot 0.45 \cdot 0.55 + 2 \cdot 0.05 \cdot 0.95 = \mathbf{0.59}$
-
-</div>
-</div>
-
-</div>
-
-<blockquote v-click="1" class="blockquote2 mt-3">
-Exercise: calculate the Gini index for both distributions.
-</blockquote>
-
-<!--
-Give the students two minutes. The Gini index is the default criterion in scikit-learn (criterion='gini').
--->
-
----
-
-# Classification versus Regression Trees
-
-So far, we only considered <strong>classification trees</strong>: each leaf represents one class (the majority of the training samples in the leaf).
-
-<ul>
-<li v-click>in <strong>classification</strong> problems, the target variable is <strong>categorical</strong> (e.g., happy / not happy sunflower)</li>
-<li v-click>in <strong>regression</strong> problems, the target variable is <strong>continuous</strong> (e.g., a happiness score between 0 and 1)</li>
-</ul>
-
-<div v-click class="mt-4">
-
-<strong class="text-blue-800">Regression trees</strong> follow exactly the same principles, but use
-
-<ul>
-<li>a different metric for node purity: the <strong>sample variance</strong></li>
-<li>a different interpretation of the leaves: the <strong>sample mean</strong></li>
-</ul>
-
-</div>
-
----
-clicks: 1
----
-
-# Regression Trees: Leaves Return the Average
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<RegressionTreeDemo :variant="$clicks < 1 ? 'points' : 'leaf-means'" />
-
-<div v-click="1">
-<TreeDiagram
-  :width="300" :height="200"
-  :nodes="[
-    { id: 'in', x: 140, y: 12, label: 'X', type: 'input' },
-    { id: 'n1', x: 140, y: 62, label: 'X < 10 °C' },
-    { id: 'l1', x: 60, y: 130, label: 'μ₁', type: 'leaf', w: 46 },
-    { id: 'n2', x: 210, y: 130, label: 'X > 30 °C' },
-    { id: 'l3', x: 160, y: 188, label: 'μ₃', type: 'leaf', w: 46 },
-    { id: 'l2', x: 260, y: 188, label: 'μ₂', type: 'leaf', w: 46 },
-  ]"
-  :edges="[
-    { from: 'in', to: 'n1' },
-    { from: 'n1', to: 'l1', label: 'yes' },
-    { from: 'n1', to: 'n2', label: 'no' },
-    { from: 'n2', to: 'l3', label: 'yes' },
-    { from: 'n2', to: 'l2', label: 'no' },
-  ]"
-/>
-
-$$\mu_m = \frac{1}{N_m} \sum_{i:\, x_i \in R_m} y_i$$
-
-</div>
-
-</div>
-
----
-clicks: 2
----
-
-# Sample Variance as Node Purity
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<RegressionTreeDemo variant="variance" :clicks="$clicks" />
-
-<div>
-
-$$\sigma^2 = \frac{1}{N} \sum_{i=1}^{N} (y_i - \mu)^2$$
-
-<blockquote v-if="$clicks === 0" class="blockquote2">
-
-<strong>Before splitting</strong> the node $X \le 30\,°\text{C}$: cold and warm sunflowers are mixed &mdash; the variance is <strong>high</strong>. Interpret variance as the <strong>average squared distance to the mean</strong>.
-
-</blockquote>
-
-<blockquote v-else-if="$clicks === 1" class="blockquote3">
-<strong>Geometric interpretation:</strong> each squared distance is the area of a square. A large average square area = high variance, i.e., a <strong>low node purity</strong>.
-</blockquote>
-
-<blockquote v-else class="blockquote2">
-
-<strong>After splitting</strong> at $10\,°\text{C}$: smaller average squares = lower variance = <strong>higher node purity</strong>.
-
-</blockquote>
-
-</div>
-
-</div>
-
-<!--
-Same picture as the MSE squares of linear regression: the tree now minimizes the squares around each region mean instead of around a line.
--->
-
----
-
-# How to Find the Threshold $\tau$?
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<RegressionTreeDemo variant="threshold" :tau="20" />
-
-<div>
-
-Formal definition of the regions by the threshold
-
-$$R_1 = \{X \mid X < \tau\}, \qquad R_2 = \{X \mid X \ge \tau\}$$
-
-<div v-click>
-
-Minimization objective
-
-$$
-t^* = \arg\min_\tau \underbrace{\sum_{i:\, x_i \in R_1} (y_i - \mu_{R_1})^2}_{\text{left variance}} + \underbrace{\sum_{i:\, x_i \in R_2} (y_i - \mu_{R_2})^2}_{\text{right variance}}
-$$
-
-</div>
-
-<div v-click class="text-gray-700">
-
-The impurity is a function of $\tau$ &mdash; we look for its minimum $t^*$.
-
-</div>
-
-</div>
-
-</div>
-
----
-
-# Naïve Approach: Try Different Thresholds
-
-<div class="w-[86%] mx-auto"><ThresholdScan /></div>
-
-<blockquote class="blockquote3 mt-3">
-
-Easy to implement &mdash; but we need to choose which thresholds to test. Drag the slider to scan the thresholds; the best recorded threshold is $t^*$.
-
-</blockquote>
-
-<div class="slide-citation">
-Original Colab notebook: <a href="https://colab.research.google.com/drive/1-9FmziUq53R44xehKnzm3v4Pcvs43TXl?usp=sharing" target="_blank" rel="noopener noreferrer">threshold search</a>
-</div>
-
-<!--
-Interactive: drag τ from left to right. The impurity curve has a clear minimum where the two groups separate.
-Question to the class: how fine should the grid of thresholds be?
--->
-
----
-clicks: 6
----
-
-# Binary Splitting
-
-<div class="w-[88%] mx-auto"><BinarySplitting :clicks="$clicks" /></div>
-
-<blockquote v-click="6" class="blockquote1 mt-1">
-Only thresholds between neighbouring points change the split &mdash; we test as many thresholds as we have points.
-</blockquote>
-
-<!--
-Click through the five candidate thresholds. The plot on the bottom right records the impurity of each split; the last click marks the optimum.
--->
-
----
-clicks: 4
----
-
-# Growing a Tree: Recursive Binary Splitting
-
-<div class="grid grid-cols-5 gap-6 mt-2 items-center">
-
-<div class="col-span-2">
-
-Growing a decision tree:
-
-<ul>
-<li>perform binary splitting</li>
-<li>recursively for each decision node</li>
-<li>to maximize node purity</li>
-</ul>
-
-<blockquote v-click="2" class="blockquote3 mt-4">
-When to stop splitting?
-</blockquote>
-
-<blockquote v-click="4" class="blockquote4 mt-3">
-Without a stopping rule we end up with <strong>one sample per leaf</strong> = a 1-nearest-neighbour regressor / classifier.
-</blockquote>
-
-</div>
-
-<div class="col-span-3">
-<TreeGrowth :clicks="$clicks" :depth="4" />
-</div>
-
-</div>
-
----
-
-# Overfitting of Decision Trees
-
-<div class="grid grid-cols-5 gap-6 mt-1 items-center">
-
-<div class="col-span-2">
-<ul>
-<li>the tree fits the training data perfectly (zero variance in every leaf)</li>
-<li v-click>the tree is extremely large and uninterpretable</li>
-<li v-click>test MSE: <strong>0.092</strong> happiness</li>
-</ul>
-</div>
-
-<div class="col-span-3">
-<img src="./figures/dt_overfit_full.png" class="w-full h-[220px] object-contain" alt="Unregularized regression tree following every training point of sunflower happiness versus temperature" />
-</div>
-
-</div>
-
-<img v-click="1" src="./figures/dt_overfit_full_tree.png" class="w-full h-[130px] object-contain mt-1" alt="Structure of the unregularized tree with 75 leaves" />
-
-<!--
-Synthetic sunflower data (75 training and 75 test samples). Figure script: figures-source/lecture-3/make_dt_figures.py
--->
-
----
-
-# Regularization: Restricting the Depth
-
-<div class="grid grid-cols-5 gap-6 mt-1 items-center">
-
-<div class="col-span-2">
-<ul>
-<li>we can manually restrict the depth</li>
-<li v-click>the tree remains interpretable</li>
-<li v-click>test MSE lower: <strong>0.077</strong> happiness</li>
-</ul>
-</div>
-
-<div class="col-span-3">
-<img src="./figures/dt_depth3_fit.png" class="w-full h-[210px] object-contain" alt="Regression tree with maximum depth 3 fitted to sunflower happiness versus temperature" />
-</div>
-
-</div>
-
-<img src="./figures/dt_depth3_tree.png" class="w-full h-[150px] object-contain mt-1" alt="The depth-3 regression tree with its split thresholds, errors and leaf values" />
-
-<div class="slide-citation">
-Original Colab notebook: <a href="https://colab.research.google.com/drive/1vP8XTPmVpnN3OdROYYkauT9y2XZlqf2r?usp=sharing" target="_blank" rel="noopener noreferrer">regularization of decision trees</a>
-</div>
-
----
-layout: bonn-two-cols-header
----
-
-# Regularization: Tree Pruning
-
-Two families of algorithms restrict the tree complexity and counteract overfitting.
-
-::left::
-
-<div class="border rounded-xl p-4 h-full">
-<h3>Slow growers (pre-pruning)</h3>
-
-<strong>Strategy:</strong> grow the tree slowly, with additional checks during growing.
-
-<ul>
-<li>simple checks: <strong>maximum depth</strong>, <strong>maximum number of leaf nodes</strong></li>
-<li>add a decision node only if the <strong>increase in node purity</strong> is above a threshold</li>
-</ul>
-</div>
-
-::right::
-
-<div v-click class="border rounded-xl p-4 h-full">
-<h3>Fast cutters (post-pruning)</h3>
-
-<strong>Strategy:</strong> grow the full tree, then remove unimportant nodes.
-
-<ul>
-<li><strong>cost complexity pruning</strong>: we identify the weakest link in the tree and remove it</li>
-</ul>
-</div>
-
----
-
-# Cost Complexity Pruning
-
-<div class="grid grid-cols-2 gap-8 mt-1 items-center">
-
-<div>
-
-$$C_\alpha(T) = \underbrace{C(T)}_{\substack{\text{cost} \\ \text{(training error)}}} + \alpha \underbrace{|T|}_{\substack{\text{complexity} \\ \text{(number of leaves)}}}$$
-
-<strong class="text-blue-800">Idea:</strong> remove leaves to <strong>reduce the complexity</strong> while keeping a <strong>low training error</strong> (cost). The hyperparameter $\alpha$ balances both objectives.
-
-<div v-click>
-
-<strong class="text-blue-800">Algorithm:</strong>
-
-<ul>
-<li>
-
-iteratively remove sub-trees and record the decrease in the cost-complexity function $C_\alpha(T)$
-
-</li>
-<li>
-
-sub-trees can be ordered by importance, each with an associated $\alpha$
-
-</li>
-</ul>
-
-</div>
-
-</div>
-
-<TreeDiagram
-  :width="300" :height="230"
-  :nodes="[
-    { id: 'x', x: 150, y: 12, label: 'X', type: 'input' },
-    { id: 'r', x: 150, y: 58, label: ' ', w: 30 },
-    { id: 'a', x: 100, y: 112, label: ' ', w: 30 },
-    { id: 'b', x: 200, y: 112, label: ' ', w: 30 },
-    { id: 'a1', x: 60, y: 166, label: ' ', w: 30 },
-    { id: 'a2', x: 130, y: 166, label: ' ', w: 30 },
-    { id: 'm1', x: 40, y: 214, label: 'μ₁', type: 'leaf', w: 34 },
-    { id: 'm2', x: 85, y: 214, label: 'μ₂', type: 'leaf', w: 34 },
-    { id: 'm3', x: 175, y: 166, label: 'μ₃', type: 'leaf', w: 34 },
-    { id: 'm4', x: 240, y: 166, label: 'μ₄', type: 'leaf', w: 34 },
-  ]"
-  :edges="[
-    { from: 'x', to: 'r' },
-    { from: 'r', to: 'a' }, { from: 'r', to: 'b' },
-    { from: 'a', to: 'a1' }, { from: 'a', to: 'a2' },
-    { from: 'a1', to: 'm1' }, { from: 'a1', to: 'm2' },
-    { from: 'b', to: 'm3' }, { from: 'b', to: 'm4' },
-  ]"
-  :dim="$clicks >= 1 ? ['a1', 'm1', 'm2'] : []"
-/>
-
-</div>
-
----
-
-# Cost Complexity Pruning: The Effect of $\alpha$
-
-<div class="grid grid-cols-2 gap-8 items-center">
-
-<div>
-
-$$C_\alpha(T) = C(T) + \alpha |T|$$
-
-</div>
-
-<div>
-
-A higher $\alpha$
-
-- produces a **shallower tree** with fewer nodes (reduces complexity)
-- increases the impurity, i.e., the **training error** (increases cost)
-
-</div>
-
-</div>
-
-<img src="./figures/dt_ccp_alphas.png" class="w-full h-[250px] object-contain mt-2" alt="Three pruned regression trees for increasing alpha with their number of leaves and training and test errors" />
-
-<!--
-With increasing α the training error goes up but the test error goes down: we trade fit for generalization.
--->
-
----
-
-# Building a Tree with Cost Complexity Pruning
-
-<div class="grid grid-cols-4 gap-6 mt-2 items-center">
-
-<div class="col-span-3">
-
-1. use ***recursive binary splitting*** to grow a large tree on the training data
-2. apply **cost complexity pruning** to the large tree to obtain a sequence of best sub-trees as a function of $\alpha$
-3. use **K-fold cross-validation to choose $\alpha$**:
-   1. repeat steps 1 and 2 on all but the $k$-th fold of the training data
-   2. evaluate the error on the left-out $k$-th fold as a function of $\alpha$; average the results for each $\alpha$ and pick $\alpha$ to minimize the average error
-4. return the sub-tree from step 2 that corresponds to the chosen value of $\alpha$
-
-</div>
-
-<div>
-<img src="./figures/decision_tree.png" class="w-full h-[220px] object-contain" alt="Stylized illustration of a decision tree as a real tree" />
-<div class="figure-copyright text-center">Image by Bing Image Generator</div>
-</div>
-
-</div>
-
-<div class="slide-citation">
-Algorithm after James, Witten, Hastie &amp; Tibshirani, <a href="https://www.statlearning.com/" target="_blank" rel="noopener noreferrer"><em>An Introduction to Statistical Learning</em></a>, Algorithm 8.1.
-</div>
-
----
-
-# Decision Trees in scikit-learn: Hyperparameters
-
-```python {2,3,4|all}
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-
-clf = DecisionTreeClassifier(criterion="gini",          # or "entropy" — node purity
-                             max_depth=None, max_leaf_nodes=None,      # pre-pruning
-                             min_samples_split=2, min_samples_leaf=1,
-                             min_impurity_decrease=0.0,
-                             ccp_alpha=0.0)                            # post-pruning
-
-reg = DecisionTreeRegressor(criterion="squared_error",  # variance as node purity
-                            max_depth=3, ccp_alpha=0.0)
-```
-
-<div class="mt-3 text-gray-700">
-All hyperparameters in the snippet were covered in this part: the <strong>purity criterion</strong>, <strong>pre-pruning</strong> limits and <strong>cost complexity pruning</strong> via <code>ccp_alpha</code>.
-</div>
-
-<div class="slide-citation">
-Documentation: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html" target="_blank" rel="noopener noreferrer">DecisionTreeClassifier</a> · <a href="https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeRegressor.html" target="_blank" rel="noopener noreferrer">DecisionTreeRegressor</a>
-</div>
-
----
-layout: bonn-two-cols-header
----
-
-# Recap: Decision Trees
-
-::left::
-
-<h3>Advantages</h3>
-
-<ul>
-<li><strong>inexpensive</strong> to construct</li>
-<li>extremely <strong>fast at prediction</strong> time</li>
-<li><strong>easy to interpret</strong> for small trees</li>
-<li><strong>robust to noise</strong> (when regularized)</li>
-<li>can easily handle <strong>redundant or irrelevant attributes</strong> (unless the attributes are interacting)</li>
-</ul>
-
-::right::
-
-<div v-click>
-<h3>Disadvantages</h3>
-
-<ul>
-<li>decision trees are prone to <strong>overfitting</strong> and need regularization</li>
-<li><strong>greedy</strong> approaches often fail to find the best tree (restricting growth is too short-sighted)</li>
-<li>do <strong>not take interactions between features</strong> into account: each decision boundary involves only a single attribute</li>
-</ul>
-</div>
-
----
-
-# Bagging, Random Forests &amp; Boosting
-
-## Increasing robustness by redundancy
-
-<div class="grid grid-cols-3 gap-8 mt-6 text-center">
-
-<div>
-<img src="./figures/dt_ai_bag.jpg" class="w-full h-[200px] object-contain" alt="Stylized bag filled with green trees" />
-<div class="text-blue-800 font-semibold mt-2">Bagging</div>
-</div>
-
-<div>
-<img src="./figures/dt_ai_forest.jpg" class="w-full h-[200px] object-contain" alt="Stylized random forest of different trees" />
-<div class="text-blue-800 font-semibold mt-2">Random Forests</div>
-</div>
-
-<div>
-<img src="./figures/dt_ai_boosting.jpg" class="w-full h-[200px] object-contain" alt="Stylized tree flying faster and faster" />
-<div class="text-blue-800 font-semibold mt-2">Boosting</div>
-</div>
-
-</div>
-
-<div class="slide-citation">
-Images by Bing Image Generator (DALL·E 3): "a stylized image of a bag of green trees", "… of a random forest", "… of a flying tree that gets faster and faster", white background.
-</div>
-
-<!--
-Part 2: single trees have high variance. We fix this by combining many trees.
--->
-
----
-
-# An Artificial Classification Dataset
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<div>
-<img src="./figures/dt_cls_distribution.png" v-if="$clicks < 1" class="w-full h-[300px] object-contain" alt="Density contours of four overlapping two-dimensional Gaussian class distributions" />
-<img src="./figures/dt_cls_sample.png" v-else class="w-full h-[300px] object-contain" alt="Samples drawn from the four class distributions" />
-</div>
-
-<div>
-
-Assume four distributions, one per class, over a random feature vector $\mathbf{X} = (x_1, x_2)$:
-
-<ul>
-<li>
-
-<span style="color:#ff7378">■</span> class 1: $p(x_1, x_2 \mid y = 1)$
-
-</li>
-<li>
-
-<span style="color:#8b5cf6">■</span> class 2: $p(x_1, x_2 \mid y = 2)$
-
-</li>
-<li>
-
-<span style="color:#f2c300">■</span> class 3: $p(x_1, x_2 \mid y = 3)$
-
-</li>
-<li>
-
-<span style="color:#5ec8ec">■</span> class 4: $p(x_1, x_2 \mid y = 4)$
-
-</li>
-</ul>
-
-<div v-click="1">
-
-We <strong>sample a dataset</strong> from the distribution
-
-$$\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^{N} \sim p(\mathbf{X}, Y)$$
-
-</div>
-
-<blockquote class="blockquote1 mt-3">
-Remember: we are always working with distributions.
-</blockquote>
-
-</div>
-
-</div>
-
----
-clicks: 2
----
-
-# Let's Fit a Decision Tree to the Data
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<img src="./figures/dt_cls_tree.png" class="w-full h-[320px] object-contain" alt="Axis-aligned decision regions of a single decision tree on the four-class dataset" />
-
-<div>
-
-Again, we split the feature space into <strong>regions</strong>.
-
-<blockquote v-click="1" class="blockquote2 mt-4">
-The <strong>modes</strong> (i.e., centers) of the data distributions are well assigned to the correct classes.
-</blockquote>
-
-<blockquote v-click="2" class="blockquote4 mt-4">
-But the uncertain, <strong>overlapping region</strong> is not well defined: thin slivers and islands follow individual training points.
-</blockquote>
-
-</div>
-
-</div>
-
----
-
-# Different Samples Lead to Very Different Trees
-
-<img src="./figures/dt_cls_two_samples.png" class="w-full h-[250px] object-contain mt-1" alt="Decision regions of two trees trained on two different samples from the same distribution" />
-
-<div class="grid grid-cols-2 gap-8 mt-2">
-
-<blockquote v-click class="blockquote2">
-<strong>Low bias:</strong> each tree fits its own training data perfectly.
-</blockquote>
-
-<blockquote v-click class="blockquote3">
-
-<strong>High variance:</strong> the trees are very different on different dataset samples $\mathcal{D}_1, \mathcal{D}_2 \sim p(\mathbf{X}, Y)$.
-
-</blockquote>
-
-</div>
-
----
-layout: bonn-two-cols-header
----
-
-# Bias–Variance Trade-off
-
-Finding a good balance between fitting and overfitting is the fundamental challenge in machine learning. For tree-like classifiers:
-
-::left::
-
-<div class="grid grid-cols-4 gap-3 items-center">
-<div class="col-span-3">
-<h3>Strategy 1: reduce tree complexity</h3>
-<span class="text-gray-500 text-sm">(recap: seen in Part 1)</span>
-<ul>
-<li>greedy: restrict the tree complexity while growing</li>
-<li>non-greedy: post-hoc pruning of the tree</li>
-</ul>
-</div>
-<div class="text-center">
-<img src="./figures/decision_tree.png" class="w-full h-[130px] object-contain" alt="A single stylized tree" />
-<div class="text-sm italic text-blue-800">"cut the tree"</div>
-</div>
-</div>
-
-::right::
-
-<div v-click class="grid grid-cols-4 gap-3 items-center">
-<div class="col-span-3">
-<h3>Strategy 2: ensemble many trees</h3>
-<ul>
-<li>bagging</li>
-<li>random forests</li>
-<li>boosting</li>
-</ul>
-</div>
-<div class="text-center">
-<img src="./figures/dt_ai_forest.jpg" class="w-full h-[130px] object-contain" alt="A stylized forest" />
-<div class="text-sm italic text-blue-800">"grow a forest"</div>
-</div>
-</div>
-
----
-
-# Let's Grow a Forest — Step 1: Bagging
-
-<div class="grid grid-cols-5 gap-6 mt-1 items-center">
-
-<div class="col-span-2">
-
-<div class="text-center text-sm">
-
-$\mathcal{D}_\text{train} = \{(\mathbf{x}_i, y_i)\}_{i=1}^{N} \sim p(\mathbf{X}, Y)$
-
-<div class="text-gray-500 text-xs my-1">&darr; randomly sampled subsets (with replacement), i.e., a <strong>"bootstrap"</strong> &darr;</div>
-
-</div>
-
-<div class="border-2 rounded-xl p-2 mt-1" style="border-color: var(--bonn-blue)">
-<div class="text-center text-sm font-semibold text-blue-800">Bag of decision trees</div>
-<div class="flex justify-around">
-<MiniTree label="𝒟₁ → DT₁" size="70px" />
-<MiniTree label="𝒟₂ → DT₂" size="70px" />
-<MiniTree label="𝒟₃ → DT₃" size="70px" />
-</div>
-<div class="text-center text-xs text-gray-500">each tree is deep and not pruned</div>
-</div>
-
-<div v-click="1" class="mt-3 text-sm">
-<strong class="text-blue-800">Ensemble prediction:</strong>
-<ul>
-<li><strong>majority voting</strong> for classification</li>
-<li><strong>output averaging</strong> for regression</li>
-</ul>
-</div>
-
-</div>
-
-<div class="col-span-3" v-click="2">
-<img src="./figures/dt_bagging_vs_tree.png" class="w-full h-[260px] object-contain" alt="Decision regions of a single tree compared with the blended regions of a bag of 200 trees" />
-<blockquote class="blockquote2 mt-1">
-Effect: trees agree in the modes and disagree in the overlap &mdash; decision boundaries become <strong>blurry</strong>, a more realistic result.
-</blockquote>
-</div>
-
-</div>
-
-<!--
-Right plot: colours are blended by the fraction of trees voting for each class; uncertain regions appear as mixed colours.
--->
-
----
-
-# Bagging: Out-of-Bag Error
-
-<div class="grid grid-cols-2 gap-10 mt-4 items-center">
-
-<div class="text-center">
-
-$\mathcal{D}_\text{train}$
-
-<div class="flex justify-center gap-6 mt-3 text-sm">
-<div class="border-2 rounded-xl px-3 py-2" style="border-color: var(--bonn-blue)">
-
-bootstrap 𝒟ᵢ<br><span class="text-gray-500 text-xs">1. fit DTᵢ</span>
-
-</div>
-<div class="border-2 rounded-xl px-3 py-2" style="border-color: var(--grl-data-orange)">
-
-remaining samples 𝒟<sub>OOB</sub><br><span class="text-gray-500 text-xs">2. estimate the OOB error of DTᵢ</span>
-
-</div>
-</div>
-
-</div>
-
-<div>
-
-<strong class="text-blue-800">Out-of-bag (OOB) error estimation</strong>
-
-<ol>
-<li>
-
-fit decision tree $DT_i$ on $\mathcal{D}_i$
-
-</li>
-<li>
-
-test its performance on the out-of-bag set $\mathcal{D}_\text{OOB}$
-
-</li>
-<li>repeat for each tree in the bag</li>
-<li>average the individual OOB errors across trees</li>
-</ol>
-
-<blockquote v-click class="blockquote2 mt-3">
-The OOB error <strong>approximates the test error</strong> without using test data &mdash; a similar idea to cross-validation.
-</blockquote>
-
-</div>
-
-</div>
-
----
-
-# Bagging Trees: Re-gaining Interpretability
-
-<div class="grid grid-cols-5 gap-6 mt-1 items-center">
-
-<div class="col-span-3">
-<ul>
-<li>bagging <strong>improves accuracy</strong> over a single tree through increasing diversity in the decisions</li>
-<li>but we <strong>lose interpretability</strong>: each tree has different decision rules, and interpreting many rules in parallel is difficult</li>
-</ul>
-
-<div v-click="1" class="mt-3">
-<strong class="text-blue-800">Variable importance</strong> &mdash; across all trees in the bag:
-<ol>
-<li>look at all decision nodes that involve the feature of interest <span style="color: var(--grl-data-orange)">●</span> (for instance, temperature)</li>
-<li>measure the <strong>increase in node purity</strong> at each of these nodes and average it</li>
-</ol>
-</div>
-</div>
-
-<div class="col-span-2">
-<div class="flex justify-around">
-<MiniTree root="a" label="DT₁" size="64px" />
-<MiniTree left="a" right="a" label="DT₂" size="64px" />
-<MiniTree left="a" label="DT₃" size="64px" />
-</div>
-<img v-click="2" src="./figures/dt_rf_importance.png" class="w-full h-[170px] object-contain mt-2" alt="Bar chart of variable importance: the two informative features dominate four noise features" />
-</div>
-
-</div>
-
-<!--
-The importance plot is computed on the four-class dataset with four extra pure-noise features: the informative features x1 and x2 clearly stand out.
--->
-
----
-
-# Bagging Limitation: Correlated Trees
-
-<div class="grid grid-cols-5 gap-6 mt-2 items-center">
-
-<div class="col-span-3">
-<ul>
-<li>bagging improves accuracy through increasing <strong>diversity</strong> in the decisions</li>
-<li v-click>but bagged trees are still <strong>highly correlated</strong>: an important feature <span style="color: var(--grl-data-orange)">●</span> is split first, followed by the second most important feature <span style="color: var(--grl-data-green)">●</span>, and so on&hellip;</li>
-<li v-click>all trees in a bag look similar &rarr; this <strong>correlates the trees</strong>, reduces diversity &amp; test accuracy</li>
-</ul>
-
-<blockquote v-click class="blockquote3 mt-4">
-Idea: increase diversity by <strong>removing features</strong> from individual trees.
-</blockquote>
-</div>
-
-<div class="col-span-2 border-2 rounded-xl p-3" style="border-color: var(--bonn-blue)">
-<div class="text-center text-sm font-semibold text-blue-800 mb-1">Bag of decision trees</div>
-<div class="flex justify-around">
-<MiniTree root="a" left="b" right="b" label="𝒟₁ → DT₁" size="72px" />
-<MiniTree root="a" left="b" right="b" label="𝒟₂ → DT₂" size="72px" />
-<MiniTree root="a" left="b" label="𝒟₃ → DT₃" size="72px" />
-</div>
-</div>
-
-</div>
-
----
-
-# Random Forest — Step 2: Remove Features
-
-<blockquote class="blockquote3">
-Idea: increase diversity by removing features from individual trees.
-</blockquote>
-
-<div class="grid grid-cols-2 gap-8 mt-3 items-center">
-
-<div>
-
-<strong class="text-blue-800">Implementation:</strong> we take a random sample of predictors for each tree (usually $\sqrt{F}$ of $F$ features, e.g., 4 out of 15).
-
-In a random forest, each decision tree is
-
-<ol>
-<li>
-
-trained with a bootstrapped dataset $\mathcal{D}_i$
-
-</li>
-<li>
-
-using a subset of features $\mathcal{F}_i$
-
-</li>
-</ol>
-
-</div>
-
-<div v-click class="border-2 rounded-xl p-3" style="border-color: var(--bonn-blue)">
-<div class="text-center text-sm font-semibold text-blue-800 mb-1">Random forest</div>
-<div class="flex justify-around">
-<MiniTree root="a" left="o" right="o" label="𝒟₁ → DT₁" sub="using ℱ₁" :without="['b']" size="80px" />
-<MiniTree root="b" left="o" right="b" label="𝒟₂ → DT₂" sub="using ℱ₂" :without="['a']" size="80px" />
-<MiniTree root="o" left="o" right="o" label="𝒟₃ → DT₃" sub="using ℱ₃" :without="['a', 'b']" size="80px" />
-</div>
-</div>
-
-</div>
-
-<!--
-In scikit-learn the feature subset is drawn per split (max_features), not once per tree — the effect on diversity is the same.
--->
-
----
-layout: bonn-two-cols-header
----
-
-# Summary: Bagging and Random Forests
-
-::left::
-
-<h3>Bags &amp; random forests</h3>
-<ul>
-<li>each tree is trained on a different <strong>bootstrapped</strong> set of training data</li>
-<li>trees are trained separately from each other, <strong>in parallel</strong></li>
-</ul>
-
-<div class="flex justify-around mt-4">
-<MiniTree root="a" left="b" right="b" label="DT₁" size="62px" />
-<MiniTree root="a" left="b" right="b" label="DT₂" size="62px" />
-<MiniTree root="a" left="b" label="DT₃" size="62px" />
-</div>
-<div class="text-center text-sm text-blue-800 font-semibold">bag of decision trees</div>
-
-::right::
-
-<h3>Random forests</h3>
-<ul>
-<li>additionally, each tree is trained with a <strong>different subset of features</strong></li>
-</ul>
-
-<div class="flex justify-around mt-4">
-<MiniTree root="a" label="DT₁" :without="['b']" size="62px" />
-<MiniTree root="b" right="b" label="DT₂" :without="['a']" size="62px" />
-<MiniTree label="DT₃" :without="['a', 'b']" size="62px" />
-</div>
-<div class="text-center text-sm text-blue-800 font-semibold">random forest</div>
-
----
-
-# Bagging &amp; Random Forests in scikit-learn
-
-```python {3-5|7-9|all}
-from sklearn.ensemble import BaggingClassifier, RandomForestClassifier
-
-bag = BaggingClassifier(estimator=DecisionTreeClassifier(),  # any base model
-                        n_estimators=10, max_samples=1.0,     # number & size of bootstraps
-                        bootstrap=True, oob_score=False, n_jobs=None)
-
-rf = RandomForestClassifier(n_estimators=100, criterion="gini", max_depth=None,
-                            max_features="sqrt",              # feature subset → diversity
-                            bootstrap=True, oob_score=False, n_jobs=None)
-```
-
-<div class="mt-3 text-gray-700">
-Pass a <code>DecisionTreeClassifier</code> as <code>estimator</code> into the bagging classifier. <code>oob_score=True</code> computes the out-of-bag error; <code>n_jobs</code> trains trees in parallel.
-</div>
-
-<div class="slide-citation">
-Documentation: <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html" target="_blank" rel="noopener noreferrer">BaggingClassifier</a> · <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html" target="_blank" rel="noopener noreferrer">RandomForestClassifier</a>
-</div>
-
----
-layout: bonn-two-cols-header
----
-
-# Random Forest versus Boosting Philosophy
-
-::left::
-
-<div class="grid grid-cols-2 gap-3 items-center">
-<div>
-<h3>Random forest</h3>
-<ul>
-<li>accuracy through <strong>classifier diversity</strong></li>
-<li>all trees grown <strong>in parallel</strong></li>
-</ul>
-</div>
-<img src="./figures/dt_ai_forest.jpg" class="w-full h-[180px] object-contain" alt="A stylized forest" />
-</div>
-
-::right::
-
-<div v-click class="grid grid-cols-2 gap-3 items-center">
-<div>
-<h3>Boosting</h3>
-<ul>
-<li>many small <strong>"weak" classifiers</strong></li>
-<li>trees grown <strong>sequentially</strong></li>
-</ul>
-</div>
-<img src="./figures/dt_ai_boosting.jpg" class="w-full h-[180px] object-contain" alt="A stylized tree flying faster and faster" />
-</div>
-
----
-
-# Boosting: Principles
-
-<div class="grid grid-cols-3 gap-6 mt-2 items-center">
-
-<div>
-<ul>
-<li>train one classifier after another</li>
-<li v-click>reweight the data so that <strong>wrongly classified samples become more important</strong> for the next classifier</li>
-</ul>
-</div>
-
-<div class="col-span-2">
-<img src="./figures/dt_boosting_wikipedia.svg" class="w-full h-[300px] object-contain" alt="Boosting schematic: classifiers trained one after another on reweighted data, combined into an ensemble classifier" />
-<div class="figure-copyright">
-Figure: Sirakorn, <a href="https://commons.wikimedia.org/wiki/File:Ensemble_Boosting.svg" target="_blank" rel="noopener noreferrer">Ensemble Boosting</a>, Wikimedia Commons, CC BY-SA 4.0.
-</div>
-</div>
-
-</div>
-
----
-
-# AdaBoost: Ideas
-
-<div class="grid grid-cols-2 gap-8 mt-2 items-center">
-
-<div>
-
-Three core ideas:
-
-<ul>
-<li v-click>combine many <strong>"weak learners"</strong>, i.e., <strong>stumps</strong></li>
-<li v-click>some stumps are <strong>weighted higher</strong> than others</li>
-<li v-click>each stump takes the <strong>previous stumps</strong> into account</li>
-</ul>
-
-</div>
-
-<div class="text-center">
-
-<div class="text-sm">Base classifier / regressor: a <strong>"stump"</strong> is a single decision node</div>
-
-<TreeDiagram
-  :width="160" :height="90" max-width="140px"
-  :nodes="[
-    { id: 'r', x: 80, y: 20, label: 'X < t', w: 60 },
-    { id: 'a', x: 45, y: 72, type: 'dot', color: 'var(--grl-data-orange)' },
-    { id: 'b', x: 115, y: 72, type: 'dot', color: 'var(--grl-data-orange)' },
-  ]"
-  :edges="[{ from: 'r', to: 'a' }, { from: 'r', to: 'b' }]"
-/>
-
-<img src="./figures/dt_ai_stumps.jpg" class="w-full h-[170px] object-cover rounded-xl mt-2" alt="A field of tree stumps" />
-<div class="figure-copyright">Image by Bing Image Generator</div>
-</div>
-
-</div>
-
----
-clicks: 3
----
-
-# AdaBoost: Algorithm
-
-<div class="grid grid-cols-2 gap-8 mt-1 items-center">
-
-<div class="text-sm">
-<ol>
-<li>start with all data samples at <strong>equal weight</strong></li>
-<li>create a first stump on the feature that <strong>increases node purity the most</strong></li>
-<li>estimate the <strong>error of the stump</strong> (bad stumps with a high error contribute less)</li>
-<li>make <strong>incorrectly classified samples more important</strong> for the next stump</li>
-<li>repeat until no improvement or the maximum number of stumps is reached</li>
-</ol>
-</div>
-
-<AdaBoostDemo :clicks="$clicks" />
-
-</div>
-
-<!--
-Click through three boosting rounds. The size of each chip is the sample weight for the next stump; the size of each stump is its say (alpha) in the final vote.
--->
-
----
-layout: bonn-two-cols-header
----
-
-# Recap: Decision Trees &amp; Ensembles
-
-::left::
-
-<h3>Decision trees</h3>
-<ul>
-<li>a simple chain of decisions</li>
-<li>well interpretable, but inaccurate on the test set (<strong>low bias, high variance</strong>)</li>
-</ul>
-
-<h3 class="mt-3">Bag of trees</h3>
-<ul>
-<li>an ensemble "bag" of trees, each trained on a different data subset ("bootstrap")</li>
-<li>better test accuracy through tree consensus; all trees learned <strong>simultaneously</strong></li>
-</ul>
-
-::right::
-
-<h3>Random forest</h3>
-<ul>
-<li>like a bag, but each tree also uses a different <strong>feature subset</strong></li>
-<li>trees are as <strong>diverse</strong> as possible; learned simultaneously</li>
-</ul>
-
-<h3 class="mt-3">Boosting (AdaBoost)</h3>
-<ul>
-<li>an ensemble of small trees (stumps), each trained on the <strong>errors of the previous</strong> ones</li>
-<li>trees learned <strong>sequentially</strong>; each additional tree "boosts" the performance</li>
-</ul>

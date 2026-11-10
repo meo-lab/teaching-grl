@@ -190,7 +190,7 @@ const svgLabel = computed(() =>
   flex-direction: column;
   gap: 4px;
   height: 100%;
-  font: 11px/1.3 Arial, Helvetica, sans-serif;
+  font: 11px/1.3 "Exo 2", Helvetica, sans-serif;
   color: #222;
   user-select: none;
 }

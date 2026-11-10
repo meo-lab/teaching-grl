@@ -435,13 +435,13 @@ onUnmounted(() => {
 
 .understanding-pulse__label {
   fill: #111;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Exo 2", Arial, sans-serif;
   font-size: calc(13px * var(--pulse-text-scale, 1));
 }
 
 .understanding-pulse__instruction {
   fill: #888;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Exo 2", Arial, sans-serif;
   font-size: calc(10px * var(--pulse-text-scale, 1));
 }
 

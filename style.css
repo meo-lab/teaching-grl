@@ -1,5 +1,21 @@
 @import './assets/course-introduction/slides.css';
 
+@font-face {
+  font-family: 'Exo 2';
+  src: url('./assets/fonts/Exo2-VariableFont_wght.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Exo 2';
+  src: url('./assets/fonts/Exo2-Italic-VariableFont_wght.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   --bonn-blue: #00457c;
   --bonn-yellow: #f2c300;
@@ -17,7 +33,7 @@
   height: 100%;
   background: #ffffff;
   color: var(--bonn-text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Exo 2', Arial, sans-serif;
   letter-spacing: 0;
 }
 

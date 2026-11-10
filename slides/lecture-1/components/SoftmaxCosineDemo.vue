@@ -18,7 +18,7 @@ onMounted(async () => {
     p.setup = () => {
       const canvas = p.createCanvas(900, 420);
       canvas.parent(container.value);
-      p.textFont("Arial");
+      p.textFont("Exo 2");
 
       pts = {
         A: p.createVector(140, 210),

@@ -70,7 +70,7 @@ onMounted(async () => {
     height: container.value.clientHeight,
     autosize: false,
     margin: { l: 44, r: 12, t: props.showLegend ? 30 : 10, b: 38 },
-    font: { size: 11, color: '#222222', family: 'Arial, Helvetica, sans-serif' },
+    font: { size: 11, color: '#222222', family: '"Exo 2", Helvetica, sans-serif' },
     showlegend: props.showLegend,
     legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'right', x: 1, font: { size: 10 } },
     barmode: 'overlay',

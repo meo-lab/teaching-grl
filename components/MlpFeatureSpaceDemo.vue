@@ -134,7 +134,7 @@ function draw() {
     const [x,y] = xy(data[i]); ctx.beginPath(); ctx.arc(x,y, s.id === inspected.value ? 6 : 3.8, 0, Math.PI*2)
     ctx.fillStyle = s.c ? '#159653' : '#d33748'; ctx.fill(); ctx.strokeStyle = s.id === inspected.value ? '#00457c' : '#ffffff'; ctx.lineWidth = s.id === inspected.value ? 2.5 : 1; ctx.stroke()
   })
-  ctx.restore(); ctx.fillStyle = '#5f625f'; ctx.font = '11px Arial'
+  ctx.restore(); ctx.fillStyle = '#5f625f'; ctx.font = '11px "Exo 2"'
   ctx.fillText(`${bounds.x.toFixed(1)}`, pad, H-12)
   ctx.textAlign = 'right'; ctx.fillText((bounds.x + (W-2*pad)/scale).toFixed(1), W-pad, H-12)
   ctx.textAlign = 'center'; ctx.fillText(selected.value === 0 ? 'x₁' : `neuron ${pair.value[0]+1}`, W/2,H-8)
@@ -191,7 +191,7 @@ defineExpose({ diagnostics: () => ({ tensors: tf.memory().numTensors, step: step
 </template>
 
 <style scoped>
-.mlp-demo { display: grid; grid-template-columns: 258px minmax(0,1fr); gap: 18px; height: 350px; font: 12px/1.25 Arial, sans-serif; color: #222; }
+.mlp-demo { display: grid; grid-template-columns: 258px minmax(0,1fr); gap: 18px; height: 350px; font: 12px/1.25 "Exo 2", sans-serif; color: #222; }
 .controls, .visual { min-width: 0; }
 .row { display: flex; gap: 5px; align-items: center; margin-bottom: 6px; }
 button, select { font: inherit; color: #00457c; background: white; border: 1px solid #cbd5dd; border-radius: 3px; min-height: 25px; padding: 3px 7px; cursor: pointer; }

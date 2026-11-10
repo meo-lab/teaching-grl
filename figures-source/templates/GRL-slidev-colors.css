@@ -28,7 +28,7 @@
   --grl-phase-red: #b02b37;
 
   /* Recommended figure defaults */
-  --grl-font-sans: Arial, Helvetica, sans-serif;
+  --grl-font-sans: "Exo 2", Helvetica, sans-serif;
   --grl-radius-slide: 4px;
   --grl-radius-figure: 8px;
   --grl-shadow-soft: 0 8px 18px rgba(0, 69, 124, 0.08);

@@ -182,7 +182,7 @@ function drawMain() {
   ctx.strokeStyle = '#8b8f8d'; ctx.lineWidth = 1
   ctx.beginPath(); ctx.moveTo(mpad.l, MH - mpad.b); ctx.lineTo(MW - mpad.r, MH - mpad.b); ctx.stroke()
   ctx.beginPath(); ctx.moveTo(mpad.l, mpad.t); ctx.lineTo(mpad.l, MH - mpad.b); ctx.stroke()
-  ctx.fillStyle = '#5f625f'; ctx.font = '10px Arial'
+  ctx.fillStyle = '#5f625f'; ctx.font = '10px "Exo 2"'
   ctx.textAlign = 'center'; ctx.fillText('x', (mpad.l + MW - mpad.r) / 2, MH - 4)
   ctx.save(); ctx.translate(10, (mpad.t + MH - mpad.b) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText('y', 0, 0); ctx.restore()
   ctx.textAlign = 'left'
@@ -202,7 +202,7 @@ function drawLoss() {
   for (let l = logMin; l <= logMax; l++) {
     const y = toY(10 ** l)
     ctx.beginPath(); ctx.moveTo(lpad.l, y); ctx.lineTo(LW - lpad.r, y); ctx.stroke()
-    ctx.fillStyle = '#8b8f8d'; ctx.font = '8px Arial'; ctx.textAlign = 'right'
+    ctx.fillStyle = '#8b8f8d'; ctx.font = '8px "Exo 2"'; ctx.textAlign = 'right'
     ctx.fillText(l === 0 ? '1' : `1e${l}`, lpad.l - 4, y + 3)
   }
   ctx.textAlign = 'left'
@@ -229,7 +229,7 @@ function drawLoss() {
     ctx.stroke(); ctx.setLineDash([])
   }
 
-  ctx.fillStyle = '#5f625f'; ctx.font = '9px Arial'; ctx.textAlign = 'center'
+  ctx.fillStyle = '#5f625f'; ctx.font = '9px "Exo 2"'; ctx.textAlign = 'center'
   ctx.fillText('epoch', (lpad.l + LW - lpad.r) / 2, LH - 3)
   ctx.textAlign = 'left'
 }
@@ -277,7 +277,7 @@ defineExpose({ diagnostics: () => ({ tensors: tf.memory().numTensors, training: 
 </template>
 
 <style scoped>
-.of-demo { display: flex; flex-direction: column; gap: 6px; font: 12px/1.25 Arial, Helvetica, sans-serif; color: #222; }
+.of-demo { display: flex; flex-direction: column; gap: 6px; font: 12px/1.25 "Exo 2", Helvetica, sans-serif; color: #222; }
 .row { display: flex; align-items: center; gap: 8px; }
 button { font: inherit; font-size: 11px; color: #00457c; background: white; border: 1px solid #cbd5dd; border-radius: 3px; min-height: 24px; padding: 3px 9px; cursor: pointer; }
 button:hover:not(:disabled) { background: #edf3f8; }

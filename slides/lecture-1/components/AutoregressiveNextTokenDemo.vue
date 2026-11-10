@@ -29,7 +29,7 @@ onMounted(() => {
     p.setup = () => {
       const canvas = p.createCanvas(630, 300);
       canvas.parent(container.value);
-      p.textFont("Arial");
+      p.textFont("Exo 2");
       setupCanvasEvents(canvas.elt);
     };
 
