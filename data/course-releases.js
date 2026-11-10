@@ -3,7 +3,7 @@ export default {
   'lecture-1': true,
   'lecture-2': true,
   'lecture-3': true,
-  'lecture-4': false,
+  'lecture-4': true,
   'lecture-5': false,
   'lecture-6': false,
   'lecture-7': false,

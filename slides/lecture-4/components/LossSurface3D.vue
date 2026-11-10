@@ -12,6 +12,8 @@ const props = withDefaults(defineProps<{
   autoRotate?: boolean
   yaw?: number
   pitch?: number
+  range?: number // log-bce only: weights shown in [-range, range] (default LOG_RANGE)
+  markFlat?: number // log-bce only: highlight where the loss is below this value
 }>(), {
   surface: 'lin-mse',
   width: 360,
@@ -25,10 +27,10 @@ const props = withDefaults(defineProps<{
 const cfg = {
   'lin-mse': { f: (a: number, b: number) => linLoss(b, a, 'mse'), xr: LIN_RANGE.b1, yr: LIN_RANGE.b0, xl: 'w (slope)', yl: 'b (bias)', opt: [LIN_OLS.b1, LIN_OLS.b0] },
   'lin-mae': { f: (a: number, b: number) => linLoss(b, a, 'mae'), xr: LIN_RANGE.b1, yr: LIN_RANGE.b0, xl: 'w (slope)', yl: 'b (bias)', opt: null },
-  'log-bce': { f: (a: number, b: number) => logLoss(a, b), xr: LOG_RANGE.w1, yr: LOG_RANGE.w2, xl: 'w₁', yl: 'w₂', opt: null },
+  'log-bce': { f: (a: number, b: number) => logLoss(a, b), xr: props.range ? [-props.range, props.range] : LOG_RANGE.w1, yr: props.range ? [-props.range, props.range] : LOG_RANGE.w2, xl: 'w₁', yl: 'w₂', opt: null },
 }[props.surface]
 
-const N = 44
+const N = props.markFlat ? 60 : 44
 const Z: number[][] = []
 let zlo = Infinity
 let zhi = -Infinity
@@ -81,13 +83,14 @@ function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, props.width, props.height)
 
-  const quads: { d: number, p: number[][], t: number }[] = []
+  const quads: { d: number, p: number[][], t: number, flat: boolean }[] = []
   for (let j = 0; j < N; j++) {
     for (let i = 0; i < N; i++) {
       const corners = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]]
       const pts = corners.map(([a, b]) => project(a / N * 2 - 1, b / N * 2 - 1, (Z[b][a] - zlo) / (zhi - zlo)))
       const t = ((Z[j][i] + Z[j][i + 1] + Z[j + 1][i] + Z[j + 1][i + 1]) / 4 - zlo) / (zhi - zlo)
-      quads.push({ d: pts.reduce((s, p) => s + p[2], 0) / 4, p: pts, t })
+      const flat = props.markFlat != null && Math.max(Z[j][i], Z[j][i + 1], Z[j + 1][i], Z[j + 1][i + 1]) < props.markFlat
+      quads.push({ d: pts.reduce((s, p) => s + p[2], 0) / 4, p: pts, t, flat })
     }
   }
   // floor box edges (behind)
@@ -103,8 +106,8 @@ function draw() {
   quads.sort((a, b) => a.d - b.d)
   for (const q of quads) {
     const [r, g, b] = viridis(q.t)
-    ctx.fillStyle = `rgb(${r | 0},${g | 0},${b | 0})`
-    ctx.strokeStyle = `rgba(255,255,255,0.18)`
+    ctx.fillStyle = q.flat ? '#ff9d4d' : `rgb(${r | 0},${g | 0},${b | 0})`
+    ctx.strokeStyle = q.flat ? 'rgba(255,255,255,0.35)' : `rgba(255,255,255,0.18)`
     ctx.beginPath()
     q.p.forEach((p, k) => (k ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])))
     ctx.closePath()
@@ -122,6 +125,49 @@ function draw() {
     ctx.arc(p[0], p[1], 5, 0, 2 * Math.PI)
     ctx.fill()
     ctx.stroke()
+  }
+  // label the flat region at its (projected) centre
+  if (props.markFlat != null) {
+    const fl = quads.filter(q => q.flat)
+    if (fl.length) {
+      const cx = fl.reduce((s, q) => s + (q.p[0][0] + q.p[2][0]) / 2, 0) / fl.length
+      const cy = fl.reduce((s, q) => s + (q.p[0][1] + q.p[2][1]) / 2, 0) / fl.length
+      ctx.font = '600 12px "Exo 2", sans-serif'
+      ctx.textAlign = 'center'
+      ctx.lineWidth = 3
+      ctx.strokeStyle = '#fff'
+      ctx.fillStyle = '#b35500'
+      ctx.strokeText('flat: loss ≈ 0', cx, cy - 4)
+      ctx.fillText('flat: loss ≈ 0', cx, cy - 4)
+      ctx.strokeText('no single minimum', cx, cy + 11)
+      ctx.fillText('no single minimum', cx, cy + 11)
+      ctx.lineWidth = 1
+    }
+  }
+  // vertical loss axis at the back corner (smallest depth)
+  {
+    const corners = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+    const back = corners.map(([u, v]) => ({ u, v, d: project(u, v, 0)[2] })).sort((a, b) => a.d - b.d)[0]
+    const a0 = project(back.u, back.v, 0)
+    const a1 = project(back.u, back.v, 1.3)
+    ctx.strokeStyle = '#8b8f8d'
+    ctx.fillStyle = '#8b8f8d'
+    ctx.lineWidth = 1.4
+    ctx.beginPath()
+    ctx.moveTo(a0[0], a0[1])
+    ctx.lineTo(a1[0], a1[1])
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(a1[0], a1[1] - 6)
+    ctx.lineTo(a1[0] - 4, a1[1] + 2)
+    ctx.lineTo(a1[0] + 4, a1[1] + 2)
+    ctx.closePath()
+    ctx.fill()
+    ctx.lineWidth = 1
+    ctx.font = '600 12px "Exo 2", sans-serif'
+    ctx.fillStyle = '#00457c'
+    ctx.textAlign = 'center'
+    ctx.fillText('loss', a1[0], a1[1] - 10)
   }
   // axis labels at floor edge midpoints
   ctx.font = '11px "Exo 2", sans-serif'

@@ -172,11 +172,7 @@ sectionTitle: Opening
 # Learning outcomes
 
 <LearningOutcome id="linear-regression-mse">
-<strong>Explain</strong> linear regression and how minimizing MSE fits its parameters.
-</LearningOutcome>
-
-<LearningOutcome id="linear-regression-matrix">
-<strong>Express</strong> linear regression as a matrix map between arbitrary input and output dimensions.
+<strong>Explain</strong> linear regression, from one to many inputs and outputs, and how minimizing MSE fits its parameters.
 </LearningOutcome>
 
 <LearningOutcome id="class-probabilities">
@@ -184,7 +180,7 @@ sectionTitle: Opening
 </LearningOutcome>
 
 <LearningOutcome id="loss-gradient-descent">
-<strong>Explain</strong> how losses and gradient descent guide parameter learning.
+<strong>Explain</strong> how MSE and cross-entropy losses and gradient descent guide parameter learning.
 </LearningOutcome>
 
 <LearningOutcome id="neurons-layers">
@@ -195,8 +191,12 @@ sectionTitle: Opening
 <strong>Explain</strong> how MLPs learn intermediate representations.
 </LearningOutcome>
 
+<LearningOutcome id="backpropagation">
+<strong>Explain</strong> how backpropagation computes the gradient of the loss for every weight.
+</LearningOutcome>
+
 <!--
-Two outcomes per block: linear regression, logistic regression and optimization, then multilayer perceptrons.
+One outcome for linear regression, two for logistic regression and optimization, three for multilayer perceptrons (incl. backpropagation).
 Students rate their understanding now and again at the end of the lecture.
 -->
 
@@ -1223,6 +1223,8 @@ Every contour is a closed ellipse around the same centre: one bowl, one bottom.
 Contrast for later: logistic regression (block 2) and MLPs (block 3) have no closed form and, for MLPs, no single bowl.
 -->
 ---
+hide: true
+---
 
 # Real Problems, Rugged Loss Landscapes
 
@@ -1430,10 +1432,16 @@ sectionTitle: "Logistic Regression"
 
 # Logistic Regression
 
-<img class="bonn-section-image-sm" src="./figures/ls_snowboard.jpg" alt="A robot snowboarding down a red slope, a metaphor for a model descending a loss surface" />
-
-<div class="bonn-section-citation">
-Image by Bing Image Generator (DALL·E 3): "a deep learning model snowboarding down a red loss surface to find a local minimum".
+<div class="bonn-section-image flex justify-center" style="grid-row: 1; align-self: center; justify-self: center;">
+<svg viewBox="0 0 520 350" style="width: 100%; max-width: 520px;" role="img" aria-label="The logistic function: an S-shaped curve from 0 to 1, crossing 0.5 at z = 0">
+  <line x1="60" x2="480" y1="300" y2="300" stroke="#8b8f8d" stroke-width="1.5" />
+  <line x1="270.0" x2="270.0" y1="30" y2="300" stroke="#8b8f8d" stroke-width="1.5" />
+  <line x1="60" x2="480" y1="40" y2="40" stroke="#d0d4d8" stroke-width="1.2" stroke-dasharray="5 5" />
+  <text x="260.0" y="46" text-anchor="end" style="font-size: 18px" fill="#5f625f">1</text>
+  <text x="260.0" y="294" text-anchor="end" style="font-size: 18px" fill="#5f625f">0</text>
+  <path d="M60.0,299.4 L63.5,299.3 L67.0,299.2 L70.5,299.1 L74.0,299.0 L77.5,298.9 L81.0,298.8 L84.5,298.7 L88.0,298.6 L91.5,298.4 L95.0,298.3 L98.5,298.1 L102.0,297.9 L105.5,297.7 L109.0,297.4 L112.5,297.1 L116.0,296.8 L119.5,296.5 L123.0,296.2 L126.5,295.8 L130.0,295.3 L133.5,294.8 L137.0,294.3 L140.5,293.7 L144.0,293.1 L147.5,292.4 L151.0,291.6 L154.5,290.8 L158.0,289.8 L161.5,288.8 L165.0,287.7 L168.5,286.4 L172.0,285.1 L175.5,283.6 L179.0,282.0 L182.5,280.3 L186.0,278.4 L189.5,276.3 L193.0,274.1 L196.5,271.6 L200.0,269.0 L203.5,266.2 L207.0,263.1 L210.5,259.8 L214.0,256.3 L217.5,252.6 L221.0,248.6 L224.5,244.3 L228.0,239.8 L231.5,235.1 L235.0,230.1 L238.5,224.8 L242.0,219.4 L245.5,213.7 L249.0,207.9 L252.5,201.8 L256.0,195.7 L259.5,189.4 L263.0,183.0 L266.5,176.5 L270.0,170.0 L273.5,163.5 L277.0,157.0 L280.5,150.6 L284.0,144.3 L287.5,138.2 L291.0,132.1 L294.5,126.3 L298.0,120.6 L301.5,115.2 L305.0,109.9 L308.5,104.9 L312.0,100.2 L315.5,95.7 L319.0,91.4 L322.5,87.4 L326.0,83.7 L329.5,80.2 L333.0,76.9 L336.5,73.8 L340.0,71.0 L343.5,68.4 L347.0,65.9 L350.5,63.7 L354.0,61.6 L357.5,59.7 L361.0,58.0 L364.5,56.4 L368.0,54.9 L371.5,53.6 L375.0,52.3 L378.5,51.2 L382.0,50.2 L385.5,49.2 L389.0,48.4 L392.5,47.6 L396.0,46.9 L399.5,46.3 L403.0,45.7 L406.5,45.2 L410.0,44.7 L413.5,44.2 L417.0,43.8 L420.5,43.5 L424.0,43.2 L427.5,42.9 L431.0,42.6 L434.5,42.3 L438.0,42.1 L441.5,41.9 L445.0,41.7 L448.5,41.6 L452.0,41.4 L455.5,41.3 L459.0,41.2 L462.5,41.1 L466.0,41.0 L469.5,40.9 L473.0,40.8 L476.5,40.7 L480.0,40.6" fill="none" stroke="#00457c" stroke-width="5" stroke-linecap="round" />
+  <text x="480" y="330" text-anchor="end" style="font-size: 22px; font-family: serif; font-style: italic" fill="#5f625f">z</text>
+</svg>
 </div>
 
 <!--
@@ -1443,181 +1451,361 @@ Key message: the linear transformation does not change. What changes is the inte
 
 ---
 
-# Same Transformation, Different Job
+# 1D Land Cover
 
-<div class="mt-3 text-[.82rem] compare-table">
+<PartTag part="data" />
 
-| | Linear regression | Logistic regression |
-|---|---|---|
-| **Model core** | $\mathbf W\mathbf x + \mathbf b$ | $\mathbf W\mathbf x + \mathbf b$ |
-| **Output** | continuous value | <span v-click="1">class probability</span> |
-| **Output function** | identity | <span v-click="2">sigmoid or softmax</span> |
-| **Typical loss** | MSE | <span v-click="3">cross-entropy</span> |
-| **Optimization** | closed form possible | <span v-click="4">gradient-based optimization</span> |
+From the NDVI histograms of lecture 3 to a **regression problem** with 0/1 targets.
 
+<div class="mt-4">
+  <NdviHistToScatter :step="$clicks + 1" />
 </div>
 
-<div class="mt-4 text-[.7rem] text-gray-600">
-<strong>Model:</strong> why not linear regression · sigmoid · K outputs · softmax &nbsp;→&nbsp; <strong>Loss:</strong> binary &amp; multiclass cross-entropy &nbsp;→&nbsp; <strong>Fitting:</strong> gradient descent &nbsp;→&nbsp; back to real data
-</div>
+<div v-click class="hidden" />
+<div v-click class="hidden" />
+<div v-click class="hidden" />
 
 <!--
-Central question of block 2: how can the same linear transformations solve classification problems, and how can we learn their parameters?
-Reveal the logistic column row by row; the model core is identical. We return to this table at the end of the block.
+Start: the NDVI histograms from the lecture-3 recap - vegetation has higher NDVI, classes overlap.
+Click 1: take 24 pixels and turn the class into a number - vegetation = 1, urban = 0. The histogram becomes a scatter plot.
+Click 2: now it is just block 1 - fit a line y_hat = w x + b with OLS through the 0/1 targets.
+Click 3: a second line for "is it urban?" - in the binary case exactly 1 - y_hat_veg. Where the two lines cross (y_hat = 0.5) the predicted class flips: the decision boundary, here a single NDVI threshold.
+Next slide: the same idea with two features - lines become planes, the threshold becomes a line.
 -->
 
 ---
 
-# Why Not Linear Regression for Classes?
+# The Logistic Function and the Logit
 
 <PartTag part="model" />
 
-<div class="mt-1 max-w-[600px] mx-auto">
-<LinearVsLogistic1D />
+<div class="flex items-center justify-center gap-6 -mt-4 mb-1 py-1 px-5 mx-auto w-fit rounded-md" style="background:#eef5fa; border-left: 5px solid #00457c;">
+<div class="text-[.8rem] leading-tight"><strong style="color:#00457c">Logistic function</strong><br><span class="text-gray-500 text-[.65rem]">also called the <strong>sigmoid</strong>: S-shaped,<br>like the Greek letter sigma (ς)</span></div>
+<div class="text-[1.1rem]">
+
+$\displaystyle \sigma(z) = \frac{1}{1 + e^{-z}}$
+
 </div>
-
-<div class="grid grid-cols-2 gap-4 mt-2 text-[.72rem]">
-<blockquote class="blockquote4">a line predicts values below 0 and above 1 &mdash; not probabilities</blockquote>
-<blockquote class="blockquote4">far-away samples pull the line: its 0.5 threshold moves into the other class</blockquote>
-</div>
-
-<!--
-Start with the linear fit only. Then tick "add extreme class-1 samples": samples that are very clearly class 1 should not change the decision, but MSE punishes the line for not reaching y = 1 there and tilts it - the 0.5 crossing moves right and starts misclassifying class-1 samples. Then switch on the logistic fit: the sigmoid saturates, extreme samples are already "right", the threshold barely moves.
--->
-
----
-
-# The Sigmoid: From Score to Probability
-
-<PartTag part="model" />
-
-<div class="grid grid-cols-[1fr_1.15fr] gap-6 mt-3 items-center">
-
-<div class="text-[.78rem]">
-
-Keep the linear transformation, squash its output:
-
-$$
-z = \mathbf w^\top\mathbf x + b, \qquad p = \sigma(z) = \frac{1}{1 + e^{-z}}
-$$
-
-- any score $z \in \mathbb R$ becomes a probability $p \in (0, 1)$
-- $z = 0 \Leftrightarrow p = 0.5$: the **decision boundary** $\mathbf w^\top\mathbf x + b = 0$ is still a line / plane
-- large $|z|$: confident; the output saturates instead of growing without bound
-
 </div>
 
 <div>
-<LogisticSigmoid />
+  <LogitScale :step="$clicks + 1" />
 </div>
 
-</div>
+<div v-click class="hidden" />
+<div v-click class="hidden" />
 
 <!--
-Step 2 of block 2. The linear part is exactly block 1; the sigmoid is the only new piece. Drag z to show saturation: this is why extreme samples did not pull the logistic fit on the previous slide.
+Start: the logistic (sigmoid) function maps any real number z to a probability between 0 and 1.
+Click 1: its inverse is the logit, ln(p / (1 - p)) - the log of the odds. The name comes from "logistic unit" (Berkson, 1944): z is a probability expressed in a different unit, on the log-odds scale.
+Click 2: what does one logit mean? +1 logit always multiplies the odds by e = 2.72. The change in probability depends on where you start:
+- 50%: odds 1:1 -> 2.72:1 -> 2.72 / (2.72 + 1) = 73%. (Not 0.5 x 2.72 - the factor applies to the odds, not to the probability.)
+- one more logit: odds e:1 -> e^2:1 -> e^2 / (e^2 + 1) = 88%. Same +1 step, smaller gain in probability (+23 points, then +15).
+With log10 the unit is different: +1 multiplies the odds by 10, 50% -> 10/11 = 91%; the step 50% -> 73% is +0.434 in base-10 log-odds.
 -->
 
 ---
 
-# Logistic Regression in Weight Space
+# From Linear to Logistic Regression
 
 <PartTag part="model" />
 
-<div class="grid grid-cols-[1fr_1.45fr] gap-5 mt-2 items-center">
+<div class="mt-10">
+  <LinearToLogistic1D :step="$clicks + 1" />
+</div>
 
-<div class="text-[.76rem]">
+<div v-click class="hidden" />
 
-Two features, two weights, no bias &mdash; small enough to see the whole parameter space:
+<!--
+Start: the linear regression line from the previous slide. Problem: the line predicts values above 1 and below 0 - what is "1.3 vegetation"? And far-away points pull the line (big residuals for confidently classified pixels).
+Click 1: wrap the same linear model in the sigmoid sigma(z) = 1 / (1 + e^-z). The line bends into an S-curve that saturates at 0 and 1. The output is no longer "the target y" but p(vegetation) - how likely the pixel is vegetation. Fitted here on the 24 pixels (maximum likelihood - loss comes later).
+Slider "steepness": scales w (and b) around the 0.5 crossing for both models. The size of |w| sets how sharp the curve is - this is what a "temperature" would do, so it is already learned via w. Double-click the slider to reset.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Logistic Regression with Multiple Inputs
+
+<PartTag part="model" />
+
+::left::
+
+<div class="text-[.8rem]">
 
 $$
-p = \hat y = \sigma(w_1 x_1 + w_2 x_2)
+\begin{aligned}
+p(\text{vegetation}) &= \sigma(w_1 x_1 + w_2 x_2 + b) \\
+p(\text{not vegetation}) &= 1 - p(\text{vegetation})
+\end{aligned}
 $$
 
-- $p \in (0, 1)$ is the probability of class 1
-- $p = 0.5$ where $w_1 x_1 + w_2 x_2 = 0$: the **decision boundary** is a line
-- no bias $b$ here, so every model is a point $(w_1, w_2)$
+</div>
+
+<div class="h-[205px] mt-1">
+  <LogisticGraph />
+</div>
+
+::right::
+
+<div class="-mt-2">
+  <LogisticPlanesDemo />
+</div>
+
+<!--
+Compare with the multivariate linear regression slide: same graph, one weight per feature and one bias - now with NDVI and green reflectance as inputs.
+New: the output of the linear node is not the prediction itself but a logit z, which the sigmoid turns into p(vegetation).
+nn.Sigmoid adds no parameters: 2 weights + 1 bias = 3.
+Binary case: the second class needs no extra parameters - p(not vegetation) = 1 - p(vegetation).
+Right: click z in the graph to see the linear part - two planes z and -z (the "not vegetation" logit), crossing at z = 0. Click p to bend them through the sigmoid into p(vegetation) and 1 - p; the crossing stays at the same place (p = 0.5 <=> z = 0): the decision boundary is still a straight line.
+"Look along boundary" shows the 1D picture from the previous slides.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# From Binary Classification to Multi-Class
+
+<PartTag part="model" />
+
+::left::
+
+<svg viewBox="0 0 450 260" class="w-full h-[255px] mt-2" role="img" aria-label="Graphical model: inputs x1 (NDVI), x2 (green) and 1 are fully connected with weights w11..w32 and biases b1..b3 to three linear nodes z_urban, z_water, z_vegetation; after a click, each passes through its own sigmoid to a class probability">
+  <line x1="113" y1="50" x2="270" y2="50" stroke="#d62728" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="130" x2="270" y2="50" stroke="#d62728" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="210" x2="270" y2="50" stroke="#9aa0a6" stroke-width="2" stroke-opacity="0.6" />
+  <line x1="113" y1="50" x2="270" y2="130" stroke="#1f77b4" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="130" x2="270" y2="130" stroke="#1f77b4" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="210" x2="270" y2="130" stroke="#9aa0a6" stroke-width="2" stroke-opacity="0.6" />
+  <line x1="113" y1="50" x2="270" y2="210" stroke="#2ca02c" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="130" x2="270" y2="210" stroke="#2ca02c" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="210" x2="270" y2="210" stroke="#9aa0a6" stroke-width="2" stroke-opacity="0.6" />
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="229" y="54" text-anchor="middle" fill="#a51d1e">w₁₁</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="229" y="75" text-anchor="middle" fill="#a51d1e">w₁₂</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="229" y="96" text-anchor="middle" fill="#5f6368">b₁</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="192" y="94" text-anchor="middle" fill="#185d8d">w₂₁</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="192" y="134" text-anchor="middle" fill="#185d8d">w₂₂</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="192" y="174" text-anchor="middle" fill="#5f6368">b₂</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="229" y="172" text-anchor="middle" fill="#1e7a1e">w₃₁</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="229" y="193" text-anchor="middle" fill="#1e7a1e">w₃₂</text>
+  <text style="font-size:13px;font-family:serif;font-style:italic;line-height:1;paint-order:stroke;stroke:white;stroke-width:4px" x="229" y="214" text-anchor="middle" fill="#5f6368">b₃</text>
+  <circle cx="92" cy="50" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="92" y="56" text-anchor="middle" fill="#00457c">x₁</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="64" y="54" text-anchor="end" fill="#5f6368">NDVI</text>
+  <circle cx="92" cy="130" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="92" y="136" text-anchor="middle" fill="#00457c">x₂</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="64" y="134" text-anchor="end" fill="#5f6368">green</text>
+  <circle cx="92" cy="210" r="21" fill="#f1f3f4" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;line-height:1" x="92" y="216" text-anchor="middle" fill="#5f6368">1</text>
+  <circle cx="292" cy="50" r="22" fill="#fdecec" stroke="#d62728" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="288" y="56" text-anchor="middle" fill="#a51d1e">z<tspan style="font-size:11px" dy="4">urb</tspan></text>
+  <circle cx="292" cy="130" r="22" fill="#e8f1fa" stroke="#1f77b4" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="288" y="136" text-anchor="middle" fill="#185d8d">z<tspan style="font-size:11px" dy="4">wat</tspan></text>
+  <circle cx="292" cy="210" r="22" fill="#e9f5e9" stroke="#2ca02c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="288" y="216" text-anchor="middle" fill="#1e7a1e">z<tspan style="font-size:11px" dy="4">veg</tspan></text>
+  <g v-click="1">
+    <line x1="314" y1="50" x2="396" y2="50" stroke="#00457c" stroke-width="2" />
+    <rect x="334" y="35" width="32" height="30" rx="6" fill="#ffffff" stroke="#00457c" stroke-width="2" />
+    <path d="M338,60 C347,60 345,40 362,40" fill="none" stroke="#00457c" stroke-width="2" />
+    <circle cx="418" cy="50" r="22" fill="#fdecec" stroke="#d62728" stroke-width="2.5" />
+    <text style="font-size:16px;font-family:serif;font-style:italic;line-height:1" x="418" y="55" text-anchor="middle" fill="#a51d1e">p</text>
+    <text style="font-size:11px;font-family:inherit;font-style:normal;line-height:1" x="418" y="86" text-anchor="middle" fill="#5f6368">urban</text>
+    <line x1="314" y1="130" x2="396" y2="130" stroke="#00457c" stroke-width="2" />
+    <rect x="334" y="115" width="32" height="30" rx="6" fill="#ffffff" stroke="#00457c" stroke-width="2" />
+    <path d="M338,140 C347,140 345,120 362,120" fill="none" stroke="#00457c" stroke-width="2" />
+    <circle cx="418" cy="130" r="22" fill="#e8f1fa" stroke="#1f77b4" stroke-width="2.5" />
+    <text style="font-size:16px;font-family:serif;font-style:italic;line-height:1" x="418" y="135" text-anchor="middle" fill="#185d8d">p</text>
+    <text style="font-size:11px;font-family:inherit;font-style:normal;line-height:1" x="418" y="166" text-anchor="middle" fill="#5f6368">water</text>
+    <line x1="314" y1="210" x2="396" y2="210" stroke="#00457c" stroke-width="2" />
+    <rect x="334" y="195" width="32" height="30" rx="6" fill="#ffffff" stroke="#00457c" stroke-width="2" />
+    <path d="M338,220 C347,220 345,200 362,200" fill="none" stroke="#00457c" stroke-width="2" />
+    <circle cx="418" cy="210" r="22" fill="#e9f5e9" stroke="#2ca02c" stroke-width="2.5" />
+    <text style="font-size:16px;font-family:serif;font-style:italic;line-height:1" x="418" y="215" text-anchor="middle" fill="#1e7a1e">p</text>
+    <text style="font-size:11px;font-family:inherit;font-style:normal;line-height:1" x="418" y="246" text-anchor="middle" fill="#5f6368">vegetation</text>
+    <text style="font-size:14px;font-family:serif;font-style:italic;line-height:1" x="350" y="20" text-anchor="middle" fill="#00457c">σ</text>
+  </g>
+</svg>
+
+::right::
+
+<div class="text-[.85rem] mt-2">
+
+One linear output **per class**, all from the same inputs:
+
+$$
+\underbrace{\begin{pmatrix} z_{\text{urb}} \\ z_{\text{wat}} \\ z_{\text{veg}} \end{pmatrix}}_{\mathbf z}
+= \underbrace{\begin{pmatrix} w_{11} & w_{12} \\ w_{21} & w_{22} \\ w_{31} & w_{32} \end{pmatrix}}_{\mathbf W}
+\begin{pmatrix} x_1 \\ x_2 \end{pmatrix} + \mathbf b
+$$
+
+</div>
+
+<div v-click="1" class="text-[.8rem] mt-2">
+
+**Three independent logistic regressions**, each one class vs. all others (*one-vs-rest*):
+
+</div>
+
+
+<!--
+Binary case: one logit z was enough, p(not vegetation) = 1 - p(vegetation).
+With three classes - urban, water, vegetation - we need one linear output per class: z = W x + b, exactly the "many regressions in parallel" (N -> M linear transformation) from block 1. Here N = 2 features, M = 3 classes: 6 weights + 3 biases.
+Click: a sigmoid on each logit = three independent binary logistic regressions, "urban vs. rest", "water vs. rest", "vegetation vs. rest" (one-vs-rest). Each gives a number in (0, 1), but nothing couples them: the three do not sum to 1 (a pixel can be 80% urban and 60% water). Next slide: softmax couples them into one distribution.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Softmax Functions
+
+<PartTag part="model" />
+
+<div class="flex items-center justify-center gap-6 -mt-3 mb-1 mx-auto w-fit px-5 py-1 rounded-md" style="background:#eef5fa; border-left:5px solid #00457c;">
+<div class="text-[.8rem] leading-tight"><strong style="color:#00457c">Softmax</strong><br><span class="text-gray-500 text-[.62rem]">K logits → K probabilities<br>that sum to 1</span></div>
+<div class="text-[.95rem]">
+
+$\displaystyle \operatorname{softmax}(\mathbf z)_k = \frac{e^{z_k}}{\sum_{j} e^{z_j}}$
+
+</div>
+<div class="text-[.7rem] text-gray-500">e.g.</div>
+<div class="text-[.85rem]">
+
+$\displaystyle {\color{#1e7a1e} p_{\text{veg}}} = \frac{e^{z_{\text{veg}}}}{e^{z_{\text{urb}}} + e^{z_{\text{wat}}} + e^{z_{\text{veg}}}}$
+
+</div>
+</div>
+
+::left::
+
+<svg viewBox="0 0 450 275" class="w-full h-[215px] mt-1" role="img" aria-label="Graphical model: inputs x1 (NDVI), x2 (green) and 1 connect to three logits z_urban, z_water, z_vegetation, which pass together through one softmax to three probabilities that sum to 1">
+  <line x1="113" y1="50" x2="270" y2="50" stroke="#d62728" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="130" x2="270" y2="50" stroke="#d62728" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="210" x2="270" y2="50" stroke="#9aa0a6" stroke-width="2" stroke-opacity="0.6" />
+  <line x1="113" y1="50" x2="270" y2="130" stroke="#1f77b4" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="130" x2="270" y2="130" stroke="#1f77b4" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="210" x2="270" y2="130" stroke="#9aa0a6" stroke-width="2" stroke-opacity="0.6" />
+  <line x1="113" y1="50" x2="270" y2="210" stroke="#2ca02c" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="130" x2="270" y2="210" stroke="#2ca02c" stroke-width="2" stroke-opacity="0.8" />
+  <line x1="113" y1="210" x2="270" y2="210" stroke="#9aa0a6" stroke-width="2" stroke-opacity="0.6" />
+  <circle cx="92" cy="50" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="92" y="56" text-anchor="middle" fill="#00457c">x₁</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="64" y="54" text-anchor="end" fill="#5f6368">NDVI</text>
+  <circle cx="92" cy="130" r="21" fill="#e8f0f8" stroke="#00457c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="92" y="136" text-anchor="middle" fill="#00457c">x₂</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1" x="64" y="134" text-anchor="end" fill="#5f6368">green</text>
+  <circle cx="92" cy="210" r="21" fill="#f1f3f4" stroke="#9aa0a6" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;line-height:1" x="92" y="216" text-anchor="middle" fill="#5f6368">1</text>
+  <line x1="314" y1="50" x2="396" y2="50" stroke="#00457c" stroke-width="2" />
+  <circle cx="292" cy="50" r="22" fill="#fdecec" stroke="#d62728" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="288" y="56" text-anchor="middle" fill="#a51d1e">z<tspan style="font-size:11px" dy="4">urb</tspan></text>
+  <circle cx="418" cy="50" r="22" fill="#fdecec" stroke="#d62728" stroke-width="2.5" />
+  <text style="font-size:16px;font-family:serif;font-style:italic;line-height:1" x="418" y="55" text-anchor="middle" fill="#a51d1e">p</text>
+  <text style="font-size:11px;font-family:inherit;font-style:normal;line-height:1" x="418" y="86" text-anchor="middle" fill="#5f6368">urban</text>
+  <line x1="314" y1="130" x2="396" y2="130" stroke="#00457c" stroke-width="2" />
+  <circle cx="292" cy="130" r="22" fill="#e8f1fa" stroke="#1f77b4" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="288" y="136" text-anchor="middle" fill="#185d8d">z<tspan style="font-size:11px" dy="4">wat</tspan></text>
+  <circle cx="418" cy="130" r="22" fill="#e8f1fa" stroke="#1f77b4" stroke-width="2.5" />
+  <text style="font-size:16px;font-family:serif;font-style:italic;line-height:1" x="418" y="135" text-anchor="middle" fill="#185d8d">p</text>
+  <text style="font-size:11px;font-family:inherit;font-style:normal;line-height:1" x="418" y="166" text-anchor="middle" fill="#5f6368">water</text>
+  <line x1="314" y1="210" x2="396" y2="210" stroke="#00457c" stroke-width="2" />
+  <circle cx="292" cy="210" r="22" fill="#e9f5e9" stroke="#2ca02c" stroke-width="2.5" />
+  <text style="font-size:19px;font-family:serif;font-style:italic;line-height:1" x="288" y="216" text-anchor="middle" fill="#1e7a1e">z<tspan style="font-size:11px" dy="4">veg</tspan></text>
+  <circle cx="418" cy="210" r="22" fill="#e9f5e9" stroke="#2ca02c" stroke-width="2.5" />
+  <text style="font-size:16px;font-family:serif;font-style:italic;line-height:1" x="418" y="215" text-anchor="middle" fill="#1e7a1e">p</text>
+  <text style="font-size:11px;font-family:inherit;font-style:normal;line-height:1" x="418" y="246" text-anchor="middle" fill="#5f6368">vegetation</text>
+  <rect x="332" y="24" width="46" height="212" rx="8" fill="#eef5fa" stroke="#00457c" stroke-width="2.2" />
+  <text style="font-size:14px;font-family:inherit;font-style:normal;line-height:1;font-weight:700" x="355" y="130" text-anchor="middle" fill="#00457c" transform="rotate(-90 355 130)">softmax</text>
+  <text style="font-size:12px;font-family:inherit;font-style:normal;line-height:1;font-weight:700" x="418" y="268" text-anchor="middle" fill="#00457c">Σ p = 1</text>
+</svg>
+
+<div class="text-[.65rem] text-gray-600 text-center mt-1">
+
+$e^{z}$ makes every score **positive** · the shared denominator makes them **sum to 1**
+
+</div>
+
+::right::
+
+<div class="text-[.62rem] -mt-1 mb-0 whitespace-nowrap">
+
+<span style="border:1.5px dashed #666;padding:0 .5em;background:#f3f3f3">dashed</span> one sigmoid per class (one-vs-rest) &nbsp; <span style="background:#555;color:#fff;padding:0 .5em">solid</span> softmax
+
+</div>
+
+<SigmoidVsSoftmax />
+
+<!--
+Instead of three separate sigmoids, one softmax over all logits couples the classes:
+1) exponentiate - every score becomes positive, larger logits get disproportionately more weight;
+2) divide by the sum - the outputs sum to 1, so they form one probability distribution over urban, water, vegetation.
+Demo starts at the example from the previous slide: sigmoids 0.8 / 0.6 / 0.3 (sum 1.7). Softmax of the same logits: 0.67 / 0.25 / 0.07 (sum 1).
+Drag a slider: raising one logit pushes the other softmax probabilities down - the classes compete. The sigmoids do not react to each other.
+Top: the sigmoid written as e^z / (e^z + 1) is exactly a softmax over two logits (z, 0) - same pattern: exponentiate, divide by the sum.
+Only differences between logits matter: adding the same constant to all z leaves softmax unchanged. With K = 2, softmax reduces to the sigmoid of z1 - z2.
+-->
+
+---
+
+# Log-Probabilities in Practice
+
+<PartTag part="model" />
+
+<div class="-mt-2 mb-4 mx-auto w-fit px-6 py-2 rounded-md text-[.95rem]" style="background:#eef5fa; border-left:5px solid #00457c;">
+
+$$
+\log p_k = \log \frac{e^{z_k}}{\sum_j e^{z_j}} = z_k \;{\color{#ff7900}-}\; \log \sum_j e^{z_j}
+$$
+
+<div class="text-center text-[.65rem] text-gray-500 -mt-2">the log turns the <strong>division</strong> into a <strong style="color:#ff7900">subtraction</strong>: logits minus one shared number</div>
+</div>
+
+<div class="grid grid-cols-2 gap-10 items-start">
+<div class="text-[.75rem]">
+
+**Example** (urban, water, vegetation):
+
+$$
+\begin{aligned}
+\mathbf z &= (2,\; 1,\; -1), \qquad \log \textstyle\sum_j e^{z_j} = 2.35 \\
+\log \mathbf p &= \mathbf z - 2.35 = (-0.35,\; -1.35,\; -3.35) \\
+\mathbf p &= (0.71,\; 0.26,\; 0.04)
+\end{aligned}
+$$
+
+</div>
+<div class="text-[.75rem]">
+
+**Why work with $\log p$?**
+
+- **Numerically stable:** no overflow of $e^{z}$, no underflow of tiny products
+- **The loss needs it:** we will minimize $-\log p$ of the true class
+
+<div class="text-[.66rem] mt-2">
 
 ```python
-nn.Sequential(nn.Linear(2, 1, bias=False),
-              nn.Sigmoid())
+log_p = torch.log_softmax(z, dim=1)
 ```
 
 </div>
-
-<div>
-<LogisticLossExplorer :init="[2, -1.5]" />
 </div>
-
 </div>
 
 <!--
-Hover the surface and watch the boundary rotate and the orange/blue shading sharpen: a larger weight norm = steeper sigmoid = more confident probabilities.
-Logistic regression maps a fixed representation to categories with a linear decision boundary (learning outcome).
+In practice we rarely compute probabilities directly - we work with logits and log-probabilities.
+Log-softmax: log p_k = z_k - log sum_j exp(z_j). The log-probabilities are just the logits shifted by one shared number (the log-sum-exp).
+Example: log-sum-exp of (2, 1, -1) is 2.35, so log p = z - 2.35. Shift all logits by the same amount (e.g. 1000, 999, 997) and the log-probabilities stay the same - but naive softmax overflows there: exp(1000) = inf, inf/inf = nan. torch.log_softmax uses the log-sum-exp trick (subtract the max logit first) and never overflows.
+The log-sum-exp term is not optional: it is the normaliser (the log of the softmax denominator). Only the max-subtraction inside it is a numerical trick.
+Underflow: the likelihood of a dataset is a product, e.g. 0.9^1000 ~ 1e-46 - in log space it is a sum (-105).
+Bridge to the loss: the cross-entropy loss is -log p of the true class, so it is computed directly from log-softmax. PyTorch nn.CrossEntropyLoss takes raw logits and applies log_softmax internally.
+Optional: log(p_veg / p_urb) = z_veg - z_urb - the log-sum-exp cancels: logits are log-odds between classes.
 -->
 
 ---
 
-# One Score per Class: $K$ Outputs
-
-<PartTag part="model" />
-
-<div class="text-[.78rem]">
-
-For $K$ classes we need $K$ scores. Stack $K$ weight vectors $\mathbf w_k^\top$ as the rows of a matrix $\mathbf W \in \mathbb R^{K \times p}$: $\;\mathbf z = \mathbf W\mathbf x + \mathbf b$ &mdash; $K$ linear models side by side, one per class.
-
-</div>
-
-<img
-  src="./figures/linear_transformation.svg"
-  class="w-full h-[290px] object-contain"
-  alt="A 3-dimensional input vector is multiplied by a 2 by 3 weight matrix to produce a 2-dimensional output vector; GPU cores accelerate this computation through parallel processing"
-/>
-
-<!--
-One row of W = one linear model = one class score. Bold capital W for a whole matrix of weights (K x p): the notation of neural networks. The same object becomes a layer in block 3.
--->
-
----
-
-# More Than Two Classes: Softmax
-
-<PartTag part="model" />
-
-<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-2 items-center">
-
-<div class="text-[.78rem]">
-
-The $K$-output transformation from the previous slide gives one score per class:
-
-$$
-\mathbf z = \mathbf W\mathbf x + \mathbf b, \qquad \mathbf W \in \mathbb R^{K\times p}
-$$
-
-Softmax turns the scores into probabilities that sum to one:
-
-$$
-p_k = \text{softmax}(\mathbf z)_k = \frac{e^{z_k}}{\sum_{j=1}^K e^{z_j}}
-$$
-
-- the largest score gets the largest probability
-- only score **differences** matter
-- $K = 2$: softmax reduces to the sigmoid
-
-</div>
-
-<div>
-<SoftmaxBars />
-</div>
-
-</div>
-
-<!--
-Step 3 of block 2. Move one slider up: its bar grows, all others shrink - probabilities compete. Shift all sliders by the same amount: nothing changes (only differences matter).
--->
-
----
-
-# Binary Cross-Entropy Loss
+# Binary Cross Entropy
 
 <PartTag part="loss" />
 
@@ -1625,21 +1813,14 @@ Step 3 of block 2. Move one slider up: its bar grows, all others shrink - probab
 
 <div class="text-[.78rem]">
 
-For labels $y_i \in \{0, 1\}$ and predicted probabilities $p_i$:
+How wrong is $p_i = p(\text{vegetation})$ for label $y_i \in \{0, 1\}$?
 
 $$
 \mathcal{L}_{\text{BCE}} = -\frac{1}{N}\sum_{i=1}^N \Big[\, y_i \log p_i + (1 - y_i)\log(1 - p_i) \Big]
 $$
 
-- confident and right → loss ≈ 0
-- confident and wrong → loss grows without bound
-- equals the negative log-likelihood of a Bernoulli model
-
-<blockquote class="blockquote2 mt-3">
-
-With a sigmoid output, BCE gives a convex loss surface and a simple gradient: $\nabla_{\mathbf w}\mathcal{L} = \frac{1}{N}\sum_i (p_i - y_i)\,\mathbf{x}_i$
-
-</blockquote>
+- $-\log$ of the probability of the **true** class
+- confident & right → 0, confident & wrong → ∞
 
 </div>
 
@@ -1650,117 +1831,110 @@ With a sigmoid output, BCE gives a convex loss surface and a simple gradient: $\
 </div>
 
 <!--
+Start of the LOSS part of block 2 (model done: sigmoid / softmax output; next: fitting).
+Read the formula per pixel: if y = 1 (vegetation) only -log p remains, if y = 0 only -log(1 - p). Both are -log of the probability assigned to the true class - this is why we wanted log-probabilities on the previous slide.
+BCE is the negative log-likelihood of a Bernoulli model.
+With a sigmoid output, BCE gives a convex loss surface and a simple gradient: (1/N) sum_i (p_i - y_i) x_i.
 Compare with the MSE gradient: (prediction - target) * input again. MSE on top of a sigmoid would make the surface non-convex and the gradient vanish for confident mistakes, hence BCE for classification.
 Cross-entropy for many classes follows on the next slide.
 -->
 
 ---
 
-# Multiclass Cross-Entropy
+# Multi-Class Cross Entropy
 
 <PartTag part="loss" />
 
-<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-2 items-center">
+<div class="grid grid-cols-[1.15fr_1fr] gap-8 mt-2 items-start">
 
 <div class="text-[.78rem]">
 
-With one-hot labels $y_{ik}$ and softmax probabilities $p_{ik}$:
+**Binary:** two classes, vegetation and not vegetation
 
 $$
-\mathcal{L}_{\text{CE}} = -\frac{1}{N}\sum_{i=1}^N \sum_{k=1}^K y_{ik} \log p_{ik}
+\mathcal{L}_{\text{BCE}} = -\big[\, y \log p + (1 - y)\log(1 - p) \big]
 $$
 
-- only the probability of the **true** class counts: $-\log p_{i,\text{true}}$
-- $K = 2$: cross-entropy reduces to the BCE
-- e.g. land cover: water, forest, cropland, urban, …
+<div v-click="1">
 
-```python
-model = nn.Linear(p, K)                        # one score per class
-loss = nn.CrossEntropyLoss()(model(x), y)      # softmax inside
-```
+**Same thing as a sum over the 2 classes**, one-hot $\mathbf y = (y,\, 1-y)$, $\;\mathbf p = (p,\, 1-p)$:
+
+$$
+\mathcal{L}_{\text{BCE}} = -\sum_{k=1}^{2} y_k \log p_k
+$$
 
 </div>
 
-<div>
-<img src="./figures/cross_entropy.svg" class="w-full h-[300px] object-contain" alt="Cross-entropy compares a predicted class probability vector with the one-hot ground truth vector; a confident wrong prediction gives an exponentially large error" />
+<div v-click="2">
+
+**Multi-class:** just sum over all $K$ classes, $\mathbf p = \operatorname{softmax}(\mathbf z)$:
+
+$$
+\mathcal{L}_{\text{CE}} = -\sum_{k=1}^{K} y_k \log p_k = -\log p_{\text{true}}
+$$
+
+</div>
+
+</div>
+
+<div v-click="3" class="mt-2">
+
+<div class="text-[.74rem] mb-1">
+
+**Example:** a **vegetation** pixel, $\mathbf y = (0, 0, 1)$
+
+</div>
+
+<CrossEntropyViz />
+
 </div>
 
 </div>
 
 <!--
-Step 4 of block 2. In PyTorch, CrossEntropyLoss expects the raw scores (logits) and applies log-softmax internally - do not put a softmax layer in front of it.
+Build on the BCE: (1) BCE for one pixel. (2) Write the two terms as a sum over the two classes with the one-hot label (y, 1 - y) and probabilities (p, 1 - p) - nothing changes. (3) Now the sum generalises directly to K classes with softmax probabilities; for K = 2 it is exactly the BCE.
+Because y is one-hot, only one term survives: the loss is -log p of the true class, i.e. minus the log-softmax output from the previous slides. Average over all N pixels for the full loss.
+Example (right): bars = predicted probabilities, dashed frame = one-hot target. Only the true-class bar is read off on the -log p curve (shared p axis). Buttons: A = softmax from the demo slide, confident in urban -> loss 2.66; unsure (1/3 each) -> 1.10; B = confident and right -> 0.11. Click a class name to change the true class.
+In PyTorch, CrossEntropyLoss expects the raw scores (logits) and applies log-softmax internally - do not put a softmax layer in front of it.
 -->
 
 ---
 
-# Same Recipe for Logistic Regression
+# Logistic Regression in Weight Space
 
 <PartTag part="fitting" />
 
-<div class="grid grid-cols-2 gap-6 mt-4 text-[.78rem]">
+<div class="grid grid-cols-[1fr_1.45fr] gap-5 mt-2 items-center">
 
-<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-<div class="font-semibold text-blue-800 mb-2">linear regression + MSE</div>
-
-$$
-\hat y = \mathbf w^\top\mathbf x + b
-$$
+<div class="text-[.78rem]">
 
 $$
-\nabla_{\mathbf w}\mathcal L = \frac{1}{N}\sum_i (\hat y_i - y_i)\,\mathbf x_i
+p = \sigma(w_1 x_1 + w_2 x_2)
 $$
 
-setting it to zero is **solvable** → closed form
+- every model is a **point** $(w_1, w_2)$
+- each point → one decision boundary
+- which point has the lowest loss?
 
-</div>
+<div class="text-[.66rem] text-gray-500 mt-3 pl-2" style="border-left:3px solid #ff7900">
 
-<div class="rounded-xl border border-orange-200 bg-orange-50 p-4">
-<div class="font-semibold text-orange-700 mb-2">logistic regression + BCE</div>
-
-$$
-p = \sigma(\mathbf w^\top\mathbf x + b)
-$$
-
-$$
-\nabla_{\mathbf w}\mathcal L = \frac{1}{N}\sum_i (p_i - y_i)\,\mathbf x_i
-$$
-
-$p_i$ depends non-linearly on $\mathbf w$ → **no closed form**
+**Note:** no bias ($b = 0$), so every boundary $w_1 x_1 + w_2 x_2 = 0$ passes through the **origin** $(0, 0)$. A simplification: with only two weights, the whole loss surface fits in one 2D plot.
 
 </div>
 
 </div>
-
-<blockquote class="blockquote2 mt-5">
-The gradient has the same form: (prediction − target) × input. Gradient descent does not care whether a closed form exists &mdash; it only needs to evaluate this gradient.
-</blockquote>
-
-<!--
-Derivation of the BCE gradient follows with the chain rule in block 3 (backpropagation for logistic regression).
--->
-
----
-
-# Testing All Possible Weights
-
-<PartTag part="fitting" />
-
-<div class="grid grid-cols-[2.2fr_1fr] gap-6 mt-2 items-center">
 
 <div>
-<LogisticLossExplorer :init="[-7.5, 7.5]" :pins="[[-7.5, 7.5], [1, 1], [5, -5]]" />
-</div>
-
-<div class="text-[.72rem]">
-<blockquote class="blockquote4">model 1: boundary flipped, every sample confidently wrong → high loss</blockquote>
-<blockquote class="blockquote1 mt-3">model 2: small weights, class 0 on the wrong side but not confident → loss ≈ 1.2</blockquote>
-<blockquote class="blockquote2 mt-3">model 3: classes separated and confident → loss ≈ 0</blockquote>
+<LogisticLossExplorer :init="[2, -1.5]" />
 </div>
 
 </div>
 
 <!--
-Click the three model buttons, then hover freely. Note the large yellow plateau in the lower right: many weights are (almost) perfect.
+Start of FITTING: two features, two weights, no bias - small enough to see the whole parameter space.
+Hover the surface and watch the boundary rotate and the orange/blue shading sharpen: a larger weight norm = steeper sigmoid = more confident probabilities.
+p = 0.5 where w1 x1 + w2 x2 = 0: the decision boundary is a line through the origin.
+In PyTorch: nn.Sequential(nn.Linear(2, 1, bias=False), nn.Sigmoid()).
 -->
 
 ---
@@ -1780,27 +1954,26 @@ layout: bonn-two-cols-header
 <span>→</span>
 <span class="rounded bg-blue-800 text-white px-2 py-1">no closed form</span>
 <span>→</span>
-<span class="rounded bg-orange-500 text-white px-2 py-1">GD still works</span>
+<span class="rounded bg-orange-500 text-white px-2 py-1">Gradient Descent still works</span>
 </div>
 
-- on separable data the loss keeps shrinking as $\lVert\mathbf w\rVert \to \infty$: the sigmoid becomes a step
-- the surface is still **convex**: there are no bad valleys to get stuck in
-- but it has **flat regions**, where the gradient is tiny and progress is slow
-
-<blockquote class="blockquote1 mt-4">
-In practice we stop early or add regularization (weight decay) to keep the weights finite.
-</blockquote>
+- **convex**: no bad valleys
+- **flat region**: larger weights keep lowering the loss a little
+- in practice: stop early or use weight decay
 
 </div>
 
 ::right::
 
 <div class="flex justify-center">
-<LossSurface3D surface="log-bce" :width="360" :height="300" :yaw="0.9" :pitch="0.4" :auto-rotate="false" />
+<LossSurface3D surface="log-bce" :range="30" :mark-flat="0.02" :width="380" :height="310" :yaw="0.9" :pitch="0.45" :auto-rotate="false" />
 </div>
 
 <!--
-Replaces the rotating 3D video. Rotate so the plateau (yellow, near zero loss) and the steep wall (confidently wrong models) are both visible.
+Rotate so the flat plateau (orange, loss near zero) and the steep wall (confidently wrong models) are both visible.
+On separable data the loss keeps shrinking as ||w|| -> infinity: the sigmoid becomes a step, so there is no single minimum and no closed form.
+The surface is still convex - no bad valleys - so gradient descent works, but in the flat region the gradient is tiny and progress is slow.
+In practice we stop early or add regularization (weight decay) to keep the weights finite.
 -->
 
 ---
@@ -1811,7 +1984,7 @@ Replaces the rotating 3D video. Rotate so the plateau (yellow, near zero loss) a
 
 <div class="text-[.76rem] -mt-1">
 
-Full-batch gradient descent on the BCE, starting with a flipped boundary at $\mathbf w = (-7, 7)$. Press **run**, then try other learning rates or click the surface to start elsewhere.
+Start with a wrong boundary at $\mathbf w = (-7, 7)$ and press **run**.
 
 </div>
 
@@ -1820,18 +1993,20 @@ Full-batch gradient descent on the BCE, starting with a flipped boundary at $\ma
 </div>
 
 <blockquote class="blockquote1 mt-2 text-[.72rem]">
-Confidently wrong samples give a constant gradient: the loss falls in a straight line. On the yellow plateau progress crawls &mdash; the loss never quite reaches zero.
+Steep wall → fast progress. Flat plateau → slow progress; the loss never reaches zero.
 </blockquote>
 
 <!--
 Same setup as the course notebook (logistic_regression.py): 20 samples per class from N((-1,3), 0.5 I) and N((3,-2), 0.5 I), no bias, mean BCE, SGD lr 0.1, 150 epochs, start (-7, 7).
 eta = 0.1: converged region after ~40 epochs. eta = 0.01: still far up the wall after 150 epochs. eta = 1: ten times faster, no instability here because the surface is so flat.
 The dashed grey line in the training curve is the rest of the run.
+Full-batch gradient descent on the BCE. Try other learning rates or click the surface to start elsewhere.
+Confidently wrong samples give a constant gradient, so the loss first falls in a straight line; on the plateau progress crawls.
 -->
 
 ---
 
-# Gradient Descent: Role of Momentum
+# Momentum accelerates Gradient Descent
 
 <PartTag part="fitting" />
 
@@ -1861,34 +2036,34 @@ Momentum (and Adam) are the standard optimizers for the deep networks in block 3
 
 ---
 
-# Back to Real Data: Land Cover
+# Regularization through Weight Decay
 
-<PartTag part="data" />
+<PartTag part="fitting" />
 
-<div class="mt-4">
-  <LinearDecisionBoundaryDemo />
+<div class="-mt-3 mb-1 mx-auto w-fit px-5 py-1 rounded-md" style="background:#eef5fa; border-left:5px solid #00457c;">
+<div class="text-[.95rem]">
+
+$\displaystyle \mathcal L(\mathbf w) = \mathcal L_{\text{BCE}}(\mathbf w) + \lambda\, R(\mathbf w), \qquad R(\mathbf w) = \tfrac{1}{2}\lVert \mathbf w\rVert^2$
+
+</div>
+<div class="text-center text-[.65rem] text-gray-500 -mt-1">the penalty removes the flat plateau: there is exactly <strong>one</strong> optimum</div>
+</div>
+
+<RegularizedLoss3D :height="262" />
+
+<div class="absolute right-[40px] top-[60px] w-[120px] text-center">
+  <img src="./figures/william_of_ockham.png" class="w-[78px] mx-auto rounded shadow" alt="William of Ockham, stained glass window" />
+  <div class="text-[.6rem] leading-tight mt-1" style="color:#00457c"><strong>Occam's razor:</strong> prefer the simpler model, here: <strong>smaller weights</strong></div>
+  <div class="figure-copyright" style="font-size:.4rem;line-height:1.1;margin-top:2px">William of Ockham, stained glass. Moscarlop, CC BY-SA 3.0, Wikimedia Commons</div>
 </div>
 
 <!--
-Feature space recap: NDVI vs. Green reflectance for 759 land-cover samples.
-Drag the two handles to reshape the line and watch w1, w2, b update live.
-This is the linear score w^T x + b; the sigmoid (logistic regression) comes next.
--->
-
----
-
-# Logistic Regression on Land Cover
-
-<PartTag part="data" />
-
-<div class="mt-4">
-  <LogisticRegressionDemo />
-</div>
-
-<!--
-Same feature space and boundary mechanic as the previous slide, but the linear score
-z = w^T x + b is now passed through the sigmoid to become a probability P(y=1|x).
-The boundary itself does not move: z = 0 is still exactly where P = 0.5.
+The BCE surface from the previous slides has a flat plateau: on separable data, larger weights keep lowering the loss a little, so there is no single minimum and the weights would grow forever.
+Weight decay adds a penalty lambda/2 ||w||^2 - a bowl centred at w = 0 (toggle "penalty"). Their sum (toggle "loss + penalty") bends the plateau up again: one clear minimum at moderate weights, here around w = (0.9, -1.0) for lambda = 0.05.
+Slider: larger lambda = stronger pull towards zero = smaller weights = flatter sigmoid (less over-confident). lambda = 0 gives back the plain BCE.
+"Run gradient descent": SGD with momentum 0.9 on the regularised objective, starting from the wrong boundary at (-15, 15). It slides down the wall and then settles in the minimum instead of creeping along the plateau.
+In PyTorch the penalty is the weight_decay argument of the optimizer: the gradient gets + lambda * w.
+Code: torch.optim.SGD(model.parameters(), lr=0.3, momentum=0.9, weight_decay=lam)
 -->
 
 ---
@@ -1899,11 +2074,10 @@ The boundary itself does not move: z = 0 is still exactly where P = 0.5.
 
 | | Linear regression | Logistic regression |
 |---|---|---|
-| **Model core** | $\mathbf W\mathbf x + \mathbf b$ | $\mathbf W\mathbf x + \mathbf b$ |
+| **Model** | $\mathbf W\mathbf x + \mathbf b$ | $\sigma(\mathbf W\mathbf x + \mathbf b)$ |
 | **Output** | continuous value | class probability |
-| **Output function** | identity | sigmoid or softmax |
 | **Typical loss** | MSE | cross-entropy |
-| **Optimization** | closed form possible | gradient-based optimization |
+| **Finding the weights** | closed-form solution in one step | gradient descent (+ regularization) |
 
 </div>
 
@@ -1924,339 +2098,254 @@ sectionTitle: "Multilayer Perceptrons"
 
 # Multilayer Perceptrons
 
-<img class="bonn-section-image-sm" src="./figures/mlp_cover.svg" alt="An illustration of a multilayer perceptron neural network" />
+<div class="bonn-section-image" style="grid-row: 1; align-self: center; justify-self: center; position: relative; width: 420px; height: 360px;" role="img" aria-label="Biological neurons (top left) and a 2-3-2 multilayer perceptron graph (bottom right), separated by a diagonal line">
+  <div style="position: absolute; left: 0; top: 0; width: 250px; height: 200px;"><BiologicalNeurons plain /></div>
+  <svg style="position: absolute; inset: 0; width: 100%; height: 100%;" viewBox="0 0 420 360"><line x1="40" y1="350" x2="410" y2="40" stroke="#00457c" stroke-width="2" /></svg>
+  <div style="position: absolute; right: 0; bottom: 0; width: 250px; height: 170px;"><LayerGraph plain :layers="[{ title: '', sym: 'x', n: 2 }, { title: '', sym: 'h', n: 3 }, { title: '', sym: 'y', n: 2 }]" /></div>
+</div>
 
 <!--
 Block 3: learning the representation. From linear decisions on fixed features to learned feature-space transformations.
 An MLP = stacked linear regressions with non-linear activations, ending in a linear (regression) or logistic/softmax (classification) head.
 -->
 
+
 ---
-
-# What happens when we combine multiple learned transformations?
-
-<div class="mt-3 text-[.66rem] block-roadmap">
-
-|  | Block 3 — Multilayer Perceptrons | Main idea |
-|---|---|---|
-| 1 | Biological neurons | conceptual inspiration |
-| 2 | Artificial neuron | weighted sum + activation |
-| 3 | Many neurons form a layer | an $M \to N$ map: matrix multiplication and its geometry |
-| 4 | Many layers form a network | stacked transformations |
-| 5 | Why non-linear activations? | stacked linear maps collapse |
-| 6 | Hidden layers | learned intermediate representations |
-| 7 | Depth | composition of increasingly abstract representations |
-| 8 | Backpropagation | gradients flow layer by layer |
-
-</div>
-
-<div class="mt-2 text-[.66rem] text-gray-600"><strong>Model:</strong> steps 1–7 &nbsp;→&nbsp; <strong>Loss:</strong> as in block 2 &nbsp;→&nbsp; <strong>Fitting:</strong> step 8</div>
-
-<!--
-Central question of block 3. Key message: stacking linear layers alone does not make a model more expressive - the non-linear activations do.
--->
-
+layout: bonn-two-cols-header
 ---
 
 # Biological Interpretation of Adding Signals
 
 <PartTag part="model" />
 
-<img
-  src="./figures/biological_interpretation.svg"
-  class="w-full h-[360px] object-contain"
-/>
+::left::
+
+<div class="h-[320px] mt-4">
+  <BiologicalNeurons />
+</div>
+
+::right::
+
+<div class="mt-10">
+
+In **1943**, Warren McCulloch and Walter Pitts proposed the **binary artificial neuron** as a logical model of biological neural networks.
+
+- **dendrites** collect the input signals $x_i$
+- the **cell body** adds them up: $\sum_i w_i x_i$
+- the neuron **fires** ($y = 1$) if the sum exceeds a threshold
+
+Each output of $\mathbf y = \mathbf W\mathbf x$ is one such neuron, without the threshold.
+
+</div>
+
+<div class="figure-copyright">
+Neuron drawings adapted from <a href="https://en.wikipedia.org/wiki/Neuron">Wikipedia</a> by Hariadhi, own work.<br>
+W. S. McCulloch and W. Pitts (1943): A logical calculus of the ideas immanent in nervous activity. <i>Bulletin of Mathematical Biophysics</i> 5, 115–133.
+</div>
 
 ---
 
-# Activation Functions – Biological Interpretation
+# The McCulloch & Pitts Neuron (1943)
+
+## Networks like neurons can **compute any logical function**.
 
 <PartTag part="model" />
 
-<img
-  src="./figures/biological_interpretation_activation_functions.svg"
-  class="w-full h-[360px] object-contain"
-/>
+<div class="absolute right-[40px] top-[60px] flex gap-3 text-center">
+  <div>
+    <img src="./figures/warren_mcculloch.jpg" class="h-[78px] mx-auto rounded shadow" alt="Portrait of Warren McCulloch at a blackboard" />
+    <div class="text-[.55rem] leading-tight mt-1" style="color:#00457c"><strong>Warren McCulloch</strong><br>1898–1969</div>
+  </div>
+  <div>
+    <img src="./figures/walter_pitts.jpg" class="h-[78px] mx-auto rounded shadow" alt="Portrait of Walter Pitts in front of a blackboard, 1954" />
+    <div class="text-[.55rem] leading-tight mt-1" style="color:#00457c"><strong>Walter Pitts</strong><br>1923–1969</div>
+  </div>
+</div>
 
+<div class="grid grid-cols-[1.15fr_1fr] gap-6 mt-3 items-center">
 
----
-
-# An Artificial Neuron
-
-<PartTag part="model" />
-
-<div class="grid grid-cols-[1.25fr_1fr] gap-6 mt-3 items-center">
-
-<div>
-<NeuronDiagram />
+<div class="h-[300px]">
+  <McCullochPittsNeuron />
 </div>
 
 <div class="text-[.78rem]">
 
+**McCulloch & Pitts:** binary inputs, a weighted sum and a **threshold** θ
+
 $$
-a = \text{act}\left(\mathbf w^\top\mathbf x + b\right)
+y = \begin{cases} 1 & \text{if } \sum_i w_i x_i \ge \theta \\ 0 & \text{otherwise} \end{cases}
 $$
 
-- the weighted sum is a **block 1** transformation $\mathbb R^p \to \mathbb R$
-- the activation is the **block 2** idea: a non-linear output function
+- the threshold acts as a bias $b = -\theta$
+- weights set **by hand** (e.g. AND / OR), no learning
 
-<blockquote class="blockquote2 mt-3">
-With a sigmoid activation, one neuron <strong>is</strong> logistic regression.
-</blockquote>
 
 </div>
 
 </div>
+
+<div class="figure-copyright">McCulloch: University of Illinois Archives. Pitts (1954): Francis Bello, public domain, Wikimedia Commons.</div>
 
 <!--
 Step 2 of block 3. Compare to the biological picture: inputs = dendrites, weighted sum = integration in the cell body, activation = firing rate.
 -->
 
 ---
+layout: bonn-two-cols-header
+---
 
-# Many Neurons Form a Layer
+# Recap Logistic Regression
+
+## Logistic regression is the same neuron with a smooth activation.
 
 <PartTag part="model" />
 
-<div class="grid grid-cols-[1fr_1.1fr] gap-6 mt-3 items-center">
+::left::
+
+<div class="h-[260px] mt-6">
+  <LogisticGraph static />
+</div>
+
+::right::
 
 <div class="text-[.78rem]">
 
-$K$ neurons that see the same input = $K$ rows of a weight matrix:
+**Logistic regression (block 2):** the same neuron, with a **sigmoid** instead of the step
 
 $$
-\mathbf h = \text{act}\left(\mathbf W\mathbf x + \mathbf b\right), \qquad \mathbf W \in \mathbb R^{K\times p}
+p = \sigma\left(\mathbf w^\top\mathbf x + b\right)
 $$
 
-- the $K$-output map from block 2 (one row per neuron), now feeding the next layer
-- the activation is applied to every output separately
-- the layer maps the input into a new $K$-dimensional representation $\mathbf h$
-
-```python
-layer = nn.Sequential(nn.Linear(p, K), nn.ReLU())
-```
-
-</div>
-
-<div>
-<img src="./figures/linear_transformation_bias.svg" class="w-full h-[280px] object-contain" alt="A weight matrix with bias maps a 3-dimensional input vector to a 2-dimensional output vector" />
-</div>
-
-</div>
-
-<!--
-Step 3 of block 3: recall the K-output map from block 2 plus the per-output activation. The next slides show what such M -> N maps do geometrically.
--->
-
----
-
-# One Sample or a Whole Dataset
-
-<PartTag part="model" />
-
-<div class="grid grid-cols-2 gap-6 mt-4 text-[.78rem]">
-
-<div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-<div class="font-semibold text-blue-800 mb-2">one sample: column vectors</div>
-
-$$
-\underbrace{\hat{\mathbf y}}_{K} = \underbrace{\mathbf W}_{K\times p}\,\underbrace{\mathbf x}_{p} + \underbrace{\mathbf b}_{K}
-$$
-
-the notation on the slides and in most textbooks
-
-</div>
-
-<div class="rounded-xl border border-gray-300 p-4">
-<div class="font-semibold text-blue-800 mb-2"><em>n</em> samples: one row per sample</div>
-
-$$
-\underbrace{\hat{\mathbf Y}}_{n\times K} = \underbrace{\mathbf X}_{n\times p}\,\underbrace{\mathbf W^\top}_{p\times K} + \mathbf b^\top
-$$
-
-the bias row is added to every sample
-
-</div>
-
-</div>
-
-```python
-layer = nn.Linear(in_features=p, out_features=K)   # stores W (K x p) and b (K)
-Y_hat = layer(X)                                   # X: (n, p) -> Y_hat: (n, K), computes X @ W.T + b
-```
-
-<!--
-Same map, two bookkeeping conventions. For K = 1 the batch version is exactly y = Xw + b from block 1.
--->
-
----
-
-# Linear Transformation from 3D to 2D
-
-<PartTag part="model" />
-
-<div class="grid grid-cols-2 gap-4 mt-2 items-center">
-
-<img
-  src="./figures/linear_transformation_2-3D.svg"
-  class="w-full h-[360px] object-contain"
-  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
-/>
-
-<video
-  src="./figures/2d_plot.mov"
-  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
-  autoplay loop muted playsinline controls
-/>
-
-</div>
-
-<!--
-The same W is applied to every data point: X W^T maps a whole point cloud from 3D to 2D. A layer with two neurons does exactly this (before its activation).
--->
-
----
-
-# Linear Transformation from 2D to 3D
-
-<PartTag part="model" />
-
-<div class="grid grid-cols-2 gap-4 mt-2 items-center">
-
-<img
-  src="./figures/linear_projection_2d_to_3d.svg"
-  class="w-full h-[360px] object-contain"
-  alt="A 3 by 2 weight matrix maps each two-dimensional input point to a three-dimensional output point"
-/>
-
-<video
-  src="./figures/3d_plot.mov"
-  class="w-full h-[360px] rounded-lg border border-gray-200 object-contain bg-black"
-  autoplay loop muted playsinline controls
-/>
-
-</div>
-
-<!--
-Mapping to more dimensions than we started with: the points stay on a 2D plane inside 3D. This is what a wider hidden layer does - before the non-linearity bends that plane.
--->
-
----
-
-# Linear Alebra: Stacking Layers
-
-<PartTag part="model" />
-
-## A 2D→3D Linear Projection moves data into 3D representation space
-
-<div class="grid grid-cols-2 gap-4 mt-4 items-center">
-
-<img
-  src="./figures/2d-3d-figure-lef.svg"
-  class="w-full h-[260px] object-contain"
-/>
-
-<img
-  src="./figures/2d-3d-figure.svg"
-  class="w-full h-[260px] object-contain"
-/>
-
-</div>
-
----
-
-# Linear Alebra: Stacking Layers
-
-<PartTag part="model" />
-
-## Two Linear projections 2D→3D→2D in a 2-Layer network
-
-<div class="grid grid-cols-2 gap-4 mt-4 items-center">
-
-<img
-  src="./figures/2d-3d-2d-figure-left.svg"
-  class="w-full h-[260px] object-contain"
-/>
-
-<img
-  src="./figures/2d-3d-2d-figure.svg"
-  class="w-full h-[260px] object-contain"
-/>
-
-</div>
-
-
----
-
-# Linear Alebra: Stacking Layers
-
-<PartTag part="model" />
-
-## Two Linear projections 2D→3D→2D without non-linearity is a single 2D → 2D projection
-
-<div class="grid grid-cols-2 gap-4 mt-4 items-center">
-
-<img
-  src="./figures/2d-2d-figure-left.png"
-  class="w-full h-[260px] object-contain"
-/>
-
-
-<img
-  src="./figures/2d-2d-figure.svg"
-  class="w-full h-[260px] object-contain"
-/>
-
-</div>
-
----
-
-# Linear Alebra: Stacking Layers
-
-<PartTag part="model" />
-## Non-linear functions like ReLU are needed to transform feature space
-
-<div class="grid grid-cols-2 gap-4 mt-4 items-center">
-
-<img
-  src="./figures/relu.svg"
-  class="w-full h-[260px] object-contain"
-/>
-
-
-<video
-  src="./figures/relu.mov"
-  class="w-full h-[250px] rounded-lg border border-gray-200 object-contain bg-black"
-  autoplay loop muted playsinline controls
-/>
-
-</div>
-
----
-
-# From Fixed to Learned Features
-
-<PartTag part="model" />
-
-<div class="mt-2">
-<ModelHeadDiagram :clicks="$clicks" />
-</div>
-
-<div v-click="1" class="text-[.75rem] mt-1">
-<blockquote class="blockquote2">
-
-An MLP for regression or classification ends in exactly these two heads. What changes now is **what the head sees**: a learned representation $\mathbf h$ instead of hand-built features $\mathbf x$. The loss surface gets far more complex, so gradient descent is the only option.
-
+- same weighted sum, the threshold is the bias $b$
+- at $z = 0$: step jumps, sigmoid gives $p = 0.5$
+- output: a **probability** instead of 0 or 1
+- weights **learned** by gradient descent, not set by hand
+
+<blockquote class="blockquote2 mt-3">
+The sigmoid has a gradient, the step does not: that is what makes learning possible.
 </blockquote>
+
 </div>
 
 <!--
-Key bridge into block 3. Blocks 1-2: representation fixed (built from the data cube), only the head is learned. MLP: representation and head are learned jointly, end to end, with the same losses (MSE, BCE / cross-entropy) and the same optimizer (gradient descent).
+Bridge from block 2: logistic regression is a McCulloch-Pitts neuron with the step replaced by a sigmoid.
+The step is flat almost everywhere (gradient 0), so gradient descent cannot learn its weights - the sigmoid can.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Going Deeper with Logistic Regressions
+
+## Stack logistic regressions: the outputs of one layer are the inputs of the next.
+
+<PartTag part="model" />
+
+::left::
+
+<div class="h-[300px]">
+  <StackedLogisticGraph />
+</div>
+
+::right::
+
+<div class="text-[.78rem]">
+
+**Hidden layer:** $\mathbf h = \sigma\left(\mathbf W_1\mathbf x\right)$, logistic regressions on $\mathbf x$
+
+**Output layer:** $p = \sigma\left(\mathbf w_2^\top\mathbf h\right)$, a logistic regression on $\mathbf h$
+
+<div class="mt-3">
+  <MlpCodeEditor />
+</div>
+
+</div>
+
+<!--
+Extend the recap: put several logistic regressions side by side (hidden layer), then one more logistic regression on top of their outputs (output layer).
+Each hidden neuron draws its own boundary in the input space; the output combines them - more complex decisions than one straight line.
+This is a 2-layer neural network / multilayer perceptron; the next slides formalise layers as matrix operations.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Activation Functions beyond Sigmoid/Logistic
+
+<PartTag part="model" />
+
+::left::
+
+<ActivationFunctions />
+
+::right::
+
+<div class="text-[.64rem]">
+
+| | $f(z)$ | PyTorch | used in |
+|---|---|---|---|
+| **sigmoid** | $\frac{1}{1+e^{-z}}$ | `nn.Sigmoid()` | outputs |
+| **tanh** | $\frac{e^{z}-e^{-z}}{e^{z}+e^{-z}}$ | `nn.Tanh()` | RNNs |
+| **ReLU** | $\max(0, z)$ | `nn.ReLU()` | CNNs|
+| **GELU** | $z\,\Phi(z)$ | `nn.GELU()` | Transformers |
+| **Leaky ReLU** | $\max(0.1z, z)$ | `nn.LeakyReLU(0.1)` | GANs, CNNs |
+| **sine** | $\sin(\omega_0 z)$ | `torch.sin(30*z)` | implicit neural repr. |
+
+</div>
+
+<!--
+Sigmoid and tanh saturate: the sigmoid's gradient is at most 0.25 and vanishes for large |z|, so deep sigmoid networks learn slowly (vanishing gradients).
+ReLU (Nair & Hinton 2010; AlexNet 2012): gradient 1 for z > 0, cheap to compute - the default for hidden layers.
+GELU (Hendrycks & Gimpel 2016): smooth ReLU, z times the standard normal CDF; used in BERT and GPT.
+Leaky ReLU keeps a small slope for z < 0 so neurons cannot "die". Sine (SIREN, Sitzmann et al. 2020): periodic activation for implicit neural representations (images, shapes, signals as continuous functions of coordinates); no built-in module - write a small Sine module with torch.sin(omega0 * x), omega0 = 30. The demos accept Sine(). Others: SiLU/Swish (z * sigmoid(z)), softplus, ELU.
+Why non-linear at all: W2 (W1 x) = (W2 W1) x - without activation, depth adds nothing.
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# Why Non-Linear Activations?
+
+## Without activations, stacked layers stay linear.
+
+<PartTag part="model" />
+
+::left::
+
+<BendingFeatureSpace />
+
+::right::
+
+<div class="text-[.78rem] mt-8">
+
+**Without activation:** layers collapse into one
+
+$$
+\mathbf W_2\mathbf W_1\mathbf x = \mathbf W\mathbf x
+$$
+
+**With activation:** the space **bends**
+
+<blockquote class="blockquote2 mt-4">
+Bending makes the classes linearly separable.
+</blockquote>
+
+</div>
+
+<!--
+Network 2 -> 6 -> 2 with the same weights in all three settings; only the activation changes. The "transform" slider only morphs the picture from input (0) to output (1).
+Red disk inside a green ring: no straight line separates them in the input space.
+No activation: W2 W1 collapses everything onto one line - red and green overlap, still not separable.
+tanh: the grid bends, the disk is pulled below the ring - the dashed line separates them. ReLU: the space is folded, the whole disk lands on one point.
+The six hidden units detect "outside the hexagon" in six directions; the second layer adds them up. Next slide: step through these layers in the trainable demo.
 -->
 
 ---
 
-# More layers → more complex transformations
+# More layers → data becomes linearly separable
 
 <PartTag part="model" />
 
@@ -2278,283 +2367,417 @@ Inspired by Andrej Karpathy's <a href="https://cs.stanford.edu/people/karpathy/c
 </div>
 
 ---
+layout: bonn-two-cols-header
+hide: true
+---
 
-# Multi-Layer Perceptron - Implementation
+# Universal Function Approximators
+
+## One hidden layer with enough neurons can approximate any continuous function.
 
 <PartTag part="model" />
 
-<div class="grid grid-cols-2 gap-4 mt-4 items-center">
+::left::
 
-<img
-  src="./figures/MLP_summary.svg"
-  class="w-full h-[260px] object-contain"
-/>
+<UniversalApprox />
 
-<style>
-.mlp-impl-code pre { font-size: 9.5px !important; line-height: 1.4 !important; }
-</style>
+::right::
 
-<div class="mlp-impl-code">
+<div class="text-[.78rem] mt-4">
 
-```python
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
+$$
+f(x) \approx \sum_{j=1}^{N} v_j\,\text{act}\left(w_j x + b_j\right)
+$$
 
-class MLPClassifier(nn.Module):
-    def __init__(
-        self, input_dim, hidden_dim, num_classes
-    ):
-        super(MLPClassifier, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim)
-        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
-        self.fc3 = nn.Linear(hidden_dim, num_classes)
+- each ReLU neuron adds one **kink**
+- more neurons: smaller error
 
-    def forward(self, x):
-        x = F.relu(self.fc1(x))      # 1st layer ReLU
-        x = F.relu(self.fc2(x))      # 2nd layer ReLU
-        x = F.sigmoid(self.fc3(x))   # Output (probs)
-        return x
-```
+**But:**
+
+- says the weights **exist**, not how to **find** them
+- may need very many neurons: depth is more efficient
+- fitting the training data is not generalising
 
 </div>
 
+<div class="figure-copyright">
+G. Cybenko (1989): Approximation by superpositions of a sigmoidal function. <i>Math. Control Signals Systems</i> 2. K. Hornik, M. Stinchcombe, H. White (1989): Multilayer feedforward networks are universal approximators. <i>Neural Networks</i> 2(5).
 </div>
 
+<!--
+Universal approximation theorem (Cybenko 1989 for sigmoids; Hornik, Stinchcombe & White 1989 for any squashing function; Leshno et al. 1993 for any non-polynomial activation incl. ReLU).
+Demo (regression): one hidden layer of ReLU neurons (1-256, default 16) + linear output, trained live with MSE (Adam). Starts with 8 random points; press train and watch the green curve bend through them - piecewise linear, one kink per neuron ("show neurons" marks the kinks). Click to add points anywhere (or "clear" and draw your own data): with enough neurons the network fits any shape. Try 1 or 2 neurons: too few kinks to follow the points.
+Same idea with sigmoids: steep sigmoid = step, two steps = a bar, many bars = histogram of the function.
+Caveats: existence only - gradient descent may not find these weights; the number of neurons can grow exponentially, deep networks are often far more parameter-efficient (Telgarsky 2016); approximating the training data is not the same as generalising (overfitting, regularisation from block 2).
+-->
+
+---
+layout: bonn-two-cols-header
+---
+
+# More Parameters → Harder Optimization
+
+<PartTag part="loss" />
+
+## Deep networks have rugged loss landscapes: many local minima, saddle points and plateaus.
+
+::left::
+
+<div class="text-center">
+<img src="./figures/loss_landscape_noshort.png" class="w-full h-[240px] object-contain" alt="3D loss surface of a ResNet-56 without skip connections: a rugged landscape with many peaks, valleys and local minima" />
+<div class="text-[.65rem] text-gray-500 mt-1">ResNet-56 without skip connections</div>
+</div>
+
+::right::
+
+<div class="text-center">
+<img src="./figures/loss_landscape_resnet110_noshort.png" class="w-full h-[240px] object-contain" alt="3D loss surface of a ResNet-110 without skip connections: chaotic, with many local minima and steep walls" />
+<div class="text-[.65rem] text-gray-500 mt-1">ResNet-110 without skip connections</div>
+</div>
+
+<div class="figure-copyright">
+Figures: H. Li, Z. Xu, G. Taylor, C. Studer, T. Goldstein, <a href="https://ar5iv.labs.arxiv.org/html/1712.09913" target="_blank" rel="noopener noreferrer"><em>Visualizing the Loss Landscape of Neural Nets</em></a>, NeurIPS 2018.
+</div>
+
+<!--
+Moved here from block 1 ("Real Problems, Rugged Loss Landscapes", now hidden there).
+Every extra neuron adds parameters: the loss lives in a space with millions of dimensions. These are 2D slices (two random, filter-normalized directions) through the loss of real image classifiers.
+Consequence: no closed form, and no certainty that we found the best minimum - gradient descent only uses local information and settles in a "good enough" minimum.
+(In the paper, adding skip connections makes these surfaces much smoother - one reason ResNets train well.)
+-->
 
 ---
 
-# Depth: Composing Representations
+# Backpropagation and Parameter Update
 
-<PartTag part="model" />
+<PartTag part="fitting" />
 
-<div class="grid grid-cols-[1fr_1.15fr] gap-6 mt-3 items-center">
+## Backpropagation computes the gradients, gradient descent uses them.
 
-<div class="text-[.78rem]">
+<div class="grid grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-4 mt-4 items-center">
 
-A deep network is a composition of layers:
+<div class="text-[.64rem] bp-table">
 
-$$
-\hat{\mathbf y} = f_L\big(\cdots f_2\big(f_1(\mathbf x)\big)\big), \qquad f_\ell(\mathbf h) = \text{act}(\mathbf W_\ell \mathbf h + \mathbf b_\ell)
-$$
-
-- every layer re-represents the output of the previous one
-- early layers: simple patterns in the raw input (e.g. edges, spectral contrasts)
-- later layers: combinations of those patterns &mdash; increasingly **abstract** representations
-- the last layer is still the linear / logistic head of blocks 1–2
+| | | PyTorch |
+|---|---|---|
+| **1 · Forward pass** | $\hat y = f_{\mathbf W}(\mathbf x)$ | `y_pred = model(x)` |
+| **2 · Loss** | $L(\hat y, y)$ | `loss = mse(y_pred, y)` |
+| **3 · Backward pass** | $\partial L / \partial \mathbf W$ | `loss.backward()` |
+| **4 · Update** | $\mathbf W \leftarrow \mathbf W - \eta\,\partial L / \partial \mathbf W$ | `optimizer.step()` |
 
 </div>
 
 <div>
-<img src="./figures/model.svg" class="w-full h-[300px] object-contain" alt="A deep learning model transforms an input tensor through several layers into an output tensor" />
+  <BackpropSteps :step="0" />
 </div>
 
 </div>
 
-<!--
-Step 7 of block 3 (borrowed from Lecture 5). Lecture 5 picks this up: why learned representations work and which architectures build them for images and time series.
--->
-
----
-
-# Learning Feature Representations
-
-<PartTag part="model" />
-
-<img
-  src="./figures/feature_learning.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Training data guides a deep learning model to learn feature representations for classification"
-/>
-
-<!--
-Step 7 of block 3 (from Lecture 5): feature learning and a simple classifier are trained together, end to end. The "simple classifier" is the logistic regression of block 2.
--->
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: multilayer-perceptrons
----
-
-# Training an MLP: Gradient Descent &amp; Backpropagation
-
-<!--
-Learning the parameters of every layer: parameters -> prediction -> loss -> gradient -> update.
-Same recipe as for logistic regression; backpropagation makes the gradients cheap to compute for many layers.
--->
-
----
-
-# Training: Adjusting Weights to Minimize Loss
-
-<PartTag part="loss" />
-
-## Finding good parameters W
-
-<img
-  src="./figures/Loss-weights.svg"
-  class="w-full h-[360px] object-contain"
-  alt="A training dataset passes through the model f(x;W) to produce predictions, which are compared against the true labels by a loss function; the weights W are adjusted to minimize this loss"
-/>
-
----
-
-# Gradient Descent on Mini-Batches
-
-<PartTag part="fitting" />
-
-<img
-  src="./figures/gradient_descent2.png"
-  class="w-full h-[360px] object-contain"
-/>
-
----
-
-# More Complex Models, More Complex Loss Surfaces
-
-<PartTag part="fitting" />
-
-<img
-  src="./figures/loss_surface.png"
-  class="w-full h-[360px] object-contain"
-/>
-
-
----
-
-# Gradient Descent vs Backpropagation
-
-<PartTag part="fitting" />
-
-<div class="grid grid-cols-2 gap-5 mt-4 text-[.8rem]">
-  <div class="rounded-xl border border-blue-200 bg-blue-50 p-4">
-    <div class="font-semibold text-blue-900 mb-2">Gradient Descent</div>
-    <div>How to update parameters once gradients are known.</div>
-    <img src="./figures/grad_descent_image.png"/>
-  </div>
-  <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-    <div class="font-semibold text-emerald-900 mb-2">Backpropagation</div>
-    <div>How to compute gradients efficiently through many layers.</div>
-    <img src="./figures/backprop_6.svg"/>
-  </div>
-</div>
-
-<div class="mt-4 text-[.72rem] text-gray-600">Backprop gives the gradients; gradient descent uses them to step the parameters.</div>
+<style>
+.bp-table td, .bp-table th { white-space: nowrap; padding-left: .3rem; padding-right: .3rem; }
+.bp-table td code { font-size: .58rem; }
+</style>
 
 <!--
 Clarify the common confusion: optimization rule vs gradient-computation algorithm.
+Big picture before the maths: one training step has four stages. Forward pass and loss are needed by both.
+Backpropagation (step 3) is only the efficient way to get dL/dW for every weight - the chain rule applied from the output back to the input, reusing each layer's gradient.
+Gradient descent (step 4) is the update rule; it does not care how the gradients were computed (momentum, Adam, ... only change this step).
+Same colours as the next slide: red = gradients (backward), green = updated weights. The next slide walks through exactly these four stages with numbers.
 -->
 
 ---
-clicks: 2
+
+# Backpropagation: Step by Step
+
+<PartTag part="fitting" />
+
+<div class="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-8 mt-2 items-start">
+
+<div class="text-[.7rem]">
+
+<div v-if="$clicks > 0" class="opacity-50 font-semibold leading-snug">1 · Forward pass</div>
+
+<div v-if="$clicks === 0" class="mt-2">
+
+**1 · Forward pass**
+
+$$
+z_j = \textstyle\sum_i W_{ij}\,x_i, \qquad h_j = \text{ReLU}(z_j)
+$$
+
+$$
+z_1 = 0.50\cdot 1.0 + 0.40\cdot 0.5 = 0.70 \;\Rightarrow\; h_1 = 0.70
+$$
+
+$$
+\hat y = \textstyle\sum_j w_j h_j
+$$
+
+$$
+= 0.80\cdot 0.70 - 0.40\cdot 0.10 + 0.30\cdot 0.65 = 0.715
+$$
+
+</div>
+
+<div v-if="$clicks > 1" class="opacity-50 font-semibold leading-snug">2 · Loss</div>
+
+<div v-if="$clicks === 1" class="mt-2">
+
+**2 · Loss**
+
+$$
+L = (y - \hat y)^2 = (1 - 0.715)^2 = 0.081
+$$
+
+$$
+\frac{\partial L}{\partial \hat y} = -2\,(y - \hat y) = -2 \cdot 0.285 = -0.57
+$$
+
+</div>
+
+<div v-if="$clicks > 2" class="opacity-50 font-semibold leading-snug">3a · Backward: output weight <i>w</i><sub>1</sub></div>
+
+<div v-if="$clicks === 2" class="mt-2">
+
+**3a · Backward: output weight $w_1$**
+
+$$
+\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial \hat y}\cdot\frac{\partial \hat y}{\partial w_1}
+$$
+
+$$
+\hat y = w_1 h_1 + w_2 h_2 + w_3 h_3 \;\Rightarrow\; \frac{\partial \hat y}{\partial w_1} = h_1
+$$
+
+$$
+\frac{\partial L}{\partial w_1} = \underbrace{-0.57}_{\partial L/\partial \hat y} \cdot \underbrace{0.70}_{h_1} = -0.40
+$$
+
+</div>
+
+<div v-if="$clicks > 3" class="opacity-50 font-semibold leading-snug">3b · Backward: to hidden neuron <i>h</i><sub>1</sub></div>
+
+<div v-if="$clicks === 3" class="mt-2">
+
+**3b · Backward: to hidden neuron $h_1$**
+
+$$
+\hat y = w_1 h_1 + w_2 h_2 + w_3 h_3 \;\Rightarrow\; \frac{\partial \hat y}{\partial h_1} = w_1
+$$
+
+$$
+\frac{\partial L}{\partial h_1} = \frac{\partial L}{\partial \hat y}\cdot w_1 = \underbrace{-0.57}_{\partial L/\partial \hat y} \cdot \underbrace{0.80}_{w_1} = -0.46
+$$
+
+$$
+\frac{\partial h_1}{\partial z_1} = \text{ReLU}'(z_1) = \begin{cases} 1 & z_1 > 0 \\ 0 & z_1 < 0 \end{cases} = 1 \quad (z_1 = 0.70)
+$$
+
+</div>
+
+<div v-if="$clicks > 4" class="opacity-50 font-semibold leading-snug">3c · Backward: input weight <i>W</i><sub>11</sub></div>
+
+<div v-if="$clicks === 4" class="mt-2">
+
+**3c · Backward: input weight $W_{11}$**
+
+$$
+z_1 = W_{11} x_1 + W_{21} x_2 \;\Rightarrow\; \frac{\partial z_1}{\partial W_{11}} = x_1
+$$
+
+$$
+\frac{\partial L}{\partial W_{11}} = \frac{\partial L}{\partial \hat y}\cdot\frac{\partial \hat y}{\partial h_1}\cdot\frac{\partial h_1}{\partial z_1}\cdot\frac{\partial z_1}{\partial W_{11}}
+$$
+
+$$
+= \underbrace{-0.57 \cdot 0.80}_{\partial L/\partial h_1 \,=\, -0.46} \cdot \underbrace{1}_{\text{ReLU}'} \cdot \underbrace{1.0}_{x_1} = -0.46
+$$
+
+</div>
+
+<div v-if="$clicks > 5" class="opacity-50 font-semibold leading-snug">3d · Backward: all weights</div>
+
+<div v-if="$clicks === 5" class="mt-2">
+
+**3d · Backward: all weights**
+
+$$
+\frac{\partial L}{\partial w_j} = \frac{\partial L}{\partial \hat y}\, h_j, \qquad \frac{\partial L}{\partial z_j} = \frac{\partial L}{\partial \hat y}\, w_j\, \text{ReLU}'(z_j)
+$$
+
+$$
+\frac{\partial L}{\partial W_{ij}} = \frac{\partial L}{\partial z_j}\, x_i
+$$
+
+Each layer reuses the gradient of the layer above.
+
+</div>
+
+<div v-if="$clicks > 6" class="opacity-50 font-semibold leading-snug">4 · Update</div>
+
+<div v-if="$clicks === 6" class="mt-2">
+
+**4 · Update**
+
+$$
+w \leftarrow w - \eta\,\frac{\partial L}{\partial w}, \qquad \eta = 0.1
+$$
+
+$$
+w_1: \; 0.80 - 0.1\cdot(-0.40) = 0.84
+$$
+
+$$
+W_{11}: \; 0.50 - 0.1\cdot(-0.46) = 0.55
+$$
+
+Forward again: $L$: $0.081 \to 0.028$
+
+</div>
+
+</div>
+
+<div class="h-[370px] flex items-center w-full">
+  <BackpropSteps :step="$clicks + 1" />
+</div>
+
+</div>
+
+<div v-click class="hidden" />
+<div v-click class="hidden" />
+<div v-click class="hidden" />
+<div v-click class="hidden" />
+<div v-click class="hidden" />
+<div v-click class="hidden" />
+
 ---
 
-# Backpropagation for Logistic Regression
+# Tricks to Navigate Complex Loss Surfaces
 
 <PartTag part="fitting" />
 
 <div class="mt-2">
-<ChainRuleDiagram :clicks="$clicks" />
-</div>
-
-<div v-click="2" class="text-[.75rem] mt-2">
-<blockquote class="blockquote1">
-For deeper models, the same chain rule is applied layer by layer, from the loss back to the input: <strong>backpropagation</strong>. Gradient descent then uses these gradients to update all weights.
-</blockquote>
+  <NonConvexLossDemo />
 </div>
 
 <!--
-Click 1: local derivatives of each step. Click 2: multiply them -> (p - y) x, the gradient from the BCE slide. Backprop = computing exactly this product efficiently for millions of parameters; frameworks like PyTorch do it automatically (autograd).
+Rugged surface: one global minimum (yellow ring), several local minima, many saddle points. Over 200 random starts: GD reaches the global minimum ~27%, momentum ~53% (rolls over low saddles), Adam ~41%.
+1) Initialisation: click different spots - GD rolls into the nearest valley. "20 random starts" shows the basins of attraction: where you start decides where you end.
+2) Optimizers: GD stops in the first valley; momentum carries speed and can roll over small ridges (try beta 0.9 vs 0.5); RMSProp/Adam normalise the step per weight and move quickly over flat regions and saddles.
+3) Learning rate: too small - very slow; too large - oscillates or jumps between valleys.
+4) Gradient noise (mini-batch SGD): noisy gradients shake the ball out of shallow minima and away from saddles - one reason small batches can generalise well.
+5) Dropout: the loss is a sum of parts (like a network is a sum over neurons); dropout drops random parts at each step and rescales the rest, so every step sees a slightly different surface - noise in the objective, not just in the gradient. Mini-batches do the same: each batch has its own loss surface.
+Real networks: millions of dimensions, saddles are far more common than bad local minima.
 -->
 
 ---
 
-# Backpropagation 1
+# Checklist: Getting a Network to Train
 
 <PartTag part="fitting" />
 
-<img
-  src="./figures/backprop_1.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 1: the network computes a forward pass from input to prediction"
-/>
+<div class="text-[.62rem] ck-table mt-2">
+
+| Do this | Why (loss surface) | PyTorch |
+|---|---|---|
+| **Normalise the inputs** (per band) | round bowl, not a narrow valley | `x = (x - mean) / std` |
+| **Use Adam**, or SGD with momentum | rolls over bumps and saddles | `optim.Adam(model.parameters(), lr=1e-3)` |
+| **Tune the learning rate first** | too high: oscillates, too low: stuck | try `lr` = 1e-2, 1e-3, 1e-4 |
+| **Lower the learning rate later** | explore first, then settle | `lr_scheduler.ReduceLROnPlateau(opt)` |
+| **Train on mini-batches** | noisy gradients escape saddles | `DataLoader(ds, batch_size=64, shuffle=True)` |
+| **Several seeds** or **pretrained weights** | other or better starting points | `torch.manual_seed(1)` |
+| **Regularise** | small weights, robust features | `AdamW(..., weight_decay=1e-4)`, `nn.Dropout(0.2)` |
+| **Plot train and validation loss** | spot divergence and overfitting | stop when validation loss rises |
+| **First overfit one small batch** | loss → 0, otherwise: a bug | train on 10 samples only |
+
+</div>
+
+<style>
+.ck-table table { font-size: .66rem !important; }
+.ck-table td, .ck-table th { padding-top: .2rem !important; padding-bottom: .2rem !important; line-height: 1.25; }
+.ck-table td code { font-size: .55rem; white-space: nowrap; }
+</style>
+
+<!--
+For learning at home: a practical order of things to check when training does not work.
+Start at the bottom when debugging: can the model overfit one batch? Are the loss curves sensible? Then normalise, pick Adam, tune the learning rate.
+Links: normalisation and learning rate - see the demo on the previous slide; weight decay - Occam slide in block 2; pretrained weights - start in a good valley (e.g. remote-sensing foundation models).
+-->
 
 ---
 
-# Backpropagation 2
+# Takeaways - Multi-Layer Perceptrons
 
-<PartTag part="fitting" />
+<div class="mt-2 text-[.74rem] compare-table">
 
-<img
-  src="./figures/backprop_2.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 2: the loss compares the prediction to the true label"
-/>
+| | Linear regression | Logistic regression | Multi-layer perceptron |
+|---|---|---|---|
+| **Model** | $\mathbf W\mathbf x + \mathbf b$ | $\sigma(\mathbf W\mathbf x + \mathbf b)$ | $\text{head}\big(\mathbf W_2\,\text{act}(\mathbf W_1\mathbf x + \mathbf b_1) + \mathbf b_2\big)$ |
+| **Features** | hand-designed | hand-designed | **learned** in the hidden layers |
+| **Typical loss** | MSE | cross-entropy | MSE or cross-entropy |
+| **Finding the weights** | closed form | gradient descent | backpropagation + gradient descent |
 
----
+</div>
 
-# Backpropagation 3
+<blockquote class="blockquote2 mt-3 text-[.76rem]">
+An MLP stacks linear transformations with <strong>non-linear activations</strong>. The hidden layers <strong>bend the feature space</strong> until a simple linear or logistic head is enough &mdash; with enough neurons, any function can be approximated.
+</blockquote>
 
-<PartTag part="fitting" />
+<blockquote v-click class="blockquote4 mt-3 text-[.74rem]">
+<strong>The price:</strong> a rugged, non-convex loss surface. Backpropagation gives all gradients in one sweep; the optimizer, learning rate, initialization and regularization decide where we end up.
+</blockquote>
 
-<img
-  src="./figures/backprop_3.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 3: the gradient of the loss with respect to the output layer is computed"
-/>
+<!--
+Same table as the logistic-regression recap, one column wider.
+Model: the logistic regression from block 2 becomes the head; in front of it, hidden layers W1, act. Head = identity for regression, sigmoid / softmax for classification.
+Features: the decisive change - blocks 1 and 2 worked on fixed, hand-designed features (NDVI, bands); the MLP learns its own representation h.
+Loss: unchanged - MSE for regression, cross-entropy for classification.
+Fitting: no closed form; backpropagation computes the gradients, gradient descent (SGD, Adam) uses them.
+Key ideas of the block: McCulloch-Pitts -> logistic neuron -> stacking; activations bend the space (without them: one linear map); universal approximation; rugged loss surfaces and the training checklist.
+-->
 
----
-
-# Backpropagation 4
-
-<PartTag part="fitting" />
-
-<img
-  src="./figures/backprop_4.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 4: the gradient is propagated backward through the network layer by layer using the chain rule"
-/>
 
 ---
 
-# Backpropagation 5
+# Lecture 4 - Feature Learning
 
-<PartTag part="fitting" />
+## From Linear Models to Multi-Layer Perceptrons
+
+<PartTag part="model" />
 
 <img
-  src="./figures/backprop_5.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 5: each layer's weight gradients are computed from the gradient flowing back from the layer above"
+  src="./figures/feature_learning_simple.svg"
+  class="w-full h-[220px] object-contain"
+  alt="Training data guides a deep learning model to learn feature representations for classification"
 />
+
+
+<div class="grid grid-cols-3 gap-3 mt-4 text-center">
+  <div class="rounded-lg px-3 py-3 text-white" style="background: #ed1c24">
+    <div class="text-[.6rem] font-semibold uppercase tracking-wide">Block 1</div>
+    <div class="mt-1 text-[.82rem] font-semibold">Linear Regression</div>
+  </div>
+  <div class="rounded-lg px-3 py-3 text-white" style="background: #ed1c24">
+    <div class="text-[.6rem] font-semibold uppercase tracking-wide">Block 2</div>
+    <div class="mt-1 text-[.82rem] font-semibold">Logistic Regression</div>
+  </div>
+  <div class="rounded-lg px-3 py-3 text-white" style="background: #ff7900">
+    <div class="text-[.6rem] font-semibold uppercase tracking-wide">Block 3</div>
+    <div class="mt-1 text-[.82rem] font-semibold">Multilayer Perceptrons</div>
+  </div>
+</div>
+
+<!--
+Brief recap of Lecture 3.
+In classic ML, features are hand-designed by domain experts; the model operates on those fixed representations.
+Deep learning replaces hand-crafted features with learned representations — this lecture is about how and why that works.
+-->
+
 
 ---
 
-# Backpropagation 6
-
-<PartTag part="fitting" />
-
-<img
-  src="./figures/backprop_6.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 6: gradients of earlier layers require only the gradient from the previous layer, so no recomputation of later layers is needed"
-/>
-
----
-
-# Backpropagation 7
-
-<PartTag part="fitting" />
-
-<img
-  src="./figures/backprop_7.svg"
-  class="w-full h-[360px] object-contain"
-  alt="Backpropagation step 7: the same computation expressed in code as loss = MSE(y_pred, y), loss.backward(), and optimizer.step()"
-/>
-
----
-
-# Recap: Lecture 4
+# Takeaways - Lecture 4
 
 <div class="grid grid-cols-[1.1fr_1fr] gap-8 mt-3 items-start">
 
@@ -2562,24 +2785,27 @@ Click 1: local derivatives of each step. Click 2: multiply them -> (p - y) x, th
 
 <v-clicks>
 
-- **Block 1:** linear regression fits a line / plane, $\mathbf y = \mathbf X\mathbf w + b$; with MSE it has a closed-form solution
-- **Block 2:** $K$ outputs $\mathbf W\mathbf x + \mathbf b$ + sigmoid / softmax + cross-entropy classify; no closed form, so we use gradient descent
-- **Block 3:** neurons form layers ($M \to N$ maps), layers form networks; non-linear activations make stacking worthwhile and hidden layers learn representations
-- **Backpropagation** computes the gradients layer by layer, **gradient descent** uses them &mdash; the same optimization as for logistic regression
+- **Linear regression:** $\mathbf W\mathbf x + \mathbf b$ predicts values
+- **Logistic regression:** add a sigmoid / softmax to predict classes
+- **MLPs:** stack layers with activations to **learn the features**
+- **Training:** backpropagation computes the gradients, gradient descent uses them
 
 </v-clicks>
+
+<blockquote v-click class="blockquote2 mt-6 text-[.76rem]">
+No more hand-designed features: feed in the <strong>raw data</strong> and let the model learn the most <strong>discriminative features</strong> &mdash; trained <strong>end-to-end</strong>.
+</blockquote>
 
 </div>
 
 <div class="text-[.74rem]">
 
-| | guess | closed form | gradient descent |
+| | brute force | closed form | gradient descent |
 |---|:-:|:-:|:-:|
 | linear regression | ✓ | ✓ | ✓ |
 | logistic regression | ✓ | ✗ | ✓ |
-| MLP / deep networks | ✗ | ✗ | ✓ |
+| MLP | ✗ | ✗ | ✓ |
 
-<div class="text-[.68rem] text-gray-600 mt-2">Which solving tools are applicable.</div>
 
 </div>
 
@@ -2598,185 +2824,3 @@ sectionTitle: Closing
 ---
 
 # Revisit the learning outcomes
-
----
-layout: bonn-section
-sectionColor: "#00457c"
-section: backup
-sectionTitle: "Backup"
----
-
-# Backup Slides
-
-<div class="text-[.9rem] mt-4">Optional material: statistics and details not needed for the main storyline.</div>
-
-<!--
-Moved here in iteration 5 to unload the blocks: advertising data, limits of univariate models, MAE, interpretable coefficients, the argmin slide, linear transformation with bias.
--->
-
----
-
-# A Closer Look at the Data
-
-<div class="text-gray-700">
-
-$\mathcal{D} = \{((x_{1,i}, x_{2,i}, x_{3,i}), y_i)\}_{i=1}^N$
-
-</div>
-
-<img src="./figures/advertisement_vs_sales.png" class="w-full h-[280px] object-contain rounded-xl mt-2" alt="Scatter plots of sales against TV, radio, and newspaper advertising budgets, each with a fitted regression line" />
-
-<div class="grid grid-cols-3 gap-4 mt-1 text-center text-gray-700 text-sm">
-
-<div>
-
-$x_1 \mapsto y$ (TV &rarr; sales)
-
-</div>
-
-<div>
-
-$x_2 \mapsto y$ (radio &rarr; sales)
-
-</div>
-
-<div>
-
-$x_3 \mapsto y$ (newspaper &rarr; sales)
-
-</div>
-
-</div>
-
-<div class="figure-copyright">
-Figure: James, Witten, Hastie &amp; Tibshirani, <a href="https://www.statlearning.com/" target="_blank" rel="noopener noreferrer"><em>An Introduction to Statistical Learning</em></a>, Advertising dataset.
-</div>
-
----
-layout: bonn-two-cols-header
----
-
-# Limits of Univariate Models
-
-Some relationships are well-described by a single variable &mdash; most are not.
-
-::left::
-
-<div class="text-center text-sm font-semibold text-blue-800 mb-2">Roughly linear</div>
-
-<div class="flex items-center justify-center gap-2">
-<img src="./figures/dem.png" class="h-[130px] object-contain rounded-xl" alt="Digital elevation model" />
-<div class="text-lg text-blue-800">&rarr;</div>
-<img src="./figures/tave.png" class="h-[130px] object-contain rounded-xl" alt="Average temperature raster" />
-</div>
-
-<div class="mt-3 text-center text-gray-700 text-sm">
-
-elevation &rarr; average temperature, roughly $-0.006\frac{\text{°C}}{\text{m}}$
-
-</div>
-
-::right::
-
-<div class="text-center text-sm font-semibold text-blue-800 mb-2">Clearly non-linear</div>
-
-<div class="flex items-center justify-center gap-2">
-<img src="./figures/dem.png" class="h-[130px] object-contain rounded-xl" alt="Digital elevation model" />
-<div class="text-lg text-blue-800">?</div>
-<img src="./figures/st.png" class="h-[130px] object-contain rounded-xl" alt="Surface temperature raster with local hot and cold spots" />
-</div>
-
-<div class="mt-3 text-center text-gray-700 text-sm">
-elevation &rarr; surface temperature &mdash; shading, wind, and local terrain also matter
-</div>
-
----
-
-# Mean Absolute Error (MAE)
-
-<div class="grid grid-cols-2 gap-8 mt-6 items-center">
-
-<div class="flex justify-center">
-<RegressionScatterDemo variant="residual-segments" x-label="x" y-label="y" />
-</div>
-
-<div>
-
-$$
-\text{MAE}(\mathcal{D}; w, b) = \frac{1}{N} \sum_{i=1}^N \vert \hat{y}_i - y_i \vert
-$$
-
-over model parameters $w, b$ with $\hat{y}_i = f(x_i; w, b)$ and dataset $\mathcal{D} = \{x_i, y_i\}_{i=1}^N$
-
-<blockquote class="blockquote1 mt-3">
-Very intuitive &mdash; but does not punish large errors.
-</blockquote>
-
-</div>
-
-</div>
-
----
-
-# Interpretable Coefficients
-
-<div class="grid grid-cols-2 gap-8 mt-4 items-center">
-
-<div class="flex justify-center">
-<FeatureTargetDiagram
-  :features="[
-    { label: 'elevation', symbol: 'x₁', width: 5 },
-    { label: 'slope', symbol: 'x₂', width: 4 },
-    { label: 'aspect', symbol: 'x₃', width: 2.5 },
-  ]"
-  target="surface temperature"
-  target-symbol="y"
-/>
-</div>
-
-<div>
-<img src="./figures/coefficients.png" class="w-full max-h-[200px] object-contain rounded-xl" alt="Fitted coefficients table: y-intercept and one weight per terrain feature" />
-
-<div class="mt-3 text-gray-700 text-sm">
-
-Each weight $\hat w_j$ tells us how $\hat{y}$ changes per unit of $x_j$, holding the other features fixed (the printout calls them beta; beta 0 is the bias $b$).
-
-</div>
-
-<blockquote class="blockquote1 mt-2">
-Caveat: coefficients are only directly comparable across features when the features share units &mdash; or are normalized.
-</blockquote>
-
-</div>
-
-</div>
-
-<div class="figure-copyright">
-Figure: M. Rußwurm &amp; D. Tuia, <em>Linear Regression</em>, ENV-408 course materials, EPFL, 2023.
-</div>
-
----
-
-# Linear Transformation with Bias
-
-<div class="text-[.78rem]">
-
-$\hat{\mathbf y} = \mathbf W \mathbf x + \mathbf b$: the bias is the extra constant input $1$ &mdash; the same trick as the column of ones in $\mathbf X$.
-
-</div>
-
-<img
-  src="./figures/linear_transformation_bias.svg"
-  class="w-full h-[300px] object-contain"
-  alt="An input vector is multiplied by a weight matrix to produce an output vector; GPU cores accelerate this computation through parallel processing"
-/>
-
----
-
-# The Learning Objective: argmin
-
-<img
-  src="./figures/argmin.svg"
-  class="w-full h-[360px] object-contain"
-  alt="An input tensor passes through the model to produce a predicted tensor, which is compared to the target to compute an error or loss; training finds the model that minimizes this loss (argmin)"
-/>

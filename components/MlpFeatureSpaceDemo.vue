@@ -5,7 +5,47 @@ import * as tf from '@tensorflow/tfjs'
 
 const active = useIsSlideActive()
 const canvas = ref(null)
+// The architecture is written as a PyTorch nn.Sequential; every nn.Linear except the last is a hidden block,
+// an activation module after it sets that block's activation. The last nn.Linear must output 2 logits.
+const DEFAULT_CODE = `model = nn.Sequential(
+    nn.Linear(2, 6),
+    nn.Tanh(),
+    nn.Linear(6, 2),
+    nn.Tanh(),
+    nn.Linear(2, 2),
+)`
+const code = ref(DEFAULT_CODE)
+const codeError = ref('')
 const blocks = ref([{ width: 6, activation: 'tanh' }, { width: 2, activation: 'tanh' }])
+function parseCode(text) {
+  const linears = []
+  const re = /nn\.Linear\s*\(\s*(\d+)\s*,\s*(\d+)[^)]*\)|(?:nn\.)?(Tanh|ReLU|Sigmoid|Identity|GELU|LeakyReLU|Sine)\s*\([^)]*\)/g
+  for (const m of text.matchAll(re)) {
+    if (m[1]) linears.push({ fin: Number(m[1]), width: Number(m[2]), activation: 'linear' })
+    else if (linears.length) linears[linears.length - 1].activation = m[3] === 'Identity' ? 'linear' : m[3] === 'LeakyReLU' ? 'leaky' : m[3].toLowerCase()
+  }
+  if (!linears.length) return { error: 'Write at least one nn.Linear.' }
+  if (linears[0].fin !== 2) return { error: `The first nn.Linear needs 2 inputs (x₁, x₂), not ${linears[0].fin}.` }
+  for (let i = 1; i < linears.length; i++)
+    if (linears[i].fin !== linears[i - 1].width) return { error: `nn.Linear(${linears[i].fin}, ${linears[i].width}) expects ${linears[i].fin} inputs, but the previous layer has ${linears[i - 1].width}.` }
+  const out = linears[linears.length - 1]
+  if (out.width !== 2) return { error: `The last nn.Linear must output 2 logits (classes A, B), not ${out.width}.` }
+  if (out.activation !== 'linear') return { error: 'Leave the last nn.Linear without activation: it outputs logits for softmax.' }
+  const hidden = linears.slice(0, -1)
+  if (hidden.length > 4) return { error: 'At most 4 hidden layers in this demo.' }
+  if (hidden.some(b => b.width < 1 || b.width > 16)) return { error: 'Hidden layers need 1 to 16 neurons in this demo.' }
+  return { blocks: hidden.map(b => ({ width: b.width, activation: b.activation })) }
+}
+let codeTimer = 0
+watch(code, () => {
+  clearTimeout(codeTimer)
+  codeTimer = setTimeout(() => {
+    const r = parseCode(code.value)
+    codeError.value = r.error || ''
+    if (r.blocks && JSON.stringify(r.blocks) !== JSON.stringify(blocks.value)) { blocks.value = r.blocks; rebuild() }
+  }, 350)
+})
+function resetCode() { code.value = DEFAULT_CODE }
 const selected = ref(0), pairIndex = ref(0), preset = ref('Circle')
 const running = ref(false), ready = ref(false), step = ref(0), loss = ref(0), rate = ref(0.03)
 const inspected = ref(null), revision = ref(0), error = ref('')
@@ -15,7 +55,7 @@ const grid = Array.from({ length: N * N }, (_, i) => [-1.5 + 3 * (i % N) / (N - 
 let bounds = { x: -1.7, y: -1.7, scale: 80 }
 const stages = computed(() => [
   { label: 'Input', width: 2 },
-  ...blocks.value.flatMap((b, i) => [{ label: `Dense ${i + 1}`, width: b.width }, { label: `${b.activation} ${i + 1}`, width: b.width }]),
+  ...blocks.value.flatMap((b, i) => [{ label: `Linear ${i + 1}`, width: b.width }, { label: `${b.activation} ${i + 1}`, width: b.width }]),
   { label: 'Output logits', width: 2 },
 ])
 const stage = computed(() => stages.value[selected.value] || stages.value[0])
@@ -44,13 +84,15 @@ function makeData(name) {
   })
   rebuild()
 }
+// GELU (tanh approximation, as in PyTorch's approximate='tanh')
+function gelu(x) { return x.mul(0.5).mul(x.add(x.pow(3).mul(0.044715)).mul(Math.sqrt(2 / Math.PI)).tanh().add(1)) }
 // Every selectable stage is retained; logits and probabilities stay separate.
 function forward(input) {
   let h = input
   const stages = [h]
   blocks.value.forEach((b, i) => {
     h = h.matMul(weights[i].w).add(weights[i].b); stages.push(h)
-    h = b.activation === 'tanh' ? h.tanh() : b.activation === 'relu' ? h.relu() : h.clone(); stages.push(h)
+    h = b.activation === 'tanh' ? h.tanh() : b.activation === 'relu' ? h.relu() : b.activation === 'sigmoid' ? h.sigmoid() : b.activation === 'leaky' ? tf.leakyRelu(h, 0.1) : b.activation === 'gelu' ? gelu(h) : b.activation === 'sine' ? h.sin() : h.clone(); stages.push(h)
   })
   const out = weights[weights.length - 1]
   const logits = h.matMul(out.w).add(out.b)
@@ -99,9 +141,6 @@ watch([running, active], () => { cancelAnimationFrame(frame); if (running.value 
 watch(rate, () => { if (optimizer) { optimizer.dispose(); optimizer = tf.train.adam(Number(rate.value)) } })
 function select(i) { selected.value = i; pairIndex.value = 0; draw() }
 function cycle() { pairIndex.value = (pairIndex.value + 1) % pairs.value.length; draw() }
-function edit(i, delta) { blocks.value[i].width += delta; rebuild() }
-function addBlock() { blocks.value.push({ width: 2, activation: 'tanh' }); rebuild() }
-function removeBlock(i) { blocks.value.splice(i, 1); rebuild() }
 function xy(v) { return [pad + (v[pair.value[0]] - bounds.x) * bounds.scale, H - pad - (v[pair.value[1]] - bounds.y) * bounds.scale] }
 function draw() {
   const ctx = canvas.value?.getContext('2d'), data = values[selected.value]
@@ -156,30 +195,24 @@ onMounted(async () => {
   try { await tf.ready(); if (disposed) return; ready.value = true; makeData('Circle') }
   catch (e) { error.value = 'Unable to initialize training. Reload this slide.'; console.error(e) }
 })
-onBeforeUnmount(() => { disposed = true; cancelAnimationFrame(frame); release(); values = []; probabilities = [] })
+onBeforeUnmount(() => { disposed = true; clearTimeout(codeTimer); cancelAnimationFrame(frame); release(); values = []; probabilities = [] })
 // Read-only diagnostics for browser regression checks, never shown in the slide.
 defineExpose({ diagnostics: () => ({ tensors: tf.memory().numTensors, step: step.value, loss: loss.value, samples: samples.length, stages: values.length, inspected: inspected.value, running: running.value, active: active.value, values: values.map(s => s.slice(0, samples.length)), probabilities: probabilities.slice(0, samples.length) }) })
 </script>
 
 <template>
-  <div class="mlp-demo" @click.stop @dblclick.stop @pointerdown.stop @keydown="e => { if (['INPUT','SELECT','BUTTON'].includes(e.target.tagName)) e.stopPropagation() }">
+  <div class="mlp-demo" @click.stop @dblclick.stop @pointerdown.stop @keydown="e => { if (['INPUT','SELECT','BUTTON','TEXTAREA'].includes(e.target.tagName)) e.stopPropagation() }">
     <div class="controls">
       <div class="row presets"><button v-for="name in ['Circle', 'XOR', 'Two clusters']" :key="name" :class="{ chosen: preset === name }" @click="makeData(name)">{{ name }}</button></div>
       <div class="row"><button class="primary" :disabled="!ready" @click="running = !running">{{ running ? 'Pause' : 'Train' }}</button><button :disabled="!ready" @click="singleStep">Step</button><button :disabled="!ready" @click="rebuild">Reset model</button></div>
       <div class="row metrics"><label>Rate <select v-model="rate" aria-label="Learning rate"><option :value="0.01">0.01</option><option :value="0.03">0.03</option><option :value="0.1">0.1</option></select></label><span>Step {{ step }} · loss {{ loss.toFixed(3) }}</span></div>
-      <div class="layers">
-        <button class="layer" :class="{ chosen: selected === 0 }" @click="select(0)">Input (2)</button>
-        <template v-for="(block, i) in blocks" :key="i">
-          <div class="layer-row" :class="{ chosen: selected === 1 + i * 2 }">
-            <button class="layer-label" @click="select(1 + i * 2)">Dense {{ i + 1 }} ({{ block.width }})</button>
-            <button :disabled="block.width <= 2" :aria-label="`Narrow layer ${i+1}`" @click="edit(i,-1)">−</button><button :disabled="block.width >= 12" :aria-label="`Widen layer ${i+1}`" @click="edit(i,1)">+</button><button :disabled="blocks.length <= 1" :aria-label="`Remove block ${i+1}`" @click="removeBlock(i)">×</button>
-          </div>
-          <div class="layer-row" :class="{ chosen: selected === 2 + i * 2 }"><button class="layer-label" @click="select(2 + i * 2)">{{ block.activation }} {{ i + 1 }} ({{ block.width }})</button><select v-model="block.activation" :aria-label="`Activation ${i+1}`" @change="rebuild"><option>tanh</option><option value="relu">ReLU</option><option>linear</option></select></div>
-        </template>
-        <button class="layer" :class="{ chosen: selected === stages.length - 1 }" @click="select(stages.length - 1)">Output (2 logits) → softmax</button>
+      <div class="code-head"><span>PyTorch model (edit me)</span><button @click="resetCode">reset</button></div>
+      <textarea v-model="code" class="code" spellcheck="false" autocapitalize="off" autocomplete="off" rows="8" aria-label="PyTorch model definition" />
+      <div v-if="codeError" class="code-error">{{ codeError }}</div>
+      <div class="note">Show layer:</div>
+      <div class="chips">
+        <button v-for="(st, i) in stages" :key="i" :class="{ chosen: selected === i }" @click="select(i)">{{ i === 0 ? 'input' : i === stages.length - 1 ? 'logits' : st.label }}</button>
       </div>
-      <button :disabled="blocks.length >= 3" @click="addBlock">+ Hidden block</button>
-      <div class="note">Edits rebuild with fixed seed. Reset keeps data.<br>Preset buttons restore the original data.</div>
     </div>
     <div class="visual">
       <div class="plot-heading"><strong>{{ caption }}</strong><button :disabled="pairs.length === 1" @click="cycle">Cycle pair</button></div>
@@ -203,11 +236,13 @@ button:disabled { opacity: .4; cursor: default; }
 .presets button { flex: 1; padding-inline: 4px; }
 .metrics { justify-content: space-between; font-size: 11px; }
 .metrics select { padding: 1px; min-height: 23px; }
-.layers { display: grid; gap: 2px; margin: 5px 0 5px; }
-.layer { min-height: 22px; padding-block: 2px; text-align: left; padding-left: 9px; }
-.layer-row { display: flex; border: 1px solid #cbd5dd; border-radius: 3px; min-height: 22px; align-items: center; }
-.layer-row button, .layer-row select { border: 0; background: transparent; min-height: 20px; padding: 1px 6px; }
-.layer-label { flex: 1; text-align: left; }
+.code-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #5f625f; font-weight: 600; margin-top: 2px; }
+.code-head button { min-height: 20px; padding: 0 6px; font-size: 10px; }
+textarea.code { width: 100%; resize: none; margin-top: 2px; border: 1px solid #cbd5dd !important; border-radius: 4px; padding: 5px 7px !important; background: #f6f8fa !important; color: #1f2328; font: 11px/1.35 ui-monospace, "Fira Code", Menlo, monospace; outline: none; }
+textarea.code:focus { border-color: #00457c !important; }
+.code-error { font-size: 10px; color: #d33748; line-height: 1.2; margin-top: 1px; }
+.chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 2px; }
+.chips button { min-height: 20px; padding: 1px 6px; font-size: 10.5px; }
 .plot-heading { display: flex; justify-content: space-between; align-items: center; height: 29px; gap: 5px; color: #00457c; }
 .plot-heading strong { font-size: 12px; }
 .plot-heading button { white-space: nowrap; font-size: 11px; }
