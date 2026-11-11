@@ -74,7 +74,7 @@ Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 
 # Timeline at a Glance
 
-<p class="course-meeting-times"><strong>Fridays:</strong> Lectures 10:00–12:00 in HS VIII (Meckenheimer Allee 172)*<br>Labs 13:00–15:00 in Seminarraum 2.003 (Nußallee 1)<br><small>* Lecture 2 on October 30 is in HS IX (same floor).</small></p>
+<p class="course-meeting-times"><strong>Fridays:</strong> Lectures 10:00–12:00 in HS VIII (Meckenheimer Allee 172)*<br>Labs 13:00–15:00 in Seminarraum 2.003 (Nußallee 1)<br><small>* Lectures 2 (October 30) and 7 (December 11) are in HS IX (same floor).</small></p>
 
 <div class="course-gantt">
 
@@ -100,7 +100,8 @@ Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 <div class="course-gantt-cancelled" style="grid-column: 7;">No class</div>
 <CourseResource resource="lecture-5" href="./5-deep-representation-learning-i/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 8;" title="Lecture 5">L5</CourseResource>
 <CourseResource resource="lecture-6" href="./6-deep-representation-learning-ii/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 9;" title="Lecture 6">L6</CourseResource>
-<CourseResource resource="lecture-7" href="./7-earth-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 10;" title="Lecture 7">L7</CourseResource>
+<CourseResource resource="lecture-7" href="./7-earth-embeddings/" class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 10;" title="Lecture 7 — December 11, HS IX (same floor)">L7*</CourseResource>
+<div class="course-gantt-bar course-gantt-event phase-1" style="grid-column: 11;" title="Guest Lecture Frank Feng (Tessera) — December 18, 10:00–12:00">Guest</div>
 </div>
 
 <div class="course-gantt-grid course-gantt-row">
@@ -160,7 +161,7 @@ Mobile Robotics, Geodesy and Geoinformation & Geodetic Engineering
 **10:00–12:00 (s.t.)**
 
 HS VIII (Meckenheimer Allee 172)\
-<small>Lecture 2 on October 30: HS IX (same floor).</small>
+<small>Lectures 2 (October 30) and 7 (December 11): HS IX (same floor).</small>
 
 Presentation slides introduce the core concepts, terminology, and research context.
 
@@ -256,6 +257,47 @@ Practical: Supervised Deep Learning
 </div>
 
 
+
+---
+
+# Guest Lecture: Frank Feng on TESSERA
+
+<p class="course-meeting-times"><strong>December 18, 10:00–12:00</strong> in HS VIII (lecture slot)</p>
+
+<div class="grid grid-cols-[1fr_1.15fr] gap-8 mt-4 items-start">
+
+<div>
+<div class="flex items-center gap-4 mb-3">
+<img src="/images/guest-frank-feng.png" alt="Zhengpeng (Frank) Feng" class="w-20 h-20 rounded-full object-cover" />
+<div class="text-xs leading-snug">
+<strong class="text-sm">Zhengpeng (Frank) Feng</strong><br>
+PhD student, Energy and Environment Group<br>
+Computer Science, University of Cambridge
+</div>
+</div>
+
+<div class="text-xs">
+
+**TESSERA**: *Temporal Embeddings of Surface Spectra for Earth Representation and Analysis* (CVPR 2026)
+
+- Self-supervised foundation model that encodes Sentinel-1/2 **time series** per pixel
+- Open, precomputed **global embeddings at 10 m**, annually 2017–2025
+- Request a bounding box via **GeoTessera**, then train lightweight models on the embeddings
+- TESSERA v2: scaling study and distilled Matryoshka embeddings
+
+</div>
+
+<div class="text-[.6rem] mt-2 text-gray-500">
+<a href="https://geotessera.org/">geotessera.org</a> · <a href="https://arxiv.org/abs/2506.20380">arXiv:2506.20380</a> · <a href="https://frankfeng-23.github.io/">frankfeng-23.github.io</a>
+</div>
+</div>
+
+<figure class="m-0">
+<img src="/images/tessera.png" alt="TESSERA workflow: request a bounding box via GeoTessera, download embeddings, apply a model zoo; global embedding map for 2024 and benchmark radar chart" class="max-h-[18rem] mx-auto" />
+<figcaption class="text-[.55rem] text-gray-500 text-center">Figure: Feng et al., TESSERA (CVPR 2026)</figcaption>
+</figure>
+
+</div>
 
 ---
 layout: bonn-two-cols-header

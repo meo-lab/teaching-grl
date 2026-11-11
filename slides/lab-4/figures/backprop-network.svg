@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 225" role="img" aria-labelledby="title description">
+  <title id="title">Lab 4 neural network</title>
+  <desc id="description">Two inputs feed two ReLU units. Input x1 has value 1 and connects to h1 with weight 0.5 and to h2 with weight 1. Input x2 has value 2 and connects to h1 with weight minus 0.5 and to h2 with weight 0.5. The hidden biases are 0 and minus 1. The sigmoid output has weights 1 and minus 1.5 and bias 0.5. Red marks features and forward values, purple marks weights and biases, and blue marks gradients in the expert diagrams.</desc>
+  <style>
+    text { font-family: system-ui, sans-serif; text-anchor: middle; }
+    .symbol { font: italic 18px serif; }
+    .caption { font-size: 13px; font-weight: 700; }
+    .feature { fill: #b42318; }
+    .bias, .weight { fill: #6e2692; }
+    .bias, .input-value { font-size: 13px; }
+    .legend text { font-size: 12px; font-weight: 600; text-anchor: start; }
+    .weight { font-size: 14px; paint-order: stroke; stroke: white; stroke-width: 5px; stroke-linejoin: round; }
+  </style>
+
+  <g class="legend">
+    <g class="feature">
+      <circle cx="40" cy="13" r="5"/>
+      <text x="50" y="17">Features &amp; forward values</text>
+    </g>
+    <g fill="#6e2692">
+      <circle cx="223" cy="13" r="5"/>
+      <text x="233" y="17">Weights &amp; biases</text>
+    </g>
+    <g fill="#0059b3">
+      <circle cx="355" cy="13" r="5"/>
+      <text x="365" y="17">Gradients</text>
+    </g>
+  </g>
+
+  <g fill="none" stroke="#6e2692" stroke-width="2.5" stroke-opacity=".95">
+    <path d="M82 65H197 M82 65L197 157 M82 157L197 65 M82 157H197"/>
+    <path d="M239 65L357 111 M239 157L357 111"/>
+  </g>
+  <g class="weight">
+    <text x="139" y="58">0.5</text>
+    <text x="116" y="96">1</text>
+    <text x="116" y="135">−0.5</text>
+    <text x="139" y="174">0.5</text>
+    <text x="302" y="80">1</text>
+    <text x="302" y="149">−1.5</text>
+  </g>
+
+  <g fill="#fff0ee" stroke="#b42318" stroke-width="3">
+    <circle cx="61" cy="65" r="21"/>
+    <circle cx="61" cy="157" r="21"/>
+  </g>
+  <g fill="#b42318">
+    <text class="symbol" x="61" y="71">x₁</text>
+    <text class="symbol" x="61" y="163">x₂</text>
+    <text class="caption" x="61" y="218">Input</text>
+  </g>
+  <g class="feature input-value">
+    <text x="28" y="70">1</text>
+    <text x="28" y="162">2</text>
+  </g>
+
+  <g fill="#fff0ee" stroke="#b42318" stroke-width="3">
+    <circle cx="218" cy="65" r="21"/>
+    <circle cx="218" cy="157" r="21"/>
+  </g>
+  <path d="M207 70H218L229 58 M207 162H218L229 150" fill="none" stroke="#b42318" stroke-width="2.2"/>
+  <g class="feature">
+    <text class="symbol" x="248" y="49">h₁</text>
+    <text class="symbol" x="248" y="180">h₂</text>
+    <text class="caption" x="218" y="218">Hidden · ReLU</text>
+  </g>
+  <g class="bias">
+    <text x="218" y="104">bias 0</text>
+    <text x="218" y="196">bias −1</text>
+  </g>
+
+  <circle cx="378" cy="111" r="21" fill="#fff0ee" stroke="#b42318" stroke-width="3"/>
+  <path d="M367 117C376 117 380 105 389 105" fill="none" stroke="#b42318" stroke-width="2.2"/>
+  <g class="feature">
+    <text class="symbol" x="407" y="95">p</text>
+    <text class="caption" x="378" y="218">Output · Sigmoid</text>
+  </g>
+  <text class="bias" x="378" y="150">bias 0.5</text>
+</svg>

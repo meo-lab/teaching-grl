@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 298" role="img" aria-labelledby="title description">
+  <title id="title">Full Lab 4 network and gradient map</title>
+  <desc id="description">Two inputs connect to two hidden weighted sums, each followed by ReLU. The two hidden activations connect to an output logit, followed by a sigmoid and a loss that also receives the target. Every weight and bias is labeled with its starting value. Blue labels show the loss gradients and local derivatives.</desc>
+
+  <style>
+    text { font-family: system-ui, sans-serif; text-anchor: middle; }
+    .forward { fill: #b42318; }
+    .parameter { fill: #6e2692; }
+    .gradient { fill: #0059b3; }
+    .heading { fill: #334155; font-size: 14px; font-weight: 600; }
+    .legend text { font-size: 15px; font-weight: 600; text-anchor: start; }
+    .node { fill: #fff0ee; stroke: #b42318; stroke-width: 2; }
+    .value { font: italic 21px serif; }
+    .edge-label { font-size: 16px; paint-order: stroke; stroke: white; stroke-width: 6px; stroke-linejoin: round; }
+    .derivative { font-size: 15px; }
+    .edge { fill: none; stroke-width: 2.1; }
+  </style>
+
+  <defs>
+    <marker id="parameter-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0L8 4L0 8Z" fill="#6e2692"/>
+    </marker>
+    <marker id="forward-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0L8 4L0 8Z" fill="#b42318"/>
+    </marker>
+    <marker id="gradient-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M0 0L8 4L0 8Z" fill="#0059b3"/>
+    </marker>
+  </defs>
+
+  <g class="legend">
+    <g class="forward"><circle cx="188" cy="13" r="5"/><text x="201" y="18">Features &amp; forward values</text></g>
+    <g class="parameter"><circle cx="447" cy="13" r="5"/><text x="460" y="18">Weights &amp; biases</text></g>
+    <g class="gradient"><circle cx="644" cy="13" r="5"/><text x="657" y="18">Gradients &amp; derivatives</text></g>
+  </g>
+
+  <g class="heading">
+    <text x="54" y="56">Input features</text>
+    <text x="305" y="56">Hidden pre-activations</text>
+    <text x="465" y="56">Hidden activations</text>
+    <text x="665" y="56">Output logit</text>
+    <text x="789" y="56">Prediction</text>
+    <text x="893" y="56">Target</text>
+  </g>
+
+  <g class="edge" stroke="#6e2692" marker-end="url(#parameter-arrow)">
+    <path d="M94 104H276"/>
+    <path d="M89 117L280 211"/>
+    <path d="M89 211L280 117"/>
+    <path d="M94 224H276"/>
+    <path d="M492 104L638 155"/>
+    <path d="M492 224L638 173"/>
+  </g>
+  <g class="edge" stroke="#b42318" marker-end="url(#forward-arrow)">
+    <path d="M334 104H437"/>
+    <path d="M334 224H437"/>
+    <path d="M692 164H762"/>
+    <path d="M815 164H867"/>
+    <path d="M893 109V138"/>
+  </g>
+
+  <g class="parameter edge-label">
+    <text x="180" y="96">W₁[1,1] = 0.5</text>
+    <text x="156" y="136">W₁[2,1] = 1</text>
+    <text x="156" y="194">W₁[1,2] = −0.5</text>
+    <text x="180" y="242">W₁[2,2] = 0.5</text>
+    <text x="305" y="75">b₁[1] = 0</text>
+    <text x="305" y="195">b₁[2] = −1</text>
+    <text x="567" y="119">w₂[1] = 1</text>
+    <text x="567" y="221">w₂[2] = −1.5</text>
+    <text x="665" y="130">b₂ = 0.5</text>
+  </g>
+
+  <g class="forward">
+    <g class="node">
+      <rect x="15" y="82" width="79" height="44" rx="22"/>
+      <rect x="15" y="202" width="79" height="44" rx="22"/>
+      <circle cx="305" cy="104" r="28"/>
+      <circle cx="305" cy="224" r="28"/>
+      <circle cx="465" cy="104" r="27"/>
+      <circle cx="465" cy="224" r="27"/>
+      <circle cx="665" cy="164" r="26"/>
+      <circle cx="789" cy="164" r="26"/>
+      <rect x="860" y="68" width="66" height="41" rx="20"/>
+      <circle cx="893" cy="164" r="25"/>
+    </g>
+    <g class="value">
+      <text x="54" y="111">x₁ = 1</text>
+      <text x="54" y="231">x₂ = 2</text>
+      <text x="305" y="111">z₁,₁</text>
+      <text x="305" y="231">z₁,₂</text>
+      <text x="465" y="111">h₁</text>
+      <text x="465" y="231">h₂</text>
+      <text x="665" y="171">z₂</text>
+      <text x="789" y="171">p</text>
+      <text x="893" y="95">y = 1</text>
+      <text x="893" y="171">L</text>
+    </g>
+    <text x="386" y="96" class="edge-label">ReLU</text>
+    <text x="386" y="216" class="edge-label">ReLU</text>
+    <text x="727" y="154" class="edge-label">Sigmoid</text>
+    <text x="842" y="154" class="edge-label">BCE</text>
+  </g>
+
+  <g class="gradient derivative">
+    <text x="305" y="151">∂L/∂z₁,₁</text>
+    <text x="305" y="271">∂L/∂z₁,₂</text>
+    <text x="386" y="126">∂h₁/∂z₁,₁</text>
+    <text x="386" y="246">∂h₂/∂z₁,₂</text>
+    <text x="465" y="151">∂L/∂h₁</text>
+    <text x="465" y="271">∂L/∂h₂</text>
+    <text x="665" y="209">∂L/∂z₂</text>
+    <text x="727" y="185">dp/dz₂</text>
+    <text x="789" y="209">∂L/∂p</text>
+  </g>
+
+  <g class="gradient">
+    <path d="M893 288H15" fill="none" stroke="#0059b3" stroke-width="1.8" marker-end="url(#gradient-arrow)"/>
+    <text x="452" y="293" class="edge-label">Backpropagation from the loss</text>
+  </g>
+</svg>

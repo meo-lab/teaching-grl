@@ -10,5 +10,5 @@ export default {
   'lab-1': true,
   'lab-2': true,
   'lab-3': true,
-  'lab-4': false,
+  'lab-4': true,
 }
